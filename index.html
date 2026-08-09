@@ -6,110 +6,797 @@
 
 <title>RobaMusic – Magyar zenei kvíz</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
-body{
-    font-family:'Montserrat',sans-serif;
-    background:linear-gradient(135deg,#0f172a,#1e293b);
-    color:white;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
-.container{
-    width:90%;
-    max-width:420px;
-    text-align:center;
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at top, #1e3a5f 0%, #0f172a 45%, #020617 100%);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
 }
-.logo{
-    font-size:42px;
-    font-weight:800;
-    color:#22c55e;
+
+.game {
+    width: 100%;
+    max-width: 500px;
 }
-.subtitle{
-    color:#cbd5e1;
-    margin-bottom:40px;
+
+/* ---------- KÖZÖS ---------- */
+
+.screen {
+    display: none;
+    text-align: center;
 }
-h1{
-    font-size:32px;
-    margin-bottom:15px;
+
+.screen.active {
+    display: block;
 }
-p{
-    color:#cbd5e1;
-    margin-bottom:35px;
-    line-height:1.5;
+
+.card {
+    background: rgba(15, 23, 42, 0.88);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 30px 25px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
 }
-.btn{
-    display:block;
-    width:100%;
-    padding:18px;
-    margin:12px 0;
-    border:none;
-    border-radius:16px;
-    font-size:18px;
-    font-weight:700;
-    cursor:pointer;
-    transition:.2s;
+
+/* ---------- KEZDŐKÉPERNYŐ ---------- */
+
+.logo {
+    font-size: 44px;
+    font-weight: 800;
+    color: #22c55e;
+    letter-spacing: -2px;
 }
-.play{
-    background:#22c55e;
-    color:#052e16;
+
+.logo-icon {
+    font-size: 42px;
 }
-.play:hover{
-    transform:scale(1.03);
+
+.tagline {
+    color: #94a3b8;
+    margin-top: 5px;
+    margin-bottom: 40px;
 }
-.secondary{
-    background:#334155;
-    color:white;
+
+.home-title {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 15px;
 }
-.footer{
-    margin-top:35px;
-    font-size:13px;
-    color:#64748b;
+
+.description {
+    color: #cbd5e1;
+    line-height: 1.6;
+    margin-bottom: 35px;
 }
+
+/* ---------- GOMBOK ---------- */
+
+.btn {
+    width: 100%;
+    padding: 17px;
+    border: none;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: 0.2s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn-primary {
+    background: #22c55e;
+    color: #052e16;
+}
+
+.btn-secondary {
+    background: #334155;
+    color: white;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: white;
+}
+
+/* ---------- JÁTÉK ---------- */
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.question-number {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.score {
+    font-weight: 800;
+    color: #22c55e;
+}
+
+.music-box {
+    background: linear-gradient(135deg, #14532d, #166534);
+    border-radius: 20px;
+    padding: 30px 20px;
+    margin-bottom: 25px;
+}
+
+.music-icon {
+    font-size: 60px;
+    margin-bottom: 15px;
+}
+
+.music-title {
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.music-info {
+    color: #bbf7d0;
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+.timer-container {
+    margin: 20px 0;
+}
+
+.timer-text {
+    font-size: 28px;
+    font-weight: 800;
+    color: #facc15;
+    margin-bottom: 8px;
+}
+
+.timer-bar {
+    width: 100%;
+    height: 7px;
+    background: #334155;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.timer-progress {
+    height: 100%;
+    width: 100%;
+    background: #22c55e;
+    transition: width 1s linear;
+}
+
+.question {
+    font-size: 21px;
+    font-weight: 700;
+    margin: 25px 0 20px;
+}
+
+.year-display {
+    font-size: 42px;
+    font-weight: 800;
+    color: #22c55e;
+    margin-bottom: 15px;
+}
+
+.year-slider {
+    width: 100%;
+    cursor: pointer;
+    accent-color: #22c55e;
+}
+
+.year-range {
+    display: flex;
+    justify-content: space-between;
+    color: #64748b;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* ---------- EREDMÉNY ---------- */
+
+.result-icon {
+    font-size: 70px;
+    margin-bottom: 15px;
+}
+
+.result-title {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 15px;
+}
+
+.final-score {
+    font-size: 55px;
+    font-weight: 800;
+    color: #22c55e;
+    margin: 20px 0;
+}
+
+.result-message {
+    color: #cbd5e1;
+    line-height: 1.6;
+}
+
+/* ---------- VISSZAJELZÉS ---------- */
+
+.feedback {
+    margin-top: 20px;
+    padding: 18px;
+    border-radius: 15px;
+    font-weight: 600;
+    display: none;
+}
+
+.feedback.correct {
+    display: block;
+    background: rgba(34,197,94,0.15);
+    border: 1px solid #22c55e;
+    color: #86efac;
+}
+
+.feedback.wrong {
+    display: block;
+    background: rgba(239,68,68,0.15);
+    border: 1px solid #ef4444;
+    color: #fca5a5;
+}
+
+.footer {
+    margin-top: 25px;
+    color: #475569;
+    font-size: 12px;
+}
+
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="game">
 
-<div class="logo">🎵 ROBA MUSIC</div>
-<div class="subtitle">Magyar zenei kvíz</div>
+    <!-- ========================= -->
+    <!-- KEZDŐKÉPERNYŐ -->
+    <!-- ========================= -->
 
-<h1>Találd ki a dalt!</h1>
+    <section id="homeScreen" class="screen active">
 
-<p>
-Hallgasd meg a dalrészletet,
-tippeld meg a megjelenési évet,
-és gyűjts pontokat a barátaiddal!
-</p>
+        <div class="card">
 
-<button class="btn play" onclick="startGame()">
-▶ JÁTÉK INDÍTÁSA
-</button>
+            <div class="logo">
+                <span class="logo-icon">🎵</span>
+                ROBA MUSIC
+            </div>
 
-<button class="btn secondary">
-🏆 Eredmények
-</button>
+            <div class="tagline">
+                Magyar zenei kvíz
+            </div>
 
-<button class="btn secondary">
-⚙ Beállítások
-</button>
+            <h1 class="home-title">
+                Találd ki a dalt!
+            </h1>
 
-<div class="footer">
-v1.0 • Magyar slágerek 1960–2025
+            <p class="description">
+                Hallgasd meg a dalrészletet,
+                tippeld meg a megjelenési évét,
+                és gyűjts minél több pontot!
+            </p>
+
+            <button class="btn btn-primary" onclick="startGame()">
+                ▶ JÁTÉK INDÍTÁSA
+            </button>
+
+            <button class="btn btn-secondary" onclick="showComingSoon()">
+                🏆 Eredmények
+            </button>
+
+            <button class="btn btn-secondary" onclick="showComingSoon()">
+                ⚙️ Beállítások
+            </button>
+
+            <div class="footer">
+                RobaMusic v1.0 • Magyar slágerek
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================= -->
+    <!-- JÁTÉK KÉPERNYŐ -->
+    <!-- ========================= -->
+
+    <section id="gameScreen" class="screen">
+
+        <div class="card">
+
+            <div class="top-bar">
+
+                <div class="question-number">
+                    DAL <span id="questionNumber">1</span> / 5
+                </div>
+
+                <div class="score">
+                    🏆 <span id="score">0</span> pont
+                </div>
+
+            </div>
+
+
+            <div class="music-box">
+
+                <div class="music-icon">
+                    🎵
+                </div>
+
+                <div class="music-title">
+                    Zene lejátszása
+                </div>
+
+                <div class="music-info">
+                    A Spotify-lejátszás hamarosan érkezik
+                </div>
+
+            </div>
+
+
+            <div class="timer-container">
+
+                <div class="timer-text">
+                    <span id="timer">15</span> mp
+                </div>
+
+                <div class="timer-bar">
+                    <div id="timerProgress" class="timer-progress"></div>
+                </div>
+
+            </div>
+
+
+            <div class="question">
+                Melyik évben jelent meg a dal?
+            </div>
+
+
+            <div class="year-display">
+                <span id="yearValue">1990</span>
+            </div>
+
+
+            <input
+                id="yearSlider"
+                class="year-slider"
+                type="range"
+                min="1960"
+                max="2025"
+                value="1990"
+                oninput="updateYear()"
+            >
+
+            <div class="year-range">
+                <span>1960</span>
+                <span>2025</span>
+            </div>
+
+
+            <button
+                id="answerButton"
+                class="btn btn-primary"
+                onclick="checkAnswer()"
+            >
+                ✓ VÁLASZ ELLENŐRZÉSE
+            </button>
+
+
+            <div id="feedback" class="feedback"></div>
+
+
+            <button
+                id="nextButton"
+                class="btn btn-secondary"
+                onclick="nextQuestion()"
+                style="display:none;"
+            >
+                KÖVETKEZŐ DAL →
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================= -->
+    <!-- EREDMÉNY -->
+    <!-- ========================= -->
+
+    <section id="resultScreen" class="screen">
+
+        <div class="card">
+
+            <div class="result-icon">
+                🏆
+            </div>
+
+            <div class="result-title">
+                Játék vége!
+            </div>
+
+            <div class="result-message">
+                Gratulálunk, végigjátszottad a próbakört!
+            </div>
+
+            <div class="final-score">
+                <span id="finalScore">0</span>
+            </div>
+
+            <div class="result-message">
+                pontot szereztél.
+            </div>
+
+            <button class="btn btn-primary" onclick="startGame()">
+                🔄 ÚJ JÁTÉK
+            </button>
+
+            <button class="btn btn-secondary" onclick="showScreen('homeScreen')">
+                ← FŐMENÜ
+            </button>
+
+        </div>
+
+    </section>
+
 </div>
 
-</div>
 
 <script>
-function startGame(){
-    alert("A játék hamarosan indul! 🚀");
+
+/* =========================================
+   JÁTÉK ADATOK
+========================================= */
+
+const songs = [
+    {
+        title: "Próba dal #1",
+        year: 1985
+    },
+    {
+        title: "Próba dal #2",
+        year: 1992
+    },
+    {
+        title: "Próba dal #3",
+        year: 1978
+    },
+    {
+        title: "Próba dal #4",
+        year: 2004
+    },
+    {
+        title: "Próba dal #5",
+        year: 2016
+    }
+];
+
+
+/* =========================================
+   VÁLTOZÓK
+========================================= */
+
+let currentQuestion = 0;
+let score = 0;
+let timer = 15;
+let timerInterval = null;
+let answered = false;
+
+
+/* =========================================
+   KÉPERNYŐVÁLTÁS
+========================================= */
+
+function showScreen(screenId) {
+
+    document.querySelectorAll(".screen").forEach(screen => {
+        screen.classList.remove("active");
+    });
+
+    document.getElementById(screenId).classList.add("active");
 }
+
+
+/* =========================================
+   JÁTÉK INDÍTÁSA
+========================================= */
+
+function startGame() {
+
+    currentQuestion = 0;
+    score = 0;
+
+    document.getElementById("score").textContent = score;
+
+    showScreen("gameScreen");
+
+    loadQuestion();
+}
+
+
+/* =========================================
+   KÉRDÉS BETÖLTÉSE
+========================================= */
+
+function loadQuestion() {
+
+    clearInterval(timerInterval);
+
+    answered = false;
+
+    const song = songs[currentQuestion];
+
+    document.getElementById("questionNumber").textContent =
+        currentQuestion + 1;
+
+    document.getElementById("score").textContent =
+        score;
+
+    document.querySelector(".music-title").textContent =
+        song.title;
+
+    document.getElementById("yearSlider").value = 1990;
+
+    updateYear();
+
+    document.getElementById("feedback").className =
+        "feedback";
+
+    document.getElementById("feedback").textContent =
+        "";
+
+    document.getElementById("answerButton").style.display =
+        "block";
+
+    document.getElementById("nextButton").style.display =
+        "none";
+
+    startTimer();
+}
+
+
+/* =========================================
+   ÉVSZÁM FRISSÍTÉSE
+========================================= */
+
+function updateYear() {
+
+    const value =
+        document.getElementById("yearSlider").value;
+
+    document.getElementById("yearValue").textContent =
+        value;
+}
+
+
+/* =========================================
+   IDŐZÍTŐ
+========================================= */
+
+function startTimer() {
+
+    timer = 15;
+
+    document.getElementById("timer").textContent =
+        timer;
+
+    document.getElementById("timerProgress").style.width =
+        "100%";
+
+    timerInterval = setInterval(() => {
+
+        timer--;
+
+        document.getElementById("timer").textContent =
+            timer;
+
+        document.getElementById("timerProgress").style.width =
+            ((timer / 15) * 100) + "%";
+
+        if (timer <= 0) {
+
+            clearInterval(timerInterval);
+
+            checkAnswer(true);
+
+        }
+
+    }, 1000);
+}
+
+
+/* =========================================
+   VÁLASZ ELLENŐRZÉSE
+========================================= */
+
+function checkAnswer(timeUp = false) {
+
+    if (answered) return;
+
+    answered = true;
+
+    clearInterval(timerInterval);
+
+    const song = songs[currentQuestion];
+
+    const guessedYear =
+        Number(document.getElementById("yearSlider").value);
+
+    const difference =
+        Math.abs(guessedYear - song.year);
+
+    let points = 0;
+
+    /*
+       Pontozás:
+
+       0 év eltérés = 100 pont
+       1 év = 90
+       2 év = 80
+       ...
+       10 év vagy több = 0
+    */
+
+    if (difference <= 10) {
+
+        points = 100 - (difference * 10);
+
+        if (points < 0) {
+            points = 0;
+        }
+    }
+
+    score += points;
+
+    document.getElementById("score").textContent =
+        score;
+
+
+    const feedback =
+        document.getElementById("feedback");
+
+
+    if (timeUp) {
+
+        feedback.className =
+            "feedback wrong";
+
+        feedback.innerHTML =
+            "⏰ Lejárt az idő!<br>" +
+            "A helyes év: <strong>" +
+            song.year +
+            "</strong>";
+
+    }
+
+    else if (difference === 0) {
+
+        feedback.className =
+            "feedback correct";
+
+        feedback.innerHTML =
+            "🎉 Tökéletes!<br>" +
+            "Pontosan eltaláltad! <strong>+" +
+            points +
+            " pont</strong>";
+
+    }
+
+    else if (difference <= 5) {
+
+        feedback.className =
+            "feedback correct";
+
+        feedback.innerHTML =
+            "👍 Nagyon közel!<br>" +
+            "A helyes év: <strong>" +
+            song.year +
+            "</strong><br>" +
+            "<strong>+" + points +
+            " pont</strong>";
+
+    }
+
+    else {
+
+        feedback.className =
+            "feedback wrong";
+
+        feedback.innerHTML =
+            "❌ Nem sikerült.<br>" +
+            "A helyes év: <strong>" +
+            song.year +
+            "</strong><br>" +
+            "<strong>+" + points +
+            " pont</strong>";
+    }
+
+
+    document.getElementById("answerButton").style.display =
+        "none";
+
+    document.getElementById("nextButton").style.display =
+        "block";
+}
+
+
+/* =========================================
+   KÖVETKEZŐ KÉRDÉS
+========================================= */
+
+function nextQuestion() {
+
+    currentQuestion++;
+
+    if (currentQuestion >= songs.length) {
+
+        endGame();
+
+    } else {
+
+        loadQuestion();
+
+    }
+}
+
+
+/* =========================================
+   JÁTÉK VÉGE
+========================================= */
+
+function endGame() {
+
+    clearInterval(timerInterval);
+
+    document.getElementById("finalScore").textContent =
+        score;
+
+    showScreen("resultScreen");
+}
+
+
+/* =========================================
+   KÉSŐBBI FUNKCIÓK
+========================================= */
+
+function showComingSoon() {
+
+    alert(
+        "Ez a funkció hamarosan érkezik! 🎵"
+    );
+
+}
+
 </script>
 
 </body>
