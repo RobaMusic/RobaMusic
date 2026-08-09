@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="hu">
 
 <head>
@@ -6,7 +7,7 @@
 <meta charset="UTF-8">
 
 <meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+   content="width=device-width, initial-scale=1.0">
 
 <title>RobaMusic – Magyar zenei kvíz</title>
 
@@ -79,10 +80,7 @@ body {
         0 20px 60px rgba(0,0,0,0.45);
 }
 
-
-/* ==============================
-   LOGÓ
-============================== */
+/* LOGÓ */
 
 .logo {
 
@@ -109,10 +107,7 @@ body {
     margin-bottom: 30px;
 }
 
-
-/* ==============================
-   KEZDŐOLDAL
-============================== */
+/* KEZDŐOLDAL */
 
 .home-title {
 
@@ -132,10 +127,7 @@ body {
     margin-bottom: 25px;
 }
 
-
-/* ==============================
-   GOMBOK
-============================== */
+/* GOMBOK */
 
 .btn {
 
@@ -191,10 +183,7 @@ body {
     color: #031b0b;
 }
 
-
-/* ==============================
-   SPOTIFY ÁLLAPOT
-============================== */
+/* SPOTIFY ÁLLAPOT */
 
 .spotify-status {
 
@@ -229,10 +218,7 @@ body {
     color: #fca5a5;
 }
 
-
-/* ==============================
-   JÁTÉK
-============================== */
+/* JÁTÉK */
 
 .top-bar {
 
@@ -298,10 +284,7 @@ body {
     font-size: 14px;
 }
 
-
-/* ==============================
-   TIMER
-============================== */
+/* TIMER */
 
 .timer-container {
 
@@ -343,10 +326,7 @@ body {
     transition: width 1s linear;
 }
 
-
-/* ==============================
-   ÉV TIPP
-============================== */
+/* ÉV */
 
 .question {
 
@@ -390,10 +370,7 @@ body {
     margin-top: 5px;
 }
 
-
-/* ==============================
-   VISSZAJELZÉS
-============================== */
+/* VISSZAJELZÉS */
 
 .feedback {
 
@@ -430,10 +407,7 @@ body {
     color: #fca5a5;
 }
 
-
-/* ==============================
-   EREDMÉNY
-============================== */
+/* EREDMÉNY */
 
 .result-icon {
 
@@ -478,377 +452,439 @@ body {
     font-size: 12px;
 }
 
+.hidden {
+
+    display: none !important;
+}
+
 </style>
 
 </head>
 
-
 <body>
-
 
 <div class="game">
 
+```
+<!-- =====================================================
+     FŐOLDAL
+     ===================================================== -->
 
-<!-- =====================================
-     KEZDŐKÉPERNYŐ
-===================================== -->
+<section id="homeScreen" class="screen active">
 
-<section id="homeScreen"
-         class="screen active">
+    <div class="card">
 
-<div class="card">
+        <div class="logo-icon">🎵</div>
 
+        <div class="logo">
+            ROBA MUSIC
+        </div>
 
-<div class="logo">
+        <div class="tagline">
+            Magyar zenei kvíz
+        </div>
 
-<span class="logo-icon">🎵</span>
+        <div class="home-title">
+            Találd ki a dalt!
+        </div>
 
-ROBA MUSIC
+        <div class="description">
 
-</div>
+            Hallgasd meg a dalrészletet,<br>
+            tippeld meg a megjelenési évét,<br>
+            és gyűjts minél több pontot!
 
-
-<div class="tagline">
-
-Magyar zenei kvíz
-
-</div>
-
-
-<h1 class="home-title">
-
-Találd ki a dalt!
-
-</h1>
+        </div>
 
 
-<p class="description">
+        <button
+            class="btn btn-spotify"
+            onclick="connectSpotify()">
 
-Hallgasd meg a dalrészletet,
-tippeld meg a megjelenési évét,
-és gyűjts minél több pontot!
+            🎧 SPOTIFY CSATLAKOZTATÁSA
 
-</p>
-
-
-<!-- SPOTIFY GOMB -->
-
-<button id="spotifyButton"
-        class="btn btn-spotify"
-        onclick="connectSpotify()">
-
-🎧 SPOTIFY CSATLAKOZTATÁSA
-
-</button>
+        </button>
 
 
-<!-- SPOTIFY ÁLLAPOT -->
+        <div
+            id="spotifyStatus"
+            class="spotify-status">
 
-<div id="spotifyStatus"
-     class="spotify-status">
+            Spotify nincs csatlakoztatva
 
-Spotify nincs csatlakoztatva
-
-</div>
-
-
-<!-- JÁTÉK INDÍTÁSA -->
-
-<button class="btn btn-primary"
-        onclick="startGame()">
-
-▶ JÁTÉK INDÍTÁSA
-
-</button>
+        </div>
 
 
-<button class="btn btn-secondary"
-        onclick="showComingSoon()">
+        <button
+            class="btn btn-primary"
+            onclick="startGame()">
 
-🏆 Eredmények
+            ▶ JÁTÉK INDÍTÁSA
 
-</button>
-
-
-<button class="btn btn-secondary"
-        onclick="showComingSoon()">
-
-⚙️ Beállítások
-
-</button>
+        </button>
 
 
-<div class="footer">
+        <button
+            class="btn btn-secondary"
+            onclick="showResults()">
 
-RobaMusic v1.1 • Magyar slágerek
+            🏆 Eredmények
 
-</div>
+        </button>
 
 
-</div>
+        <button
+            class="btn btn-secondary"
+            onclick="showSettings()">
+
+            ⚙️ Beállítások
+
+        </button>
+
+
+        <div class="footer">
+
+            RobaMusic v1.2 • Magyar slágerek
+
+        </div>
+
+    </div>
 
 </section>
 
 
+<!-- =====================================================
+     JÁTÉK
+     ===================================================== -->
 
-<!-- =====================================
-     JÁTÉK KÉPERNYŐ
-===================================== -->
+<section id="gameScreen" class="screen">
 
-<section id="gameScreen"
-         class="screen">
+    <div class="card">
 
-<div class="card">
+        <div class="top-bar">
 
+            <div class="question-number">
 
-<div class="top-bar">
+                DAL
+                <span id="questionNumber">1</span>
+                / 5
 
-<div class="question-number">
+            </div>
 
-DAL <span id="questionNumber">1</span> / 5
+            <div class="score">
 
-</div>
+                🏆
+                <span id="score">0</span>
+                pont
 
+            </div>
 
-<div class="score">
+        </div>
 
-🏆 <span id="score">0</span> pont
 
-</div>
+        <div class="music-box">
 
-</div>
+            <div class="music-icon">
+                🎵
+            </div>
 
+            <div
+                id="songTitle"
+                class="music-title">
 
+                Próba dal #1
 
-<div class="music-box">
+            </div>
 
-<div class="music-icon">
+            <div
+                id="musicInfo"
+                class="music-info">
 
-🎵
+                Spotify-lejátszás előkészítése...
 
-</div>
+            </div>
 
+        </div>
 
-<div id="musicTitle"
-     class="music-title">
 
-Zene lejátszása
+        <button
+            id="playButton"
+            class="btn btn-spotify"
+            onclick="playSong()">
 
-</div>
+            ▶ Zene lejátszása
 
+        </button>
 
-<div id="musicInfo"
-     class="music-info">
 
-Spotify-lejátszás előkészítése...
+        <div class="timer-container">
 
-</div>
+            <div
+                id="timerText"
+                class="timer-text">
 
-</div>
+                15 mp
 
+            </div>
 
+            <div class="timer-bar">
 
-<div class="timer-container">
+                <div
+                    id="timerProgress"
+                    class="timer-progress">
 
-<div class="timer-text">
+                </div>
 
-<span id="timer">15</span> mp
+            </div>
 
-</div>
+        </div>
 
 
-<div class="timer-bar">
+        <div class="question">
 
-<div id="timerProgress"
-     class="timer-progress">
+            Melyik évben jelent meg a dal?
 
-</div>
+        </div>
 
-</div>
 
-</div>
+        <div
+            id="yearDisplay"
+            class="year-display">
 
+            1990
 
+        </div>
 
-<div class="question">
 
-Melyik évben jelent meg a dal?
+        <input
+            id="yearSlider"
+            class="year-slider"
+            type="range"
+            min="1960"
+            max="2025"
+            value="1990"
+            oninput="updateYear()">
 
-</div>
 
+        <div class="year-range">
 
+            <span>1960</span>
 
-<div class="year-display">
+            <span>2025</span>
 
-<span id="yearValue">1990</span>
+        </div>
 
-</div>
 
+        <button
+            id="checkButton"
+            class="btn btn-primary"
+            onclick="checkAnswer()">
 
+            ✓ VÁLASZ ELLENŐRZÉSE
 
-<input
-    id="yearSlider"
-    class="year-slider"
-    type="range"
-    min="1960"
-    max="2025"
-    value="1990"
-    oninput="updateYear()"
->
+        </button>
 
 
-<div class="year-range">
+        <div
+            id="feedback"
+            class="feedback">
 
-<span>1960</span>
+        </div>
 
-<span>2025</span>
 
-</div>
+        <button
+            id="nextButton"
+            class="btn btn-secondary hidden"
+            onclick="nextSong()">
 
+            KÖVETKEZŐ DAL →
 
+        </button>
 
-<button
-    id="answerButton"
-    class="btn btn-primary"
-    onclick="checkAnswer()">
 
-✓ VÁLASZ ELLENŐRZÉSE
+        <button
+            class="btn btn-secondary"
+            onclick="showScreen('homeScreen')">
 
-</button>
+            ← FŐMENÜ
 
+        </button>
 
-
-<div id="feedback"
-     class="feedback">
-
-</div>
-
-
-
-<button
-    id="nextButton"
-    class="btn btn-secondary"
-    onclick="nextQuestion()"
-    style="display:none;">
-
-KÖVETKEZŐ DAL →
-
-</button>
-
-
-<button
-    class="btn btn-secondary"
-    onclick="showScreen('homeScreen')">
-
-← FŐMENÜ
-
-</button>
-
-
-</div>
+    </div>
 
 </section>
 
 
-
-<!-- =====================================
+<!-- =====================================================
      EREDMÉNY
-===================================== -->
+     ===================================================== -->
 
-<section id="resultScreen"
-         class="screen">
+<section id="resultScreen" class="screen">
 
-<div class="card">
+    <div class="card">
 
+        <div class="result-icon">
+            🏆
+        </div>
 
-<div class="result-icon">
+        <div class="result-title">
+            Játék vége!
+        </div>
 
-🏆
+        <div class="result-message">
 
-</div>
+            Végigjátszottad a próbakört!
 
+        </div>
 
-<div class="result-title">
+        <div
+            id="finalScore"
+            class="final-score">
 
-Játék vége!
+            0
 
-</div>
+        </div>
 
+        <div class="result-message">
 
-<div class="result-message">
+            pontot szereztél.
 
-Végigjátszottad a próbakört!
-
-</div>
-
-
-<div class="final-score">
-
-<span id="finalScore">0</span>
-
-</div>
-
-
-<div class="result-message">
-
-pontot szereztél.
-
-</div>
+        </div>
 
 
-<button
-    class="btn btn-primary"
-    onclick="startGame()">
+        <button
+            class="btn btn-primary"
+            onclick="startGame()">
 
-🔄 ÚJ JÁTÉK
+            🔄 ÚJ JÁTÉK
 
-</button>
-
-
-<button
-    class="btn btn-secondary"
-    onclick="showScreen('homeScreen')">
-
-← FŐMENÜ
-
-</button>
+        </button>
 
 
-</div>
+        <button
+            class="btn btn-secondary"
+            onclick="showScreen('homeScreen')">
+
+            ← FŐMENÜ
+
+        </button>
+
+    </div>
 
 </section>
 
 
+<!-- =====================================================
+     EREDMÉNYEK
+     ===================================================== -->
+
+<section id="scoresScreen" class="screen">
+
+    <div class="card">
+
+        <div class="result-icon">
+            🏆
+        </div>
+
+        <div class="result-title">
+            Eredmények
+        </div>
+
+        <div
+            id="bestScore"
+            class="final-score">
+
+            0
+
+        </div>
+
+        <div class="result-message">
+
+            Legjobb eredmény
+
+        </div>
+
+
+        <button
+            class="btn btn-secondary"
+            onclick="showScreen('homeScreen')">
+
+            ← FŐMENÜ
+
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     BEÁLLÍTÁSOK
+     ===================================================== -->
+
+<section id="settingsScreen" class="screen">
+
+    <div class="card">
+
+        <div class="result-icon">
+            ⚙️
+        </div>
+
+        <div class="result-title">
+            Beállítások
+        </div>
+
+        <div class="result-message">
+
+            RobaMusic v1.2
+
+            <br><br>
+
+            Spotify-kapcsolat:
+
+            <br>
+
+            <span id="settingsSpotifyStatus">
+                Nincs csatlakoztatva
+            </span>
+
+        </div>
+
+
+        <button
+            class="btn btn-secondary"
+            onclick="showScreen('homeScreen')">
+
+            ← FŐMENÜ
+
+        </button>
+
+    </div>
+
+</section>
+```
+
 </div>
-
-
 
 <script>
 
 /* =========================================================
-   ROBAMUSIC + SPOTIFY
-========================================================= */
-
-
-/* ---------------------------------------------------------
-   SPOTIFY BEÁLLÍTÁSOK
---------------------------------------------------------- */
+   ROBAMUSIC – ALAPBEÁLLÍTÁSOK
+   ========================================================= */
 
 const CLIENT_ID =
     "64b3bdc013e84162bf973ec883854bfa";
 
-
 const REDIRECT_URI =
     "https://robamusic.github.io/RobaMusic/";
-
 
 const SCOPES =
     "user-read-private user-read-email";
 
 
-/* ---------------------------------------------------------
+/* =========================================================
    DEMÓ DALOK
---------------------------------------------------------- */
+   ========================================================= */
 
 const songs = [
 
@@ -880,39 +916,64 @@ const songs = [
 ];
 
 
-/* ---------------------------------------------------------
-   JÁTÉK VÁLTOZÓK
---------------------------------------------------------- */
+/* =========================================================
+   JÁTÉK ÁLLAPOT
+   ========================================================= */
 
-let currentQuestion = 0;
+let currentSong = 0;
 
 let score = 0;
 
-let timer = 15;
+let timer = null;
 
-let timerInterval = null;
+let timeLeft = 15;
 
-let answered = false;
+let answerChecked = false;
 
 
 /* =========================================================
-   PKCE SEGÉDFÜGGVÉNYEK
-========================================================= */
+   KÉPERNYŐVÁLTÁS
+   ========================================================= */
+
+function showScreen(id) {
+
+    document
+        .querySelectorAll(".screen")
+        .forEach(
+            screen =>
+                screen.classList.remove("active")
+        );
 
 
-/* Véletlen string készítése */
+    const target =
+        document.getElementById(id);
+
+
+    if (target) {
+
+        target.classList.add("active");
+
+    }
+
+}
+
+
+/* =========================================================
+   SPOTIFY – RANDOM STRING
+   ========================================================= */
 
 function generateRandomString(length) {
 
     const characters =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    let result = "";
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
 
     const randomValues =
         crypto.getRandomValues(
             new Uint8Array(length)
         );
+
+    let result = "";
+
 
     for (let i = 0; i < length; i++) {
 
@@ -924,30 +985,15 @@ function generateRandomString(length) {
 
     }
 
+
     return result;
+
 }
 
 
-/* SHA-256 + Base64URL */
-
-async function generateCodeChallenge(verifier) {
-
-    const data =
-        new TextEncoder().encode(verifier);
-
-    const digest =
-        await crypto.subtle.digest(
-            "SHA-256",
-            data
-        );
-
-    return base64UrlEncode(
-        new Uint8Array(digest)
-    );
-}
-
-
-/* Base64URL kódolás */
+/* =========================================================
+   SPOTIFY – BASE64URL
+   ========================================================= */
 
 function base64UrlEncode(arrayBuffer) {
 
@@ -956,21 +1002,52 @@ function base64UrlEncode(arrayBuffer) {
     const bytes =
         new Uint8Array(arrayBuffer);
 
-    bytes.forEach(
-        byte => binary += String.fromCharCode(byte)
-    );
+
+    for (const byte of bytes) {
+
+        binary +=
+            String.fromCharCode(byte);
+
+    }
+
 
     return btoa(binary)
+
         .replace(/\+/g, "-")
+
         .replace(/\//g, "_")
+
         .replace(/=+$/, "");
 
 }
 
 
 /* =========================================================
-   SPOTIFY BEJELENTKEZÉS
-========================================================= */
+   SPOTIFY – CODE CHALLENGE
+   ========================================================= */
+
+async function generateCodeChallenge(verifier) {
+
+    const data =
+        new TextEncoder()
+            .encode(verifier);
+
+
+    const digest =
+        await crypto.subtle.digest(
+            "SHA-256",
+            data
+        );
+
+
+    return base64UrlEncode(digest);
+
+}
+
+
+/* =========================================================
+   SPOTIFY – CSATLAKOZÁS
+   ========================================================= */
 
 async function connectSpotify() {
 
@@ -1050,6 +1127,12 @@ async function connectSpotify() {
         );
 
 
+        console.log(
+            "Spotify PKCE challenge:",
+            codeChallenge
+        );
+
+
         window.location.href =
             authUrl.toString();
 
@@ -1057,7 +1140,11 @@ async function connectSpotify() {
 
     catch (error) {
 
-        console.error(error);
+        console.error(
+            "Spotify connection error:",
+            error
+        );
+
 
         showSpotifyStatus(
             "❌ Nem sikerült elindítani a Spotify-kapcsolatot.",
@@ -1070,8 +1157,8 @@ async function connectSpotify() {
 
 
 /* =========================================================
-   SPOTIFY VISSZATÉRÉS KEZELÉSE
-========================================================= */
+   SPOTIFY CALLBACK
+   ========================================================= */
 
 async function handleSpotifyCallback() {
 
@@ -1093,8 +1180,6 @@ async function handleSpotifyCallback() {
         params.get("error");
 
 
-    /* Ha nincs Spotify callback */
-
     if (!code && !error) {
 
         return;
@@ -1102,20 +1187,21 @@ async function handleSpotifyCallback() {
     }
 
 
-    /* Felhasználó elutasította */
-
     if (error) {
+
+        console.error(
+            "Spotify authorization error:",
+            error
+        );
+
 
         showSpotifyStatus(
             "❌ A Spotify-kapcsolat megszakadt.",
             "error"
         );
 
-        window.history.replaceState(
-            {},
-            document.title,
-            REDIRECT_URI
-        );
+
+        cleanSpotifyUrl();
 
         return;
 
@@ -1133,10 +1219,16 @@ async function handleSpotifyCallback() {
         returnedState !== savedState
     ) {
 
+        console.error(
+            "Spotify state mismatch."
+        );
+
+
         showSpotifyStatus(
             "❌ Biztonsági ellenőrzési hiba.",
             "error"
         );
+
 
         return;
 
@@ -1147,6 +1239,19 @@ async function handleSpotifyCallback() {
         localStorage.getItem(
             "spotify_code_verifier"
         );
+
+
+    if (!codeVerifier) {
+
+        showSpotifyStatus(
+            "❌ A Spotify biztonsági kulcsa hiányzik. Próbáld újra.",
+            "error"
+        );
+
+
+        return;
+
+    }
 
 
     try {
@@ -1195,14 +1300,19 @@ async function handleSpotifyCallback() {
             await fetch(
                 "https://accounts.spotify.com/api/token",
                 {
+
                     method: "POST",
 
                     headers: {
+
                         "Content-Type":
                             "application/x-www-form-urlencoded"
+
                     },
 
-                    body: body.toString()
+                    body:
+                        body.toString()
+
                 }
             );
 
@@ -1213,17 +1323,20 @@ async function handleSpotifyCallback() {
 
         if (!response.ok) {
 
-            console.error(data);
+            console.error(
+                "Spotify token error:",
+                data
+            );
+
 
             throw new Error(
                 data.error_description ||
+                data.error ||
                 "Spotify token hiba"
             );
 
         }
 
-
-        /* Token mentése */
 
         localStorage.setItem(
             "spotify_access_token",
@@ -1235,7 +1348,7 @@ async function handleSpotifyCallback() {
             "spotify_expires_at",
             String(
                 Date.now() +
-                (data.expires_in * 1000)
+                data.expires_in * 1000
             )
         );
 
@@ -1250,36 +1363,30 @@ async function handleSpotifyCallback() {
         }
 
 
-        /* Már nincs szükség ezekre */
-
         localStorage.removeItem(
             "spotify_code_verifier"
         );
+
 
         localStorage.removeItem(
             "spotify_state"
         );
 
 
-        /* URL megtisztítása */
+        cleanSpotifyUrl();
 
-        window.history.replaceState(
-            {},
-            document.title,
-            REDIRECT_URI
-        );
-
-
-        /* Felhasználói adatok lekérése */
 
         await loadSpotifyProfile();
-
 
     }
 
     catch (error) {
 
-        console.error(error);
+        console.error(
+            "Spotify callback error:",
+            error
+        );
+
 
         showSpotifyStatus(
             "❌ Spotify-kapcsolati hiba: " +
@@ -1293,10 +1400,25 @@ async function handleSpotifyCallback() {
 
 
 /* =========================================================
-   SPOTIFY FELHASZNÁLÓ LEKÉRÉSE
-========================================================= */
+   URL TISZTÍTÁSA
+   ========================================================= */
 
-async function loadSpotifyProfile() {
+function cleanSpotifyUrl() {
+
+    window.history.replaceState(
+        {},
+        document.title,
+        REDIRECT_URI
+    );
+
+}
+
+
+/* =========================================================
+   SPOTIFY TOKEN ELLENŐRZÉS
+   ========================================================= */
+
+function getSpotifyAccessToken() {
 
     const token =
         localStorage.getItem(
@@ -1304,7 +1426,45 @@ async function loadSpotifyProfile() {
         );
 
 
+    const expiresAt =
+        Number(
+            localStorage.getItem(
+                "spotify_expires_at"
+            ) || 0
+        );
+
+
+    if (
+        !token ||
+        Date.now() >= expiresAt
+    ) {
+
+        return null;
+
+    }
+
+
+    return token;
+
+}
+
+
+/* =========================================================
+   SPOTIFY PROFIL
+   ========================================================= */
+
+async function loadSpotifyProfile() {
+
+    const token =
+        getSpotifyAccessToken();
+
+
     if (!token) {
+
+        showSpotifyStatus(
+            "Spotify nincs csatlakoztatva",
+            ""
+        );
 
         return;
 
@@ -1317,10 +1477,14 @@ async function loadSpotifyProfile() {
             await fetch(
                 "https://api.spotify.com/v1/me",
                 {
+
                     headers: {
+
                         Authorization:
                             "Bearer " + token
+
                     }
+
                 }
             );
 
@@ -1328,7 +1492,7 @@ async function loadSpotifyProfile() {
         if (!response.ok) {
 
             throw new Error(
-                "Nem sikerült lekérni a Spotify-profilt."
+                "Profil lekérési hiba"
             );
 
         }
@@ -1340,36 +1504,43 @@ async function loadSpotifyProfile() {
 
         const name =
             profile.display_name ||
+            profile.id ||
             "Spotify-felhasználó";
 
 
         showSpotifyStatus(
-            "✅ Spotify csatlakoztatva<br>" +
-            "<strong>" +
-            escapeHtml(name) +
-            "</strong>",
+            "✓ Spotify csatlakoztatva: " +
+            name,
             "connected"
         );
 
 
-        const button =
+        const settingsStatus =
             document.getElementById(
-                "spotifyButton"
+                "settingsSpotifyStatus"
             );
 
 
-        button.textContent =
-            "✅ SPOTIFY CSATLAKOZTATVA";
+        if (settingsStatus) {
 
+            settingsStatus.textContent =
+                "✓ Csatlakoztatva: " +
+                name;
+
+        }
 
     }
 
     catch (error) {
 
-        console.error(error);
+        console.error(
+            "Spotify profile error:",
+            error
+        );
+
 
         showSpotifyStatus(
-            "⚠️ A Spotify-token lejárt vagy érvénytelen.",
+            "❌ Nem sikerült lekérni a Spotify-profilt.",
             "error"
         );
 
@@ -1380,7 +1551,7 @@ async function loadSpotifyProfile() {
 
 /* =========================================================
    SPOTIFY ÁLLAPOT
-========================================================= */
+   ========================================================= */
 
 function showSpotifyStatus(
     message,
@@ -1393,7 +1564,14 @@ function showSpotifyStatus(
         );
 
 
-    element.innerHTML =
+    if (!element) {
+
+        return;
+
+    }
+
+
+    element.textContent =
         message;
 
 
@@ -1403,173 +1581,71 @@ function showSpotifyStatus(
 
     if (type) {
 
-        element.classList.add(type);
-
-    }
-
-}
-
-
-/* =========================================================
-   HTML BIZTONSÁG
-========================================================= */
-
-function escapeHtml(text) {
-
-    const div =
-        document.createElement("div");
-
-    div.textContent =
-        text;
-
-    return div.innerHTML;
-
-}
-
-
-/* =========================================================
-   TOKEN ELLENŐRZÉS
-========================================================= */
-
-function isSpotifyConnected() {
-
-    const token =
-        localStorage.getItem(
-            "spotify_access_token"
+        element.classList.add(
+            type
         );
 
-
-    const expiresAt =
-        Number(
-            localStorage.getItem(
-                "spotify_expires_at"
-            )
-        );
-
-
-    if (
-        token &&
-        expiresAt &&
-        Date.now() < expiresAt
-    ) {
-
-        return true;
-
     }
-
-
-    return false;
-
-}
-
-
-/* =========================================================
-   KÉPERNYŐVÁLTÁS
-========================================================= */
-
-function showScreen(screenId) {
-
-    document
-        .querySelectorAll(".screen")
-        .forEach(screen => {
-
-            screen.classList.remove(
-                "active"
-            );
-
-        });
-
-
-    document
-        .getElementById(screenId)
-        .classList.add("active");
 
 }
 
 
 /* =========================================================
    JÁTÉK INDÍTÁSA
-========================================================= */
+   ========================================================= */
 
 function startGame() {
 
-    currentQuestion = 0;
+    currentSong = 0;
 
     score = 0;
 
-    document.getElementById(
-        "score"
-    ).textContent = score;
-
+    updateScore();
 
     showScreen(
         "gameScreen"
     );
 
-
-    loadQuestion();
+    loadSong();
 
 }
 
 
 /* =========================================================
-   KÉRDÉS BETÖLTÉSE
-========================================================= */
+   DAL BETÖLTÉSE
+   ========================================================= */
 
-function loadQuestion() {
-
-    clearInterval(
-        timerInterval
-    );
-
-
-    answered = false;
-
+function loadSong() {
 
     const song =
-        songs[currentQuestion];
+        songs[currentSong];
 
 
     document.getElementById(
         "questionNumber"
     ).textContent =
-        currentQuestion + 1;
+        currentSong + 1;
 
 
     document.getElementById(
-        "score"
-    ).textContent =
-        score;
-
-
-    document.getElementById(
-        "musicTitle"
+        "songTitle"
     ).textContent =
         song.title;
 
 
-    if (isSpotifyConnected()) {
-
-        document.getElementById(
-            "musicInfo"
-        ).textContent =
-            "Spotify csatlakoztatva – a lejátszó következik.";
-
-    }
-
-    else {
-
-        document.getElementById(
-            "musicInfo"
-        ).textContent =
-            "Spotify nincs csatlakoztatva.";
-
-    }
-
-
     document.getElementById(
-        "yearSlider"
-    ).value =
+        "musicInfo"
+    ).textContent =
+        "Spotify-lejátszás előkészítése...";
+
+
+    const slider =
+        document.getElementById(
+            "yearSlider"
+        );
+
+
+    slider.value =
         1990;
 
 
@@ -1589,15 +1665,21 @@ function loadQuestion() {
 
 
     document.getElementById(
-        "answerButton"
-    ).style.display =
-        "block";
+        "checkButton"
+    ).classList.remove(
+        "hidden"
+    );
 
 
     document.getElementById(
         "nextButton"
-    ).style.display =
-        "none";
+    ).classList.add(
+        "hidden"
+    );
+
+
+    answerChecked =
+        false;
 
 
     startTimer();
@@ -1606,8 +1688,72 @@ function loadQuestion() {
 
 
 /* =========================================================
-   ÉVSZÁM
-========================================================= */
+   TIMER
+   ========================================================= */
+
+function startTimer() {
+
+    clearInterval(timer);
+
+
+    timeLeft = 15;
+
+
+    updateTimer();
+
+
+    timer =
+        setInterval(
+            () => {
+
+                timeLeft--;
+
+                updateTimer();
+
+
+                if (timeLeft <= 0) {
+
+                    clearInterval(timer);
+
+
+                    if (!answerChecked) {
+
+                        checkAnswer(true);
+
+                    }
+
+                }
+
+            },
+            1000
+        );
+
+}
+
+
+/* =========================================================
+   TIMER FRISSÍTÉS
+   ========================================================= */
+
+function updateTimer() {
+
+    document.getElementById(
+        "timerText"
+    ).textContent =
+        timeLeft + " mp";
+
+
+    document.getElementById(
+        "timerProgress"
+    ).style.width =
+        ((timeLeft / 15) * 100) + "%";
+
+}
+
+
+/* =========================================================
+   ÉV CSÚSZKA
+   ========================================================= */
 
 function updateYear() {
 
@@ -1618,7 +1764,7 @@ function updateYear() {
 
 
     document.getElementById(
-        "yearValue"
+        "yearDisplay"
     ).textContent =
         value;
 
@@ -1626,89 +1772,32 @@ function updateYear() {
 
 
 /* =========================================================
-   IDŐZÍTŐ
-========================================================= */
-
-function startTimer() {
-
-    timer = 15;
-
-
-    document.getElementById(
-        "timer"
-    ).textContent =
-        timer;
-
-
-    document.getElementById(
-        "timerProgress"
-    ).style.width =
-        "100%";
-
-
-    timerInterval =
-        setInterval(() => {
-
-            timer--;
-
-
-            document.getElementById(
-                "timer"
-            ).textContent =
-                timer;
-
-
-            document.getElementById(
-                "timerProgress"
-            ).style.width =
-                ((timer / 15) * 100) +
-                "%";
-
-
-            if (timer <= 0) {
-
-                clearInterval(
-                    timerInterval
-                );
-
-
-                checkAnswer(true);
-
-            }
-
-        }, 1000);
-
-}
-
-
-/* =========================================================
-   VÁLASZ
-========================================================= */
+   VÁLASZ ELLENŐRZÉSE
+   ========================================================= */
 
 function checkAnswer(
-    timeUp = false
+    timeout = false
 ) {
 
-    if (answered) {
+    if (answerChecked) {
 
         return;
 
     }
 
 
-    answered = true;
+    answerChecked =
+        true;
 
 
-    clearInterval(
-        timerInterval
-    );
+    clearInterval(timer);
 
 
     const song =
-        songs[currentQuestion];
+        songs[currentSong];
 
 
-    const guessedYear =
+    const selectedYear =
         Number(
             document.getElementById(
                 "yearSlider"
@@ -1718,37 +1807,9 @@ function checkAnswer(
 
     const difference =
         Math.abs(
-            guessedYear -
+            selectedYear -
             song.year
         );
-
-
-    let points = 0;
-
-
-    if (difference <= 10) {
-
-        points =
-            100 -
-            (difference * 10);
-
-
-        if (points < 0) {
-
-            points = 0;
-
-        }
-
-    }
-
-
-    score += points;
-
-
-    document.getElementById(
-        "score"
-    ).textContent =
-        score;
 
 
     const feedback =
@@ -1757,48 +1818,53 @@ function checkAnswer(
         );
 
 
-    if (timeUp) {
-
-        feedback.className =
-            "feedback wrong";
+    let points = 0;
 
 
-        feedback.innerHTML =
-            "⏰ Lejárt az idő!<br>" +
-            "A helyes év: <strong>" +
-            song.year +
-            "</strong>";
+    if (difference === 0) {
+
+        points = 100;
 
     }
 
-    else if (difference === 0) {
+    else if (difference <= 2) {
 
-        feedback.className =
-            "feedback correct";
-
-
-        feedback.innerHTML =
-            "🎉 Tökéletes!<br>" +
-            "Pontosan eltaláltad! <strong>+" +
-            points +
-            " pont</strong>";
+        points = 75;
 
     }
 
     else if (difference <= 5) {
 
+        points = 50;
+
+    }
+
+    else if (difference <= 10) {
+
+        points = 25;
+
+    }
+
+
+    score += points;
+
+    updateScore();
+
+
+    if (points > 0) {
+
         feedback.className =
             "feedback correct";
 
 
         feedback.innerHTML =
-            "👍 Nagyon közel!<br>" +
-            "A helyes év: <strong>" +
+            "✓ Helyes közeli tipp!<br>" +
+            "A dal éve: <strong>" +
             song.year +
             "</strong><br>" +
-            "<strong>+" +
+            "+" +
             points +
-            " pont</strong>";
+            " pont";
 
     }
 
@@ -1809,73 +1875,89 @@ function checkAnswer(
 
 
         feedback.innerHTML =
-            "❌ Nem sikerült.<br>" +
-            "A helyes év: <strong>" +
+            (timeout
+                ? "⏱ Lejárt az idő!<br>"
+                : "✗ Nem talált.<br>") +
+            "A dal éve: <strong>" +
             song.year +
-            "</strong><br>" +
-            "<strong>+" +
-            points +
-            " pont</strong>";
+            "</strong>";
 
     }
 
 
     document.getElementById(
-        "answerButton"
-    ).style.display =
-        "none";
+        "checkButton"
+    ).classList.add(
+        "hidden"
+    );
 
 
     document.getElementById(
         "nextButton"
-    ).style.display =
-        "block";
+    ).classList.remove(
+        "hidden"
+    );
 
 }
 
 
 /* =========================================================
    KÖVETKEZŐ DAL
-========================================================= */
+   ========================================================= */
 
-function nextQuestion() {
+function nextSong() {
 
-    currentQuestion++;
+    currentSong++;
 
 
     if (
-        currentQuestion >=
+        currentSong >=
         songs.length
     ) {
 
-        endGame();
+        finishGame();
+
+        return;
 
     }
 
-    else {
 
-        loadQuestion();
-
-    }
+    loadSong();
 
 }
 
 
 /* =========================================================
    JÁTÉK VÉGE
-========================================================= */
+   ========================================================= */
 
-function endGame() {
+function finishGame() {
 
-    clearInterval(
-        timerInterval
-    );
+    clearInterval(timer);
 
 
     document.getElementById(
         "finalScore"
     ).textContent =
         score;
+
+
+    const previousBest =
+        Number(
+            localStorage.getItem(
+                "robamusic_best_score"
+            ) || 0
+        );
+
+
+    if (score > previousBest) {
+
+        localStorage.setItem(
+            "robamusic_best_score",
+            score
+        );
+
+    }
 
 
     showScreen(
@@ -1886,40 +1968,142 @@ function endGame() {
 
 
 /* =========================================================
-   HAMAROSAN
-========================================================= */
+   PONTOZÁS
+   ========================================================= */
 
-function showComingSoon() {
+function updateScore() {
 
-    alert(
-        "Ez a funkció hamarosan érkezik! 🎵"
+    document.getElementById(
+        "score"
+    ).textContent =
+        score;
+
+}
+
+
+/* =========================================================
+   EREDMÉNYEK
+   ========================================================= */
+
+function showResults() {
+
+    const best =
+        Number(
+            localStorage.getItem(
+                "robamusic_best_score"
+            ) || 0
+        );
+
+
+    document.getElementById(
+        "bestScore"
+    ).textContent =
+        best;
+
+
+    showScreen(
+        "scoresScreen"
     );
 
 }
 
 
 /* =========================================================
-   OLDAL BETÖLTÉSE
-========================================================= */
+   BEÁLLÍTÁSOK
+   ========================================================= */
 
-window.addEventListener(
-    "load",
+function showSettings() {
+
+    const token =
+        getSpotifyAccessToken();
+
+
+    const element =
+        document.getElementById(
+            "settingsSpotifyStatus"
+        );
+
+
+    if (token) {
+
+        element.textContent =
+            "✓ Csatlakoztatva";
+
+    }
+
+    else {
+
+        element.textContent =
+            "Nincs csatlakoztatva";
+
+    }
+
+
+    showScreen(
+        "settingsScreen"
+    );
+
+}
+
+
+/* =========================================================
+   DEMÓ LEJÁTSZÁS
+   ========================================================= */
+
+function playSong() {
+
+    const token =
+        getSpotifyAccessToken();
+
+
+    const info =
+        document.getElementById(
+            "musicInfo"
+        );
+
+
+    if (!token) {
+
+        info.textContent =
+            "Spotify nincs csatlakoztatva.";
+
+        showSpotifyStatus(
+            "⚠️ Először csatlakoztasd a Spotify-fiókodat.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * A próbadalokhoz még nincs Spotify track ID.
+     * Ezért jelenleg csak a kapcsolatot ellenőrizzük.
+     */
+
+    info.textContent =
+        "✓ Spotify-kapcsolat aktív – a valódi dalok beállítása következik.";
+
+}
+
+
+/* =========================================================
+   OLDAL BETÖLTÉSE
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
     async () => {
 
         await handleSpotifyCallback();
 
-
-        if (isSpotifyConnected()) {
-
-            await loadSpotifyProfile();
-
-        }
+        await loadSpotifyProfile();
 
     }
 );
 
 </script>
-
 
 </body>
 
