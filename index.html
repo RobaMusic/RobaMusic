@@ -1,1 +1,116 @@
-<h1>Magyar HITSTER – HU-001</h1>
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>RobaMusic – Magyar zenei kvíz</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+    font-family:'Montserrat',sans-serif;
+    background:linear-gradient(135deg,#0f172a,#1e293b);
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+.container{
+    width:90%;
+    max-width:420px;
+    text-align:center;
+}
+.logo{
+    font-size:42px;
+    font-weight:800;
+    color:#22c55e;
+}
+.subtitle{
+    color:#cbd5e1;
+    margin-bottom:40px;
+}
+h1{
+    font-size:32px;
+    margin-bottom:15px;
+}
+p{
+    color:#cbd5e1;
+    margin-bottom:35px;
+    line-height:1.5;
+}
+.btn{
+    display:block;
+    width:100%;
+    padding:18px;
+    margin:12px 0;
+    border:none;
+    border-radius:16px;
+    font-size:18px;
+    font-weight:700;
+    cursor:pointer;
+    transition:.2s;
+}
+.play{
+    background:#22c55e;
+    color:#052e16;
+}
+.play:hover{
+    transform:scale(1.03);
+}
+.secondary{
+    background:#334155;
+    color:white;
+}
+.footer{
+    margin-top:35px;
+    font-size:13px;
+    color:#64748b;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="logo">🎵 ROBA MUSIC</div>
+<div class="subtitle">Magyar zenei kvíz</div>
+
+<h1>Találd ki a dalt!</h1>
+
+<p>
+Hallgasd meg a dalrészletet,
+tippeld meg a megjelenési évet,
+és gyűjts pontokat a barátaiddal!
+</p>
+
+<button class="btn play" onclick="startGame()">
+▶ JÁTÉK INDÍTÁSA
+</button>
+
+<button class="btn secondary">
+🏆 Eredmények
+</button>
+
+<button class="btn secondary">
+⚙ Beállítások
+</button>
+
+<div class="footer">
+v1.0 • Magyar slágerek 1960–2025
+</div>
+
+</div>
+
+<script>
+function startGame(){
+    alert("A játék hamarosan indul! 🚀");
+}
+</script>
+
+</body>
+</html>
