@@ -2169,15 +2169,10 @@ function showSettings() {
 }
 
 
-/* =========================================================
-   DEMÓ LEJÁTSZÁS
-   ========================================================= */
-
 function playSong() {
 
     const token =
         getSpotifyAccessToken();
-
 
     const info =
         document.getElementById(
@@ -2200,16 +2195,149 @@ function playSong() {
     }
 
 
-    /*
-     * A próbadalokhoz még nincs Spotify track ID.
-     * Ezért jelenleg csak a kapcsolatot ellenőrizzük.
-     */
+    if (!spotifyPlayer || !spotifyDeviceId) {
+
+        info.textContent =
+            "Spotify-lejátszó még nem áll készen.";
+
+        showSpotifyStatus(
+            "⏳ A Spotify-lejátszó még inicializálódik.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const trackUri =
+        "spotify:track:3nDfx9WqSNOfbuCP4yonzj";
+
 
     info.textContent =
-        "✓ Spotify-kapcsolat aktív – a valódi dalok beállítása következik.";
+        "🎵 Gyöngyhajú lány – lejátszás...";
+
+
+    spotifyPlayer.activateElement();
+
+
+    fetch(
+        "https://api.spotify.com/v1/me/player",
+        {
+
+            method: "PUT",
+
+            headers: {
+
+                "Authorization":
+                    "Bearer " + token,
+
+                "Content-Type":
+                    "application/json"
+
+            },
+
+            body: JSON.stringify({
+
+                device_ids: [
+                    spotifyDeviceId
+                ],
+
+                play: false
+
+            })
+
+        }
+    )
+
+    .then(response => {
+
+        if (!response.ok) {
+
+            return response.text()
+                .then(text => {
+
+                    throw new Error(
+                        text ||
+                        "Spotify eszköz átadás hiba"
+                    );
+
+                });
+
+        }
+
+    })
+
+    .then(() => {
+
+        return fetch(
+            "https://api.spotify.com/v1/me/player/play?device_id=" +
+            encodeURIComponent(
+                spotifyDeviceId
+            ),
+            {
+
+                method: "PUT",
+
+                headers: {
+
+                    "Authorization":
+                        "Bearer " + token,
+
+                    "Content-Type":
+                        "application/json"
+
+                },
+
+                body: JSON.stringify({
+
+                    uris: [
+                        trackUri
+                    ]
+
+                })
+
+            }
+        );
+
+    })
+
+    .then(response => {
+
+        if (!response.ok) {
+
+            return response.text()
+                .then(text => {
+
+                    throw new Error(
+                        text ||
+                        "Spotify lejátszási hiba"
+                    );
+
+                });
+
+        }
+
+
+        info.textContent =
+            "▶ Gyöngyhajú lány – lejátszás folyamatban.";
+
+    })
+
+    .catch(error => {
+
+        console.error(
+            "Spotify playback error:",
+            error
+        );
+
+
+        info.textContent =
+            "❌ Nem sikerült elindítani a zenét.";
+
+    });
 
 }
-
 
 /* =========================================================
    OLDAL BETÖLTÉSE
