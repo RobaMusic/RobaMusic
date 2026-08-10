@@ -2234,7 +2234,53 @@ function showSettings() {
 
 }
 
+/* =========================================================
+   ZENEHALLGATÁS IDŐTARTAMA
+   ========================================================= */
 
+function savePlayDuration() {
+
+    const selected =
+        document.querySelector(
+            'input[name="playDuration"]:checked'
+        );
+
+    if (!selected) {
+        return;
+    }
+
+    localStorage.setItem(
+        "roba_play_duration",
+        selected.value
+    );
+
+}
+
+
+/* Beállítás betöltése */
+
+function loadPlayDuration() {
+
+    const saved =
+        localStorage.getItem(
+            "roba_play_duration"
+        ) || "45";
+
+
+    const radio =
+        document.querySelector(
+            'input[name="playDuration"][value="' +
+            saved +
+            '"]'
+        );
+
+
+    if (radio) {
+        radio.checked = true;
+    }
+
+}
+   
 function playSong() {
 
     const token =
@@ -2418,6 +2464,8 @@ document.addEventListener(
         await loadSpotifyProfile();
 
        await window.onSpotifyWebPlaybackSDKReady();
+
+       loadPlayDuration();
        
     }
 );
