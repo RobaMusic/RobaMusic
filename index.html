@@ -1156,7 +1156,128 @@ async function connectSpotify() {
     }
 
 }
+/* =========================================================
+   SPOTIFY WEB PLAYBACK PLAYER
+   ========================================================= */
 
+let spotifyPlayer = null;
+let spotifyDeviceId = null;
+
+window.onSpotifyWebPlaybackSDKReady = async function () {
+
+    const token =
+        getSpotifyAccessToken();
+
+    if (!token) {
+
+        console.log(
+            "Spotify Player: nincs hozzáférési token."
+        );
+
+        return;
+
+    }
+
+    console.log(
+        "Spotify Web Playback SDK betöltve."
+    );
+
+
+    spotifyPlayer =
+        new Spotify.Player({
+
+            name: "RobaMusic Player",
+
+            getOAuthToken: callback => {
+
+                const currentToken =
+                    getSpotifyAccessToken();
+
+                callback(currentToken);
+
+            },
+
+            volume: 0.5
+
+        });
+
+
+    spotifyPlayer.addListener(
+        "ready",
+        ({ device_id }) => {
+
+            spotifyDeviceId =
+                device_id;
+
+            console.log(
+                "Spotify Player kész. Device ID:",
+                device_id
+            );
+
+            showSpotifyStatus(
+                "✓ Spotify lejátszó készen áll.",
+                "connected"
+            );
+
+        }
+    );
+
+
+    spotifyPlayer.addListener(
+        "not_ready",
+        ({ device_id }) => {
+
+            console.log(
+                "Spotify Player offline:",
+                device_id
+            );
+
+        }
+    );
+
+
+    spotifyPlayer.addListener(
+        "initialization_error",
+        ({ message }) => {
+
+            console.error(
+                "Spotify Player initialization error:",
+                message
+            );
+
+        }
+    );
+
+
+    spotifyPlayer.addListener(
+        "authentication_error",
+        ({ message }) => {
+
+            console.error(
+                "Spotify Player authentication error:",
+                message
+            );
+
+        }
+    );
+
+
+    spotifyPlayer.addListener(
+        "account_error",
+        ({ message }) => {
+
+            console.error(
+                "Spotify Player account error:",
+                message
+            );
+
+        }
+    );
+
+
+    spotifyPlayer.connect();
+
+};
 
 /* =========================================================
    SPOTIFY CALLBACK
