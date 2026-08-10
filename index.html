@@ -2288,8 +2288,7 @@ function loadPlayDuration() {
     }
 
 }
-   
-  function playSong() {
+   function playSong() {
 
     const token =
         getSpotifyAccessToken();
@@ -2306,11 +2305,6 @@ function loadPlayDuration() {
         info.textContent =
             "Spotify nincs csatlakoztatva.";
 
-        showSpotifyStatus(
-            "⚠️ Először csatlakoztasd a Spotify-fiókodat.",
-            "error"
-        );
-
         return;
 
     }
@@ -2320,11 +2314,6 @@ function loadPlayDuration() {
 
         info.textContent =
             "Spotify-lejátszó még nem áll készen.";
-
-        showSpotifyStatus(
-            "⏳ A Spotify-lejátszó még inicializálódik.",
-            "error"
-        );
 
         return;
 
@@ -2343,7 +2332,10 @@ function loadPlayDuration() {
 
 
     fetch(
-        "https://api.spotify.com/v1/me/player",
+        "https://api.spotify.com/v1/me/player/play?device_id=" +
+        encodeURIComponent(
+            spotifyDeviceId
+        ),
         {
 
             method: "PUT",
@@ -2360,11 +2352,9 @@ function loadPlayDuration() {
 
             body: JSON.stringify({
 
-                device_ids: [
-                    spotifyDeviceId
-                ],
-
-                play: false
+                uris: [
+                    trackUri
+                ]
 
             })
 
@@ -2374,6 +2364,7 @@ function loadPlayDuration() {
 
     .then(response => {
 
+
         if (!response.ok) {
 
             return response.text()
@@ -2381,15 +2372,61 @@ function loadPlayDuration() {
 
                     throw new Error(
                         text ||
-                        "Spotify eszköz átadás hiba"
+                        "Spotify lejátszási hiba"
                     );
 
                 });
 
         }
 
+
+        startTimer();
+
+
+        info.textContent =
+            "▶ Gyöngyhajú lány – lejátszás folyamatban.";
+
+
+        window.spotifyPlayTimer =
+
+            setTimeout(
+                () => {
+
+
+                    if (spotifyPlayer) {
+
+                        spotifyPlayer.pause();
+
+                    }
+
+
+                    info.textContent =
+                        "⏸️ A 45 másodperces zenerészlet véget ért.";
+
+
+                },
+                45000
+            );
+
+
     })
 
+
+    .catch(error => {
+
+
+        console.error(
+            "Spotify playback error:",
+            error
+        );
+
+
+        info.textContent =
+            "❌ Nem sikerült elindítani a zenét.";
+
+    });
+
+}
 
     .then(() => {
 
