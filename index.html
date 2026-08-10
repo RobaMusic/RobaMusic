@@ -826,42 +826,108 @@ body {
 
 <section id="settingsScreen" class="screen">
 
-    <div class="card">
+   <div class="card">
 
-        <div class="result-icon">
-            ⚙️
-        </div>
+    <div class="result-icon">
+        ⚙️
+    </div>
 
-        <div class="result-title">
-            Beállítások
-        </div>
-
-        <div class="result-message">
-
-            RobaMusic v1.2
-
-            <br><br>
-
-            Spotify-kapcsolat:
-
-            <br>
-
-            <span id="settingsSpotifyStatus">
-                Nincs csatlakoztatva
-            </span>
-
-        </div>
+    <div class="result-title">
+        Beállítások
+    </div>
 
 
-        <button
-            class="btn btn-secondary"
-            onclick="showScreen('homeScreen')">
+    <div class="result-message">
 
-            ← FŐMENÜ
+        RobaMusic v1.2
 
-        </button>
+        <br><br>
+
+        Spotify-kapcsolat:
+
+        <br>
+
+        <span id="settingsSpotifyStatus">
+            Nincs csatlakoztatva
+        </span>
 
     </div>
+
+
+    <div style="
+        margin-top: 30px;
+        padding: 20px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 16px;
+        text-align: left;
+    ">
+
+        <div style="
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-align: center;
+        ">
+            🎧 Zenehallgatás időtartama
+        </div>
+
+
+        <label style="
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 5px;
+            cursor: pointer;
+        ">
+
+            <input
+                type="radio"
+                name="playDuration"
+                value="45"
+                checked
+                onchange="savePlayDuration()"
+            >
+
+            <span>
+                45 másodperc
+            </span>
+
+        </label>
+
+
+        <label style="
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 5px;
+            cursor: pointer;
+        ">
+
+            <input
+                type="radio"
+                name="playDuration"
+                value="full"
+                onchange="savePlayDuration()"
+            >
+
+            <span>
+                Teljes dal
+            </span>
+
+        </label>
+
+    </div>
+
+
+    <button
+        class="btn btn-secondary"
+        onclick="showScreen('homeScreen')">
+
+        ← FŐMENÜ
+
+    </button>
+
+</div>
 
 </section>
 ```
