@@ -2290,14 +2290,9 @@ function loadPlayDuration() {
 }
    function playSong() {
 
-    const token =
-        getSpotifyAccessToken();
+    const token = getSpotifyAccessToken();
 
-
-    const info =
-        document.getElementById(
-            "musicInfo"
-        );
+    const info = document.getElementById("musicInfo");
 
 
     if (!token) {
@@ -2321,22 +2316,21 @@ function loadPlayDuration() {
 
 
     const trackUri =
-    "spotify:track:3nDfx9WqSNOfbuCP4yonzj";
+        "spotify:track:3nDfx9WqSNOfbuCP4yonzj";
 
 
     info.textContent =
-        "🎵 Gyöngyhajú lány – lejátszás...";
+        "🎵 Lejátszás indítása...";
 
 
     spotifyPlayer.activateElement();
 
 
-  fetch(
-    "https://api.spotify.com/v1/me/player/play?device_id=" +
-    encodeURIComponent(
-        spotifyDeviceId
-    ),
-     
+    fetch(
+        "https://api.spotify.com/v1/me/player/play?device_id=" +
+        encodeURIComponent(
+            spotifyDeviceId
+        ),
         {
 
             method: "PUT",
@@ -2362,11 +2356,7 @@ function loadPlayDuration() {
         }
     )
 
-}
-
-   
     .then(response => {
-
 
         if (!response.ok) {
 
@@ -2383,18 +2373,16 @@ function loadPlayDuration() {
         }
 
 
-        startTimer();
-
-
         info.textContent =
             "▶ Gyöngyhajú lány – lejátszás folyamatban.";
 
 
-        window.spotifyPlayTimer =
+        startTimer();
 
+
+        window.spotifyPlayTimer =
             setTimeout(
                 () => {
-
 
                     if (spotifyPlayer) {
 
@@ -2404,19 +2392,16 @@ function loadPlayDuration() {
 
 
                     info.textContent =
-                        "⏸️ A 45 másodperces zenerészlet véget ért.";
-
+                        "⏸️ A 45 másodperces rész véget ért.";
 
                 },
                 45000
             );
 
-
     })
 
 
     .catch(error => {
-
 
         console.error(
             "Spotify playback error:",
@@ -2427,12 +2412,51 @@ function loadPlayDuration() {
         info.textContent =
             "❌ Nem sikerült elindítani a zenét.";
 
-
     });
 
 }
-   
 
+
+
+function stopSong() {
+
+
+    if (spotifyPlayer) {
+
+        spotifyPlayer.pause();
+
+    }
+
+
+    if (window.spotifyPlayTimer) {
+
+        clearTimeout(
+            window.spotifyPlayTimer
+        );
+
+        window.spotifyPlayTimer = null;
+
+    }
+
+
+    if (timer) {
+
+        clearInterval(
+            timer
+        );
+
+        timer = null;
+
+    }
+
+
+    document.getElementById(
+        "musicInfo"
+    ).textContent =
+        "⏹️ Zene leállítva.";
+
+}
+   
   function stopSong() {
 
     if (spotifyPlayer) {
