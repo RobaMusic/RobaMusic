@@ -618,6 +618,13 @@ body {
 
         </button>
 
+       <button
+    class="btn btn-secondary"
+    onclick="stopSong()">
+
+    ⏹ ZENE LEÁLLÍTÁSA
+
+</button>
 
         <div class="timer-container">
 
@@ -1870,8 +1877,9 @@ function loadSong() {
     answerChecked =
         false;
 
-
-    startTimer();
+   
+answerChecked =
+    false;
 
 }
 
@@ -2306,7 +2314,57 @@ function playSong() {
         return;
 
     }
+   
 
+    if (window.spotifyCountdownTimer) {
+
+        clearInterval(
+            window.spotifyCountdownTimer
+        );
+
+        window.spotifyCountdownTimer = null;
+
+    }
+
+
+    if (timer) {
+
+        clearInterval(
+            timer
+        );
+
+        timer = null;
+
+    }
+
+
+    document.getElementById(
+        "musicInfo"
+    ).textContent =
+        "⏹️ Zene leállítva.";
+
+}
+
+   
+function stopSong() {
+
+
+    if (spotifyPlayer) {
+
+        spotifyPlayer.pause();
+
+    }
+
+
+    if (window.spotifyPlayTimer) {
+
+        clearTimeout(
+            window.spotifyPlayTimer
+        );
+
+        window.spotifyPlayTimer = null;
+
+    }
 
     if (!spotifyPlayer || !spotifyDeviceId) {
 
@@ -2405,6 +2463,8 @@ function playSong() {
         }
 
 
+       startTimer();
+       
         const duration =
             localStorage.getItem(
                 "roba_play_duration"
@@ -2421,32 +2481,7 @@ function playSong() {
         }
 
 
-        let secondsLeft = 45;
-
-
-        info.textContent =
-            "▶ Gyöngyhajú lány – " +
-            secondsLeft +
-            " mp";
-
-
-        window.spotifyCountdownTimer =
-            setInterval(() => {
-
-                secondsLeft--;
-
-
-                if (secondsLeft > 0) {
-
-                    info.textContent =
-                        "▶ Gyöngyhajú lány – " +
-                        secondsLeft +
-                        " mp";
-
-                }
-
-            }, 1000);
-
+      
 
 
         window.spotifyPlayTimer =
