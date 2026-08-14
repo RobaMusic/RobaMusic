@@ -87,14 +87,15 @@
             <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
         </div>
         
-        <h2 class="screen-title">Találd ki a dalt!</h2> <!-- Új cím a játékképernyőre -->
+        <h2 class="screen-title">Találd ki a dalt!</h2>
 
         <!-- Zene lejátszása gomb (Spotifyt indítja) -->
         <button class="game-control-button" id="playMusicGameBtn">
             <img src="./assets/play_icon.png" alt="Play Icon"> Zene lejátszása
         </button>
+        
         <!-- Spotify lejátszó "eltakarva" -->
-        <div class="spotify-hidden-player-wrapper"> <!-- Új wrapper div -->
+        <div class="spotify-hidden-player-wrapper">
             <div id="spotifyPlayerPlaceholder" class="spotify-player-placeholder">
                 Spotify lejátszó töltődik...
             </div>
@@ -108,15 +109,15 @@
             <input type="range" id="remainingTimeSlider" min="0" max="100" value="100" disabled>
             <p id="timeRemainingText">00:45</p>
 
-            <button class="action-button" id="stopMusicBtn">Zene leállítása és válasz</button> <!-- Új gomb -->
+            <button class="action-button" id="stopMusicBtn">Zene leállítása és válasz</button>
         </div>
 
         <!-- Helyes válasz és önbevallás panel (kezdetben rejtett) -->
         <div class="answer-reveal-panel hidden" id="answerRevealPanel">
             <h3>Helyes megfejtés:</h3>
-            <p id="revealedArtist">Előadó: <span class="revealed-value"></span></p>
-            <p id="revealedTitle">Dal címe: <span class="revealed-value"></span></p>
-            <p id="revealedYear">Megjelenési év: <span class="revealed-value"></span></p>
+            <p>Előadó: <span class="revealed-value" id="revealedArtistText"></span></p>
+            <p>Dal címe: <span class="revealed-value" id="revealedTitleText"></span></p>
+            <p>Megjelenési év: <span class="revealed-value" id="revealedYearText"></span></p>
 
             <h3>Kérjük, értékeld a tipped!</h3>
             <div class="self-assessment-group">
