@@ -362,3 +362,43 @@ button:disabled {
         font-size: 0.9em;
     }
 }
+
+
+/* ... (a korábbi body, hidden, game-container, logo, screen-title, button, spotify-connect-button, start-game-button, menu-button, spotify-status, setting-category, setting-option-button, back-to-main-menu-button, song-info-display, spotify-player-container, game-controls, game-control-button, year-label, yearGuess, remainingTimeSlider, timeRemainingText, action-button stílusok maradnak) ... */
+
+/* QR Scan Screen stílusok */
+.qr-code-display {
+    width: 90%;
+    margin-bottom: 20px;
+    background-color: #282828;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.qr-code-display img {
+    width: 180px; /* Mock QR kód mérete */
+    height: 180px;
+    background-color: white; /* Hogy látszódjon a QR kód */
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.qr-code-instruction {
+    font-size: 0.9em;
+    color: #b3b3b3;
+}
+
+/* Reszponzív design */
+@media (max-width: 600px) {
+    /* ... (korábbi reszponzív stílusok maradnak) ... */
+    .qr-code-display img {
+        width: 150px;
+        height: 150px;
+    }
+}
