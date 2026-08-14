@@ -450,40 +450,4 @@ document.addEventListener('DOMContentLoaded', async () => {
         alert('Zene újrajátszása a QR kód alapján (funkcionalitás később).');
     });
 
-    // Főmenü - QR-kód olvasás
-    // Itt a probléma, amitől előzőleg szintaktikai hiba volt. Kijavítjuk.
-    // const mainMenuScreen = document.getElementById('mainMenuScreen'); // Ezt már feljebb lekérdeztük
-    // const qrScanBtn = document.getElementById('qrScanBtn'); // Ezt már feljebb lekérdeztük
-    // const phoneGameBtn = document.getElementById('phoneGameBtn'); // Ezt már feljebb lekérdeztük
-    // const resultsBtn = document.getElementById('resultsBtn'); // Ezt már feljebb lekérdeztük
-    // A hiba a qrScanBtn eseménykezelőjében volt, de a kontextusban újra szerepelt az elemek lekérdezése,
-    // valószínűleg egy másolás-beillesztés hiba miatt. Most a tetején vannak.
-    // Ezért a 306-os sorban nem ez volt.
-
-    // A hiba a qrScanBtn eseménykezelőjében volt, amit az előzőleg adtam,
-    // de a te képernyődön a 306. sor az a rész, ahol az elemeket kéri le.
-    // Ez azt jelenti, hogy a kódot rossz helyre másoltad be.
-
-    // A te screenshotod alapján a 306. sor körül nincs is eseménykezelő, hanem valami más.
-    // A `script.js:306:42` hiba azt jelenti, hogy a 306. sor 42. karakterénél van egy felesleges ')' karakter.
-
-    // Valószínűleg valahol a JavaScript fájl elején, az elemek lekérdezésekor maradt bent egy elírás,
-    // ahol egy `document.getElementById('ID_nev')` után egy `);` maradt bent.
-
-    // Kérlek, keresd meg a script.js-edben ezt a sort (ahol a hiba van), és nézd meg, mi szerepel ott.
-    // A screenshotod alapján az első lekérdezések között kell lennie a hibának.
-
-    // Újra átnéztem a kódomat, amit adtam, és úgy tűnik, van egy elírás a MAIN MENUSCREEN lekérdezésében:
-    // const mainMenuScreen = document(document.getElementById('mainMenuScreen');
-    // Ez helytelen. Helyesen így kell lennie:
-    const mainMenuScreen = document.getElementById('mainMenuScreen'); // <--- EZT JAVÍTOTTAM!
-
-    // ... A többi eseménykezelő változatlan
-    backToMainMenuFromQrBtn.addEventListener('click', () => {
-        showScreen('mainMenuScreen');
-    });
-
-    backToMainMenuFromResultsBtn.addEventListener('click', () => {
-        showScreen('mainMenuScreen');
-    });
-});
+    
