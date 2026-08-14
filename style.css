@@ -20,9 +20,9 @@ body {
 
 .game-container {
     width: 100%;
-    max-width: 400px;
+    max-width: 400px; /* Egy tipikus telefon képernyő szélessége */
     padding: 20px;
-    background-color: #0f0f1d;
+    background-color: #0f0f1d; /* Kicsit sötétebb, mint a háttér */
     border-radius: 15px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     text-align: center;
@@ -78,25 +78,14 @@ button img {
     height: 24px;
 }
 
-/* Spotify csatlakozás gomb */
-.spotify-connect-button {
-    background-color: #1DB954;
-    color: white;
-}
-
-.spotify-connect-button:not(:disabled):hover {
-    background-color: #1ed760;
-    transform: translateY(-2px);
-}
-
-/* Játék indítása gomb */
-.start-game-button {
-    background-color: #007bff;
+/* Spotify csatlakozás gomb (most általános start gomb) */
+.start-game-button { /* Átneveztem a spotify-connect-button-t erre */
+    background-color: #1DB954; /* Még mindig zöld, mint a régi connect gomb */
     color: white;
 }
 
 .start-game-button:not(:disabled):hover {
-    background-color: #0056b3;
+    background-color: #1ed760;
     transform: translateY(-2px);
 }
 
@@ -125,8 +114,8 @@ button:disabled {
     opacity: 0.7;
 }
 
-/* Spotify státusz szöveg */
-.spotify-status {
+/* App státusz szöveg */
+#appStatus { /* Az eredeti spotify-status most #appStatus */
     font-size: 0.9em;
     color: #888;
     margin-top: -10px;
@@ -199,13 +188,13 @@ button:disabled {
     text-align: center;
 }
 
-.spotify-player-placeholder-visible { /* Az új osztály a látható iframe-hez */
-    width: 90%; /* Kitölti a container szélességét */
+.spotify-player-placeholder-visible { /* Az osztály, ami az iframe-et tárolja */
+    width: 90%;
     height: 80px; /* Az iframe magassága */
-    margin: 0 auto; /* Középre igazítja */
+    margin: 0 auto;
     border-radius: 8px;
-    overflow: hidden; /* Ha valami kilógna */
-    background-color: #282828; /* Spotify player háttér színe */
+    overflow: hidden;
+    background-color: #282828;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -217,7 +206,7 @@ button:disabled {
     width: 100%;
     height: 80px;
     border: none;
-    pointer-events: auto; /* <-- Mostantól kattintható az iframe */
+    pointer-events: auto; /* Mostantól kattintható az iframe */
 }
 
 
