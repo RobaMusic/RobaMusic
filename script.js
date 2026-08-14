@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Játék képernyő
     const gameScreen = document.getElementById('gameScreen');
-    const playMusicGameBtn = document.getElementById('playMusicGameBtn');
+    const playMusicGameBtn = document.getElementById('playMusicGameBtn'); // <-- EZ AZ ELEM HIÁNYZOTT AZ INDEX.HTML-BŐL!
     const playbackStatusMessage = document.getElementById('playbackStatusMessage');
     const spotifyPlayerPlaceholder = document.getElementById('spotifyPlayerPlaceholder'); // Ez most az iframe-et fogja tárolni
     const remainingTimeSlider = document.getElementById('remainingTimeSlider');
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const revealedTitleText = document.getElementById('revealedTitleText');
     const revealedYearText = document.getElementById('revealedYearText');
     const hitTitleCheckbox = document.getElementById('hitTitle');
-    const hitArtistCheckbox = document.getElementById('hitArtist'); 
+    const hitArtistCheckbox = document.getElementById('hitArtist');
     const hitYearCheckbox = document.getElementById('hitYear');
     const recordScoreAndNextBtn = document.getElementById('recordScoreAndNextBtn');
     const recordScoreAndFinishBtn = document.getElementById('recordScoreAndFinishBtn');
