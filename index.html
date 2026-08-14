@@ -56,7 +56,6 @@
 
         <!-- Zenestílus kiválasztása -->
         <h3 class="setting-category">Zenestílus kiválasztása</h3>
-        <!-- Megjegyzés: Itt csak a példa kedvéért teszünk be párat. Később ezt dinamikusan generálhatjuk az adatbázisból. -->
         <button class="setting-option-button selected" data-setting="musicStyle" data-value="POP">POP</button>
         <button class="setting-option-button" data-setting="musicStyle" data-value="ROCK">ROCK</button>
         <button class="setting-option-button" data-setting="musicStyle" data-value="HU">MAGYAR ZENE</button>
@@ -65,7 +64,7 @@
         <button class="setting-option-button" data-setting="musicStyle" data-value="ALL">ÖSSZES KATEGÓRIA</button>
 
 
-        <!-- Zeneszámok mennyisége (slider helyett most fix gombok) -->
+        <!-- Zeneszámok mennyisége -->
         <h3 class="setting-category">Zeneszámok mennyisége</h3>
         <button class="setting-option-button selected" data-setting="songCount" data-value="50">50 db</button>
         <button class="setting-option-button" data-setting="songCount" data-value="100">100 db</button>
@@ -77,6 +76,53 @@
     </div>
     <!-- END SETTINGS SCREEN -->
 
+    <!-- GAME SCREEN -->
+    <div class="game-container hidden" id="gameScreen">
+        <div class="logo">
+            <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
+        </div>
+
+        <!-- Dal adatai, kezdetben rejtve -->
+        <div class="song-info-display">
+            <p id="displayArtist" class="revealed-info">Előadó: ???</p>
+            <p id="displayTitle" class="revealed-info">Dal címe: ???</p>
+            <p id="displayYear" class="revealed-info">Megjelenés éve: ????</p>
+        </div>
+
+        <!-- Spotify lejátszó iframe -->
+        <div class="spotify-player-container">
+            <!-- Ide fog bekerülni a Spotify lejátszó iframe a JS segítségével -->
+            <div id="spotifyPlayerPlaceholder" class="spotify-player-placeholder">
+                Spotify lejátszó töltődik...
+            </div>
+            <p class="spotify-note">A zene a Spotify-ról töltődik be.</p>
+        </div>
+
+        <!-- Játék vezérlők -->
+        <div class="game-controls">
+            <!-- Játékos vezérlők (Play/Pause) - Ezeket valójában az iframe tartalmazza -->
+            <button class="game-control-button" id="playMusicBtn" disabled>
+                <img src="./assets/play_icon.png" alt="Play Icon"> Zene lejátszása
+            </button>
+            <button class="game-control-button" id="pauseMusicBtn" disabled>
+                <img src="./assets/pause_icon.png" alt="Pause Icon"> Zene leállítása
+            </button>
+            <!-- Megjegyzés: A pause ikonhoz szükségünk lesz egy pause_icon.png-re az assets mappában -->
+
+            <!-- Maradék idő csúszka (MOCK) -->
+            <label for="yearGuess" class="year-label">Hallgatási idő:</label>
+            <input type="range" id="remainingTimeSlider" min="0" max="100" value="100" disabled>
+            <p id="timeRemainingText">00:45</p>
+
+            <label for="yearGuess" class="year-label">Melyik évben jelent meg a dal?</label>
+            <input type="number" id="yearGuess" placeholder="Írd be az évet (pl. 1990)" min="1900" max="2025">
+
+            <button class="action-button" id="checkAnswerBtn">Válasz ellenőrzése</button>
+        </div>
+
+        <button class="back-to-main-menu-button" id="backToMainMenuFromGame">Visszatérés a Főmenübe</button>
+    </div>
+    <!-- END GAME SCREEN -->
 
     <script src="script.js"></script>
 </body>
