@@ -5,15 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RobaMusic</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/png" href="./assets/favicon.png"> <!-- A favicon továbbra is külön fájl, ha van -->
+    <link rel="icon" type="image/png" href="./assets/favicon.png">
 </head>
 <body>
 
     <div class="game-container" id="splashScreen">
         <div class="logo">
-            <!-- Az általad küldött logóképet használjuk, ami tartalmazza a szövegeket -->
             <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
-            <!-- A korábbi h1 és h2 tagekre már nincs szükség, ha a logó tartalmazza a szöveget -->
         </div>
         <button class="spotify-connect-button" id="spotifyConnectBtn">
             <img src="./assets/spotify_icon.png" alt="Spotify Icon"> SPOTIFY CSATLAKOZTATÁSA
@@ -24,7 +22,25 @@
         </button>
     </div>
 
-    <!-- Ide jönnek majd a többi képernyő (Main Menu, QR Scan, etc.) -->
+    <!-- MAIN MENU SCREEN -->
+    <div class="game-container hidden" id="mainMenuScreen">
+        <div class="logo">
+            <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
+        </div>
+        <h2 class="screen-title">Játéktípus kiválasztása</h2>
+
+        <button class="menu-button" id="qrScanBtn">
+            QR-kód olvasás <br> <span class="subtitle">(Van saját kódcsomagod)</span>
+        </button>
+        <button class="menu-button" id="phoneGameBtn">
+            Telefonos játék <br> <span class="subtitle">(QR-kód olvasás nélkül)</span>
+        </button>
+        <button class="menu-button" id="resultsBtn">
+            Eredmények
+        </button>
+    </div>
+    <!-- END MAIN MENU SCREEN -->
+
 
     <script src="script.js"></script>
 </body>
