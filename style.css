@@ -192,24 +192,36 @@ button:disabled {
 
 
 /* Játék képernyő stílusok */
-/* A Spotify lejátszó "eltakarva" -- már nem az iframe, hanem az SDK vezérel */
-/* Az iframe valójában egy 1x1 pixeles, eltolt elemben lesz */
-.spotify-player-placeholder {
-    width: 1px; /* Nagyon kicsi méret */
-    height: 1px;
-    position: absolute; /* Eltávolítva a normál flow-ból */
-    top: -9999px; /* Eltolva a látható területről */
-    left: -9999px;
-    overflow: hidden; /* Elrejti a tartalmát, ha mégis kilógna */
-    visibility: hidden; /* További biztosíték az elrejtésre */
-    opacity: 0; /* További biztosíték az elrejtésre */
-    z-index: -1; /* Legyen más elemek alatt */
-    pointer-events: none; /* Ne lehessen rákattintani */
-    /* background-color: transparent; /* Nincs háttér */
+/* Spotify lejátszó mostantól látható (iframe) */
+.spotify-player-container {
+    width: 100%;
+    margin-bottom: 20px;
+    text-align: center;
 }
 
-/* A spotify-note most a playback status message lesz */
-#playbackStatusMessage {
+.spotify-player-placeholder-visible { /* Az új osztály a látható iframe-hez */
+    width: 90%; /* Kitölti a container szélességét */
+    height: 80px; /* Az iframe magassága */
+    margin: 0 auto; /* Középre igazítja */
+    border-radius: 8px;
+    overflow: hidden; /* Ha valami kilógna */
+    background-color: #282828; /* Spotify player háttér színe */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #b3b3b3;
+    font-size: 0.9em;
+}
+
+.spotify-player-placeholder-visible iframe {
+    width: 100%;
+    height: 80px;
+    border: none;
+    pointer-events: auto; /* <-- Mostantól kattintható az iframe */
+}
+
+
+#playbackStatusMessage { /* A spotify-note most a playback status message lesz */
     font-size: 0.8em;
     color: #888;
     margin-top: 0px;
@@ -385,4 +397,61 @@ button:disabled {
     gap: 8px;
 }
 
-.self-assessment-
+.self-assessment-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #1DB954;
+    cursor: pointer;
+}
+
+#recordScoreAndNextBtn, #recordScoreAndFinishBtn {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Reszponzív design */
+@media (max-width: 600px) {
+    .game-container {
+        width: 95%;
+        padding: 15px;
+        max-height: 98vh;
+    }
+    .logo img {
+        width: 200px;
+    }
+    .screen-title {
+        font-size: 1.2em;
+    }
+    button {
+        padding: 12px 15px;
+        font-size: 1em;
+    }
+    .menu-button .subtitle {
+        font-size: 0.7em;
+    }
+    .spotify-player-placeholder-visible {
+        height: 60px; /* Kisebb lejátszó mobil nézetben */
+    }
+    .spotify-player-placeholder-visible iframe {
+        height: 60px;
+    }
+    .scrollable-content {
+        max-height: calc(98vh - 220px);
+        padding: 5px 0;
+    }
+    .screen-title.results-congrats {
+        font-size: 1.5em;
+    }
+    .current-score, .best-score {
+        font-size: 2em;
+    }
+    .answer-reveal-panel h3 {
+        font-size: 1.1em;
+    }
+    .answer-reveal-panel p {
+        font-size: 0.9em;
+    }
+    .self-assessment-group label {
+        font-size: 0.85em;
+    }
+}
