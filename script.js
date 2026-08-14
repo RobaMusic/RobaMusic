@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const appStatus = document.getElementById('appStatus');
 
     // Főmenü
-    const mainMenuScreen = document.getElementById('mainMenuScreen'); // <-- HELYES!
+    const mainMenuScreen = document.getElementById('mainMenuScreen'); 
     const qrScanBtn = document.getElementById('qrScanBtn');
     const phoneGameBtn = document.getElementById('phoneGameBtn');
     const resultsBtn = document.getElementById('resultsBtn');
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const revealedTitleText = document.getElementById('revealedTitleText');
     const revealedYearText = document.getElementById('revealedYearText');
     const hitTitleCheckbox = document.getElementById('hitTitle');
-    const hitArtistCheckbox = document.getElementById('hitArtist');
+    const hitArtistCheckbox = document.getElementById('hitArtist'); 
     const hitYearCheckbox = document.getElementById('hitYear');
     const recordScoreAndNextBtn = document.getElementById('recordScoreAndNextBtn');
     const recordScoreAndFinishBtn = document.getElementById('recordScoreAndFinishBtn');
