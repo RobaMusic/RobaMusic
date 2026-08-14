@@ -1,452 +1,461 @@
-/* Általános stílusok */
-body {
-    font-family: 'Arial', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #1a1a2e;
-    color: #e0e0e0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    box-sizing: border-box;
-    overflow: hidden;
-}
+let songsData = [];
+let isSongsDataLoaded = false;
 
-/* Képernyő elrejtése */
-.hidden {
-    display: none !important;
-}
+document.addEventListener('DOMContentLoaded', async () => {
+    // --- Képernyő elemek lekérdezése ---
+    // Kezdőképernyő
+    const splashScreen = document.getElementById('splashScreen');
+    const startAppBtn = document.getElementById('startAppBtn');
+    const appStatus = document.getElementById('appStatus');
 
-.game-container {
-    width: 100%;
-    max-width: 400px; /* Egy tipikus telefon képernyő szélessége */
-    padding: 20px;
-    background-color: #0f0f1d; /* Kicsit sötétebb, mint a háttér */
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 15px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    max-height: 95vh;
-    overflow-y: auto; /* A game-container maga görgetődjön, ha a tartalom túl nagy */
-}
+    // Főmenü
+    const mainMenuScreen = document.getElementById('mainMenuScreen'); 
+    const qrScanBtn = document.getElementById('qrScanBtn');
+    const phoneGameBtn = document.getElementById('phoneGameBtn');
+    const resultsBtn = document.getElementById('resultsBtn');
 
-/* Logó és címek */
-.logo {
-    margin-bottom: 20px;
-}
+    // Beállítások képernyő
+    const settingsScreen = document.getElementById('settingsScreen');
+    const startPhoneGameBtn = document.getElementById('startPhoneGameBtn');
+    const backToMainMenuFromSettingsBtn = document.getElementById('backToMainMenuFromSettings');
+    const settingOptionButtons = document.querySelectorAll('.setting-option-button');
 
-.logo img {
-    width: 250px;
-    max-width: 80%;
-    height: auto;
-}
+    // Játék képernyő
+    const gameScreen = document.getElementById('gameScreen');
+    const playMusicGameBtn = document.getElementById('playMusicGameBtn');
+    const playbackStatusMessage = document.getElementById('playbackStatusMessage');
+    const spotifyPlayerPlaceholder = document.getElementById('spotifyPlayerPlaceholder'); // Ez most az iframe-et fogja tárolni
+    const remainingTimeSlider = document.getElementById('remainingTimeSlider');
+    const timeRemainingText = document.getElementById('timeRemainingText');
+    const stopMusicBtn = document.getElementById('stopMusicBtn');
+    const backToMainMenuFromGameBtn = document.getElementById('backToMainMenuFromGame');
 
-.screen-title {
-    font-size: 1.4em;
-    color: #e0e0e0;
-    margin-bottom: 20px;
-    font-weight: bold;
-}
+    // QR Scan képernyő
+    const qrScanScreen = document.getElementById('qrScanScreen');
+    const replayQrMusicBtn = document.getElementById('replayQrMusicBtn');
+    const backToMainMenuFromQrBtn = document.getElementById('backToMainMenuFromQr'); // <-- JAVÍTOTT
 
-/* Gombok alap stílusa */
-button {
-    width: 90%;
-    padding: 15px 20px;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1em;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
+    // Eredmények képernyő
+    const resultsScreen = document.getElementById('resultsScreen');
+    const currentScoreDisplay = document.getElementById('currentScore');
+    const bestScoreDisplay = document.getElementById('bestScore');
+    const backToMainMenuFromResultsBtn = document.getElementById('backToMainMenuFromResults');
 
-button img {
-    width: 24px;
-    height: 24px;
-}
-
-/* Spotify csatlakozás gomb (most általános start gomb) */
-.start-game-button { /* Átneveztem a spotify-connect-button-t erre */
-    background-color: #1DB954; /* Még mindig zöld, mint a régi connect gomb */
-    color: white;
-}
-
-.start-game-button:not(:disabled):hover {
-    background-color: #1ed760;
-    transform: translateY(-2px);
-}
-
-/* Menü gombok */
-.menu-button {
-    background-color: #2196f3;
-    color: white;
-    line-height: 1.3;
-}
-
-.menu-button:hover {
-    background-color: #1976d2;
-    transform: translateY(-2px);
-}
-
-.menu-button .subtitle {
-    font-size: 0.8em;
-    opacity: 0.8;
-    font-weight: normal;
-}
-
-/* Gombok inaktív állapota */
-button:disabled {
-    background-color: #555;
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-/* App státusz szöveg */
-#appStatus { /* Az eredeti spotify-status most #appStatus */
-    font-size: 0.9em;
-    color: #888;
-    margin-top: -10px;
-}
-
-/* Beállítások képernyő */
-.setting-category {
-    font-size: 1.1em;
-    color: #a0a0a0;
-    margin-top: 20px;
-    margin-bottom: 10px;
-    text-align: left;
-    width: 90%;
-}
-
-.setting-option-button {
-    background-color: #3f51b5;
-    color: white;
-    width: 90%;
-    margin-bottom: 8px;
-    padding: 12px 20px;
-}
-
-.setting-option-button:hover {
-    background-color: #303f9f;
-    transform: translateY(-2px);
-}
-
-.setting-option-button.selected {
-    background-color: #4CAF50;
-    border: 2px solid #66bb6a;
-}
-
-.setting-option-button.selected:hover {
-    background-color: #43a047;
-}
-
-/* Vissza gomb */
-.back-to-main-menu-button {
-    background-color: #616161;
-    color: white;
-    margin-top: 15px;
-}
-
-.back-to-main-menu-button:hover {
-    background-color: #424242;
-    transform: translateY(-2px);
-}
-
-/* Görgethető tartalom a Beállítások képernyőn */
-.scrollable-content {
-    max-height: calc(95vh - 250px);
-    overflow-y: auto;
-    width: 100%;
-    padding: 10px 0;
-    box-sizing: border-box;
-    -webkit-overflow-scrolling: touch;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+    // Önbecslés panel elemek
+    const answerRevealPanel = document.getElementById('answerRevealPanel');
+    const revealedArtistText = document.getElementById('revealedArtistText');
+    const revealedTitleText = document.getElementById('revealedTitleText');
+    const revealedYearText = document.getElementById('revealedYearText');
+    const hitTitleCheckbox = document.getElementById('hitTitle');
+    const hitArtistCheckbox = document.getElementById('hitArtist'); // <-- JAVÍTOTT
+    const hitYearCheckbox = document.getElementById('hitYear');
+    const recordScoreAndNextBtn = document.getElementById('recordScoreAndNextBtn');
+    const recordScoreAndFinishBtn = document.getElementById('recordScoreAndFinishBtn');
 
 
-/* Játék képernyő stílusok */
-/* Spotify lejátszó "elrejtése" egy még agresszívebb módon */
-.spotify-player-container {
-    width: 1px; /* Nagyon kicsi szélesség */
-    height: 1px; /* Nagyon kicsi magasság */
-    overflow: hidden; /* Elrejti, ami kilóg az 1x1-ből */
-    position: absolute; /* Eltávolítja a normál dokumentumfolyamból */
-    top: -9999px; /* Eltolja a képernyőn kívülre */
-    left: -9999px;
-    opacity: 0; /* Teljesen átlátszatlan */
-    z-index: -1; /* Más elemek alá kerül */
-    pointer-events: none; /* Ne lehessen rákattintani */
-    /* display: none; */ /* Ha ez van, akkor valószínűleg nem szól a hang */
-}
+    // --- Játék állapot változók ---
+    const gameSettings = {
+        listeningTime: '45',
+        musicStyle: 'ALL',
+        songCount: '50'
+    };
+    let currentSong = null;
+    let spotifyIframe = null; // A Spotify iframe eleme
+    let playbackInterval = null; // Az időzítő intervallum
+    let currentScore = 0; // Aktuális pontszám
+    let bestScore = localStorage.getItem('robaMusicBestScore') || 0; // Legjobb pontszám localStorage-ből
+    let isPlaying = false; // Jelzi, hogy a zene éppen szól-e
 
-/* A lejátszó placeholder-je most az iframe-et tárolja */
-.spotify-player-placeholder-visible {
-    width: 100%; /* Kitölti a container 1px-es szélességét */
-    height: 100%; /* Kitölti a container 1px-es magasságát */
-    display: flex; /* Hogy a benne lévő iframe-et jól elrendezze */
-    justify-content: center;
-    align-items: center;
-}
+    let currentRound = 0; // Aktuális kör száma
+    let totalRounds = 0; // Összes kör száma a beállítások alapján
+    let playedSongs = []; // Eltárolja a már lejátszott dalok ID-it, hogy ne ismétlődjenek
 
-.spotify-player-placeholder-visible iframe {
-    width: 300px; /* Az iframe valós mérete (ez az 1x1-es containeren kívülre fog lógni, de elrejti az overflow) */
-    height: 80px;
-    border: none;
-    /* pointer-events: auto; */ /* Ne tegyük automatikusra, mert elrejtettük */
-}
+    bestScoreDisplay.textContent = bestScore;
 
-
-#playbackStatusMessage { /* A Spotify status message */
-    font-size: 0.8em;
-    color: #888;
-    margin-top: 0px;
-    margin-bottom: 20px;
-}
-
-.game-controls {
-    width: 90%;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-#remainingTimeSlider {
-    width: 90%;
-    margin: 10px 0;
-    -webkit-appearance: none;
-    appearance: none;
-    height: 8px;
-    background: #d3d3d3;
-    outline: none;
-    opacity: 0.7;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
-    border-radius: 5px;
-}
-
-#remainingTimeSlider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #4CAF50;
-    cursor: pointer;
-}
-
-#remainingTimeSlider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #4CAF50;
-    cursor: pointer;
-}
-
-#timeRemainingText {
-    font-size: 0.9em;
-    color: #b3b3b3;
-    margin-top: -5px;
-    margin-bottom: 10px;
-}
-
-.action-button {
-    background-color: #4CAF50;
-    color: white;
-    width: 90%;
-}
-
-.action-button:not(:disabled):hover {
-    background-color: #43a047;
-    transform: translateY(-2px);
-}
-
-/* QR Scan Screen stílusok */
-.qr-code-display {
-    width: 90%;
-    margin-bottom: 20px;
-    background-color: #282828;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.qr-code-display img {
-    width: 180px;
-    height: 180px;
-    background-color: white;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-}
-
-.qr-code-instruction {
-    font-size: 0.9em;
-    color: #b3b3b3;
-}
-
-/* Results Screen stílusok */
-.screen-title.results-congrats {
-    font-size: 1.8em;
-    color: #4CAF50;
-    margin-bottom: 30px;
-}
-
-.results-display {
-    width: 90%;
-    margin-bottom: 20px;
-    background-color: #1a1a2e;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.results-label {
-    font-size: 1.2em;
-    color: #e0e0e0;
-    margin-bottom: 10px;
-}
-
-.current-score, .best-score {
-    font-size: 2.5em;
-    font-weight: bold;
-    color: #2196f3;
-    margin-bottom: 15px;
-}
-
-.best-score-label {
-    font-size: 0.9em;
-    color: #888;
-    margin-bottom: 5px;
-}
-
-/* Helyes válasz és önbevallás panel stílusok */
-.answer-reveal-panel {
-    background-color: #1a1a2e;
-    padding: 20px;
-    border-radius: 8px;
-    margin-top: 20px;
-    width: 90%;
-    text-align: left;
-}
-
-.answer-reveal-panel h3 {
-    font-size: 1.2em;
-    color: #e0e0e0;
-    margin-bottom: 15px;
-    text-align: center;
-}
-
-.answer-reveal-panel p {
-    margin: 8px 0;
-    font-size: 1em;
-    color: #b3b3b3;
-}
-
-.answer-reveal-panel .revealed-value {
-    font-weight: bold;
-    color: #4CAF50; /* A helyes válasz zöld színben */
-}
-
-.self-assessment-group {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    border-top: 1px solid #333;
-    padding-top: 15px;
-}
-
-.self-assessment-group label {
-    font-size: 0.95em;
-    color: #e0e0e0;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.self-assessment-group input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: #1DB954;
-    cursor: pointer;
-}
-
-#recordScoreAndNextBtn, #recordScoreAndFinishBtn {
-    width: 100%;
-    margin-top: 10px;
-}
-
-/* Reszponzív design */
-@media (max-width: 600px) {
-    .game-container {
-        width: 95%;
-        padding: 15px;
-        max-height: 98vh;
+    // --- Dal adatbázis betöltése ---
+    async function loadSongsData() {
+        try {
+            const response = await fetch('./assets/songs.json'); // Elérési út a songs.json fájlhoz
+            if (!response.ok) {
+                throw new Error(`HTTP hiba! Státusz: ${response.status}`);
+            }
+            songsData = await response.json();
+            isSongsDataLoaded = true;
+            console.log("Dal adatok sikeresen betöltve:", songsData.length, "dal.");
+            // Ha a dalok betöltődtek, engedélyezzük az app indítását
+            if (isSongsDataLoaded) {
+                startAppBtn.disabled = false;
+            }
+            appStatus.textContent = 'Készen áll az indításra.'; // Frissítjük a státuszt
+        } catch (error) {
+            console.error("Hiba a dal adatok betöltésekor:", error);
+            appStatus.textContent = "Hiba a dal adatok betöltésekor. Kérjük, próbálja újra később.";
+        }
     }
-    .logo img {
-        width: 200px;
+
+    // A script betöltésekor azonnal megpróbáljuk betölteni a dal adatokat
+    loadSongsData();
+
+    // --- Segéd függvények ---
+
+    // Képernyőváltó funkció
+    function showScreen(screenId) {
+        document.querySelectorAll('.game-container').forEach(screen => {
+            screen.classList.add('hidden');
+        });
+        document.getElementById(screenId).classList.remove('hidden');
     }
-    .screen-title {
-        font-size: 1.2em;
+
+    // Spotify lejátszó iframe betöltése
+    function loadSpotifyPlayer(spotifyId, autoplay = 0) {
+        if (spotifyIframe) {
+            spotifyIframe.remove();
+            spotifyIframe = null;
+        }
+
+        spotifyIframe = document.createElement('iframe');
+        spotifyIframe.src = `https://open.spotify.com/embed/track/${spotifyId}?utm_source=generator&theme=0&autoplay=${autoplay}`;
+        spotifyIframe.width = "100%";
+        spotifyIframe.height = "80";
+        spotifyIframe.frameBorder = "0";
+        spotifyIframe.allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+        spotifyIframe.loading = "lazy";
+
+        spotifyPlayerPlaceholder.innerHTML = '';
+        spotifyPlayerPlaceholder.appendChild(spotifyIframe);
+        
+        // Mivel a lejátszás az iframe-en belül történik, a Play gomb csak indítja az időzítőt
+        playMusicGameBtn.disabled = false;
+        stopMusicBtn.disabled = true; // Kezdetben leállítva, amíg nem nyomtak play-t
+        playbackStatusMessage.textContent = "Kattintson az alábbi lejátszó Play gombjára a zene indításához!";
     }
-    button {
-        padding: 12px 15px;
-        font-size: 1em;
+    
+    // Lejátszás időzítő indítása
+    function startPlaybackTimer() {
+        clearInterval(playbackInterval);
+
+        let duration = parseInt(gameSettings.listeningTime);
+        if (gameSettings.listeningTime === 'full') {
+             duration = 90; // Az iframe nem adja meg a dal hosszát, így fix 90 mp.
+        }
+
+        let timeLeft = duration;
+        remainingTimeSlider.max = duration;
+        remainingTimeSlider.value = timeLeft;
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = Math.floor(timeLeft % 60); // Math.floor, hogy egész szám legyen
+            timeRemainingText.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            remainingTimeSlider.value = timeLeft;
+        }
+
+        updateTimerDisplay();
+
+        playbackInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay();
+
+            if (timeLeft <= 0) {
+                clearInterval(playbackInterval);
+                timeRemainingText.textContent = "Idő lejárt!";
+                if(isPlaying) {
+                    isPlaying = false; // A mi időzítőnk szerint vége a hallgatási időnek
+                    playMusicGameBtn.disabled = true; // Letiltjuk, hogy ne indítson újra
+                    playbackStatusMessage.textContent = "Idő lejárt! Kérem állítsa le a zenét és válaszoljon.";
+                    stopMusicBtn.disabled = false; // Engedélyezzük a válasz gombot
+                }
+            }
+        }, 1000);
     }
-    .menu-button .subtitle {
-        font-size: 0.7em;
+
+    // Lejátszás időzítő leállítása
+    function stopPlaybackTimer() {
+        clearInterval(playbackInterval);
     }
-    /* A Spotify player-container stílusai */
-    .spotify-player-container {
-        width: 1px;
-        height: 1px;
-        top: -9999px;
-        left: -9999px;
+
+    // --- Játék indításának előkészítése és első dal kiválasztása ---
+    function prepareAndStartNewGame() {
+        if (!isSongsDataLoaded) {
+            alert('A dal adatok még nem töltődtek be. Kérjük, várjon!');
+            return;
+        }
+
+        // --- Játékmenet inicializálása ---
+        currentRound = 0;
+        currentScore = 0; // Új játék elején a pontszám nullázása
+        playedSongs = []; // Töröljük a már lejátszott dalok listáját
+
+        let availableSongsForSelection = songsData;
+
+        // Szűrés kategória szerint
+        if (gameSettings.musicStyle !== 'ALL') {
+            availableSongsForSelection = availableSongsForSelection.filter(song => song.Kategória === gameSettings.musicStyle);
+        }
+
+        // Szűrés aktív státusz szerint
+        availableSongsForSelection = availableSongsForSelection.filter(song => song.Aktív === 'Igen');
+
+        if (availableSongsForSelection.length === 0) {
+            alert('Nincs elérhető dal a kiválasztott kategóriában. Kérjük, módosítsa a beállításokat!');
+            return;
+        }
+
+        // Meghatározzuk az összes kör számát
+        if (gameSettings.songCount === 'all') {
+            totalRounds = availableSongsForSelection.length;
+        } else {
+            totalRounds = Math.min(parseInt(gameSettings.songCount), availableSongsForSelection.length);
+        }
+
+        if (totalRounds === 0) {
+             alert('Nincs elegendő dal a kiválasztott beállításokkal. Kérjük, módosítsa a beállításokat!');
+             return;
+        }
+        
+        startNewRound(); // Elindítjuk az első kört
+        showScreen('gameScreen'); // Megjelenítjük a játék képernyőt
     }
-    .spotify-player-placeholder-visible iframe {
-        /* Nem kell külön mobil stílus, mert a container takarja */
+
+    // --- Új kör indítása ---
+    function startNewRound() {
+        if (currentRound > totalRounds) {
+            // Játék vége
+            endGame();
+            return;
+        }
+
+        currentRound++; // Növeljük a kör számát
+
+        // Dal kiválasztása a beállítások alapján (amely még nem volt lejátszva)
+        let availableSongsForThisRound = songsData;
+
+        // Szűrés kategória szerint
+        if (gameSettings.musicStyle !== 'ALL') {
+            availableSongsForThisRound = availableSongsForThisRound.filter(song => song.Kategória === gameSettings.musicStyle);
+        }
+
+        // Szűrés aktív státusz szerint
+        availableSongsForThisRound = availableSongsForThisRound.filter(song => song.Aktív === 'Igen');
+        
+        // Kiszűrjük a már lejátszott dalokat
+        availableSongsForThisRound = availableSongsForThisRound.filter(song => !playedSongs.includes(song.ID));
+
+        if (availableSongsForThisRound.length === 0) {
+            // Ha elfogytak a dalok, de még nem értünk a totalRounds végére (pl. kevesebb dal van, mint kértünk)
+            alert('Nincs több elérhető dal a kiválasztott beállításokkal. A játék befejeződik.');
+            endGame();
+            return;
+        }
+
+        currentSong = availableSongsForThisRound[Math.floor(Math.random() * availableSongsForThisRound.length)];
+        playedSongs.push(currentSong.ID); // Hozzáadjuk az aktuális dalt a lejátszottak listájához
+
+        if (currentSong) {
+            console.log("Aktuális dal:", currentSong, "Kör:", currentRound, "/", totalRounds);
+            // Itt frissíthetjük a kör számát a képernyőn, ha van rá HTML elem
+            
+            // Játék képernyő elemek alapállapotba állítása
+            answerRevealPanel.classList.add('hidden'); // Elrejtjük az önbevallás panelt
+            hitTitleCheckbox.checked = false;
+            hitArtistCheckbox.checked = false;
+            hitYearCheckbox.checked = false;
+
+            playMusicGameBtn.disabled = false; // Engedélyezzük a lejátszás gombot
+            stopMusicBtn.disabled = true; // Letiltjuk a leállítás gombot (csak akkor kell, ha szól a zene)
+            isPlaying = false; // Még nem szól a zene
+            playbackStatusMessage.textContent = "Kattintson az alábbi lejátszó Play gombjára a zene indításához!";
+
+            loadSpotifyPlayer(currentSong['Spotify ID'], 0); // Spotify lejátszó betöltése autoplay=0-val
+        } else {
+            alert('Hiba: Nem sikerült dalt választani a megadott beállításokkal. Ellenőrizze a songsData-t és a szűrési logikát.');
+            endGame();
+        }
     }
-    .scrollable-content {
-        max-height: calc(98vh - 220px);
-        padding: 5px 0;
+
+    // --- Játék befejezése ---
+    function endGame() {
+        stopPlaybackTimer(); // Leállítjuk az időzítőt is
+        if (spotifyIframe) {
+            spotifyIframe.remove(); // Eltávolítjuk az iframe-et
+            spotifyIframe = null;
+        }
+        isPlaying = false; // Leállítottuk a zenét
+        answerRevealPanel.classList.add('hidden'); // Elrejtjük az önbevallás panelt is
+        playMusicGameBtn.disabled = true;
+        stopMusicBtn.disabled = true;
+        
+        currentScoreDisplay.textContent = currentScore;
+        bestScoreDisplay.textContent = bestScore;
+        showScreen('resultsScreen'); // Irány az eredmények képernyő!
     }
-    .screen-title.results-congrats {
-        font-size: 1.5em;
-    }
-    .current-score, .best-score {
-        font-size: 2em;
-    }
-    .answer-reveal-panel h3 {
-        font-size: 1.1em;
-    }
-    .answer-reveal-panel p {
-        font-size: 0.9em;
-    }
-    .self-assessment-group label {
-        font-size: 0.85em;
-    }
-}
+
+
+    // --- Eseménykezelők ---
+
+    // Alkalmazás indítása gomb (korábbi Spotify Connect helyett)
+    startAppBtn.addEventListener('click', () => {
+        if (isSongsDataLoaded) {
+            showScreen('mainMenuScreen');
+        } else {
+            alert('A dal adatok még nem töltődtek be. Kérjük, várjon!');
+        }
+    });
+
+    // Főmenü - QR-kód olvasás
+    qrScanBtn.addEventListener('click', () => {
+        alert('A QR-kód olvasó funkció fejlesztés alatt áll. Egyelőre egy mock képet látsz.');
+        showScreen('qrScanScreen');
+    });
+
+    // Főmenü - Telefonos játék (átvezet a Beállítások képernyőre)
+    phoneGameBtn.addEventListener('click', () => {
+        showScreen('settingsScreen');
+    });
+
+    // Főmenü - Eredmények (átvezet az Eredmények képernyőre)
+    resultsBtn.addEventListener('click', () => {
+        currentScoreDisplay.textContent = currentScore;
+        bestScoreDisplay.textContent = bestScore;
+        showScreen('resultsScreen');
+    });
+
+    // Beállítások képernyő - Vissza a Főmenübe
+    backToMainMenuFromSettingsBtn.addEventListener('click', () => {
+        showScreen('mainMenuScreen');
+    });
+
+    // Beállítási opciók kiválasztása
+    settingOptionButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const settingType = button.dataset.setting;
+            const settingValue = button.dataset.value;
+
+            document.querySelectorAll(`.setting-option-button[data-setting="${settingType}"]`).forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            button.classList.add('selected');
+            gameSettings[settingType] = settingValue;
+            console.log('Aktuális beállítások:', gameSettings);
+        });
+    });
+
+    // Beállítások képernyő - Játék kezdése (telefonos játék)
+    startPhoneGameBtn.addEventListener('click', prepareAndStartNewGame);
+
+    // Játék képernyő - "Zene lejátszása" gomb
+    playMusicGameBtn.addEventListener('click', () => {
+        if (!currentSong) {
+            alert("Nincs kiválasztott dal. Kérjük, indítson új játékot.");
+            return;
+        }
+        if (!isPlaying) {
+            loadSpotifyPlayer(currentSong['Spotify ID'], 1); // Autoplay=1 az iframe-nek
+            isPlaying = true;
+            playMusicGameBtn.disabled = true;
+            stopMusicBtn.disabled = false;
+            playbackStatusMessage.textContent = "Zene szól...";
+            startPlaybackTimer();
+        }
+    });
+
+    // Játék képernyő - "Zene leállítása és válasz" gomb
+    stopMusicBtn.addEventListener('click', () => {
+        if (isPlaying) { // Csak akkor állítsuk le, ha tényleg szól
+            loadSpotifyPlayer(currentSong['Spotify ID'], 0); // Autoplay=0 az iframe-nek (leállítás)
+            isPlaying = false;
+        }
+        stopPlaybackTimer(); // Leállítjuk az időzítőt is
+
+        // Megjelenítjük a helyes dal infókat az önbevallás panelen
+        revealedTitleText.textContent = currentSong['Dal címe'];
+        revealedArtistText.textContent = currentSong.Előadó;
+        revealedYearText.textContent = currentSong['Megjelenési év'];
+
+        // Visszaállítjuk a checkboxokat alaphelyzetbe
+        hitTitleCheckbox.checked = false;
+        hitArtistCheckbox.checked = false;
+        hitYearCheckbox.checked = false;
+
+        // Megjelenítjük az önbevallás panelt
+        answerRevealPanel.classList.remove('hidden');
+
+        // Letiltjuk a lejátszás gombokat amíg a panel nyitva van
+        playMusicGameBtn.disabled = true;
+        stopMusicBtn.disabled = true;
+    });
+
+    // Önbecslés panel - "Pontszám rögzítése és következő dal" gomb
+    recordScoreAndNextBtn.addEventListener('click', () => {
+        let scoreForThisRound = 0;
+
+        if (hitTitleCheckbox.checked) {
+            scoreForThisRound += 1;
+        }
+        if (hitArtistCheckbox.checked) {
+            scoreForThisRound += 1;
+        }
+        if (hitYearCheckbox.checked) {
+            scoreForThisRound += 1;
+        }
+
+        currentScore += scoreForThisRound;
+        if (currentScore > bestScore) {
+            bestScore = currentScore;
+            localStorage.setItem('robaMusicBestScore', bestScore);
+        }
+
+        alert(`Eredmény: +${scoreForThisRound} pont! Aktuális pontszám: ${currentScore}`);
+        answerRevealPanel.classList.add('hidden'); // Elrejtjük a panelt
+
+        startNewRound(); // Elindítjuk a következő kört
+    });
+
+    // Önbecslés panel - "Pontszám rögzítése és Játék vége" gomb
+    recordScoreAndFinishBtn.addEventListener('click', () => {
+        let scoreForThisRound = 0;
+
+        if (hitTitleCheckbox.checked) {
+            scoreForThisRound += 1;
+        }
+        if (hitArtistCheckbox.checked) {
+            scoreForThisRound += 1;
+        }
+        if (hitYearCheckbox.checked) {
+            scoreForThisRound += 1;
+        }
+
+        currentScore += scoreForThisRound;
+        if (currentScore > bestScore) {
+            bestScore = currentScore;
+            localStorage.setItem('robaMusicBestScore', bestScore);
+        }
+
+        alert(`Eredmény: +${scoreForThisRound} pont! Játék vége. Összes pontszám: ${currentScore}`);
+        answerRevealPanel.classList.add('hidden'); // Elrejtjük a panelt
+
+        endGame(); // Játék befejezése
+    });
+
+    // Játék képernyő - Vissza a Főmenübe (bármikor leállítható a játék)
+    backToMainMenuFromGameBtn.addEventListener('click', () => {
+        if (confirm("Biztosan be akarod fejezni a játékot? Az aktuális pontszám elveszik.")) {
+            endGame(); // A játék vége funkcióval térünk vissza a főmenübe
+        }
+    });
+
+    // QR Scan képernyő - Újrajátszás (MOCK)
+    replayQrMusicBtn.addEventListener('click', () => {
+        alert('Zene újrajátszása a QR kód alapján (funkcionalitás később).');
+    });
+
+    // QR Scan képernyő - Vissza a Főmenübe
+    backToMainMenuFromQrBtn.addEventListener('click', () => {
+        showScreen('mainMenuScreen');
+    });
+
+    // Eredmények képernyő - Vissza a Főmenübe
+    backToMainMenuFromResultsBtn.addEventListener('click', () => {
+        showScreen('mainMenuScreen');
+    });
+});
