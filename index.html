@@ -13,10 +13,14 @@
         <div class="logo">
             <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
         </div>
-        <button class="start-game-button" id="startAppBtn">
-            <img src="./assets/play_icon.png" alt="Play Icon"> ALKALMAZÁS INDÍTÁSA
+        <!-- VISSZA A VALÓDI SPOTIFY CSATLAKOZÁS GOMBRA -->
+        <button class="spotify-connect-button" id="spotifyConnectBtn">
+            <img src="./assets/spotify_icon.png" alt="Spotify Icon"> SPOTIFY CSATLAKOZTATÁSA
         </button>
-        <p class="spotify-status" id="appStatus">Készen áll az indításra.</p>
+        <p class="spotify-status" id="appStatus">Spotify nincs csatlakoztatva.</p>
+        <button class="start-game-button" id="startGameBtn" disabled>
+            <img src="./assets/play_icon.png" alt="Play Icon"> JÁTÉK INDÍTÁSA
+        </button>
     </div>
 
     <!-- MAIN MENU SCREEN -->
@@ -86,18 +90,17 @@
         
         <h2 class="screen-title">Találd ki a dalt!</h2>
 
-        <!-- Zene lejátszása gomb (VISSZAHELYEZVE!) -->
+        <!-- Play/Pause gombok az SDK-val való vezérléshez -->
         <button class="game-control-button" id="playMusicGameBtn">
             <img src="./assets/play_icon.png" alt="Play Icon"> Zene lejátszása
         </button>
-
-        <!-- Spotify lejátszó iframe (látható) -->
-        <div class="spotify-player-container">
-            <div id="spotifyPlayerPlaceholder" class="spotify-player-placeholder-visible">
-                 Spotify lejátszó töltődik...
-            </div>
-            <p class="spotify-note" id="playbackStatusMessage">Kattintson az alábbi lejátszó Play gombjára a zene indításához!</p>
-        </div>
+        <button class="game-control-button" id="pauseMusicGameBtn" disabled>
+            <img src="./assets/pause_icon.png" alt="Pause Icon"> Zene szüneteltetése
+        </button>
+        
+        <!-- Ez a placeholder div a lejátszó "eszköz" statuszát mutatja, az iframe-et már nem használjuk -->
+        <div id="playerDeviceStatus" class="player-device-status">Spotify lejátszó betöltése...</div>
+        <p class="spotify-note" id="playbackStatusMessage">Kattintson a lejátszás gombra a zene indításához.</p>
 
 
         <!-- Játék vezérlők -->
@@ -172,6 +175,7 @@
     </div>
     <!-- END RESULTS SCREEN -->
 
+    <script src="https://sdk.scdn.co/spotify-player.js"></script> <!-- Spotify Web Playback SDK -->
     <script src="script.js"></script>
 </body>
 </html>
