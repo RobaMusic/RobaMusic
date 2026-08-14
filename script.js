@@ -36,7 +36,7 @@ let deviceId = null;    // A lejátszó Device ID-je
 
 // Spotify API beállítások
 const SPOTIFY_CLIENT_ID = '64b3bdc013e84162bf973ec883854bfa'; // A TE CLIENT ID-d
-const REDIRECT_URI = 'https://RobaMusic.github.io/RobaMusic/'; // <-- HELYREHOZVA! Most már a helyes felhasználónévvel!
+const REDIRECT_URI = 'https://RobaMusic.github.io/RobaMusic/'; // A TE GitHub Pages URL-ed
 
 // --- A Spotify Web Playback SDK betöltésekor hívódik meg ---
 window.onSpotifyWebPlaybackSDKReady = () => {
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const resultsScreen = document.getElementById('resultsScreen');
     const currentScoreDisplay = document.getElementById('currentScore');
-    const bestScoreDisplay = document.getElementById('bestScore');
+    const bestScoreDisplay = document = document.getElementById('bestScore');
     const backToMainMenuFromResultsBtn = document.getElementById('backToMainMenuFromResults');
 
     // Önbecslés panel elemek
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const revealedTitleText = document.getElementById('revealedTitleText');
     const revealedYearText = document.getElementById('revealedYearText');
     const hitTitleCheckbox = document.getElementById('hitTitle');
-    const hitArtistCheckbox = document.getElementById('hitArtist');
+    const hitArtistCheckbox = document.getElementById('hitArtist'); 
     const hitYearCheckbox = document.getElementById('hitYear');
     const recordScoreAndNextBtn = document.getElementById('recordScoreAndNextBtn');
     const recordScoreAndFinishBtn = document.getElementById('recordScoreAndFinishBtn');
@@ -332,9 +332,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (error) {
             console.error("Hiba a zene lejátszásakor:", error);
             playbackStatusMessage.textContent = `Lejátszási hiba: ${error.message}`;
-            isPlaying = false;
-            playMusicGameBtn.disabled = false;
-            pauseMusicGameBtn.disabled = true;
+            // isPlaying = false; // Ezt a player_state_changed kezeli
+            // playMusicGameBtn.disabled = false; // Ezt a player_state_changed kezeli
+            // pauseMusicGameBtn.disabled = true; // Ezt a player_state_changed kezeli
         }
     }
 
