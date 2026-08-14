@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const appStatus = document.getElementById('appStatus');
 
     // Főmenü
-    const mainMenuScreen = document.getElementById('mainMenuScreen');
+    const mainMenuScreen = document.getElementById('mainMenuScreen'); // <-- HELYES!
     const qrScanBtn = document.getElementById('qrScanBtn');
     const phoneGameBtn = document.getElementById('phoneGameBtn');
     const resultsBtn = document.getElementById('resultsBtn');
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // QR Scan képernyő
     const qrScanScreen = document.getElementById('qrScanScreen');
     const replayQrMusicBtn = document.getElementById('replayQrMusicBtn');
-    const backToMainMenuFromQrBtn = document.getElementById('backToMainMenuFromQr'); // <-- Itt volt az elírás (document = document...)
+    const backToMainMenuFromQrBtn = document.getElementById('backToMainMenuFromQr');
 
     // Eredmények képernyő
     const resultsScreen = document.getElementById('resultsScreen');
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const revealedTitleText = document.getElementById('revealedTitleText');
     const revealedYearText = document.getElementById('revealedYearText');
     const hitTitleCheckbox = document.getElementById('hitTitle');
-    const hitArtistCheckbox = document = document.getElementById('hitArtist'); // <-- Itt is volt elírás
+    const hitArtistCheckbox = document.getElementById('hitArtist');
     const hitYearCheckbox = document.getElementById('hitYear');
     const recordScoreAndNextBtn = document.getElementById('recordScoreAndNextBtn');
     const recordScoreAndFinishBtn = document.getElementById('recordScoreAndFinishBtn');
@@ -441,7 +441,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     backToMainMenuFromGameBtn.addEventListener('click', () => {
         if (confirm("Biztosan be akarod fejezni a játékot? Az aktuális pontszám elveszik.")) {
             endGame(); // A játék vége funkcióval térünk vissza a főmenübe
-            // showScreen('mainMenuScreen'); // Ez már az endGame() része
         }
     });
 
@@ -450,4 +449,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         alert('Zene újrajátszása a QR kód alapján (funkcionalitás később).');
     });
 
-    
+    // QR Scan képernyő - Vissza a Főmenübe
+    backToMainMenuFromQrBtn.addEventListener('click', () => {
+        showScreen('mainMenuScreen');
+    });
+
+    // Eredmények képernyő - Vissza a Főmenübe
+    backToMainMenuFromResultsBtn.addEventListener('click', () => {
+        showScreen('mainMenuScreen');
+    });
+});
