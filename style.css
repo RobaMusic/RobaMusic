@@ -181,36 +181,38 @@ button:disabled {
 
 
 /* Játék képernyő stílusok */
-/* Spotify lejátszó mostantól látható (iframe) */
+/* Spotify lejátszó "elrejtése" egy még agresszívebb módon */
 .spotify-player-container {
-    width: 100%;
-    margin-bottom: 20px;
-    text-align: center;
+    width: 1px; /* Nagyon kicsi szélesség */
+    height: 1px; /* Nagyon kicsi magasság */
+    overflow: hidden; /* Elrejti, ami kilóg az 1x1-ből */
+    position: absolute; /* Eltávolítja a normál dokumentumfolyamból */
+    top: -9999px; /* Eltolja a képernyőn kívülre */
+    left: -9999px;
+    opacity: 0; /* Teljesen átlátszatlan */
+    z-index: -1; /* Más elemek alá kerül */
+    pointer-events: none; /* Ne lehessen rákattintani */
+    /* display: none; */ /* Ha ez van, akkor valószínűleg nem szól a hang */
 }
 
-.spotify-player-placeholder-visible { /* Az osztály, ami az iframe-et tárolja */
-    width: 90%;
-    height: 80px; /* Az iframe magassága */
-    margin: 0 auto;
-    border-radius: 8px;
-    overflow: hidden;
-    background-color: #282828;
-    display: flex;
+/* A lejátszó placeholder-je most az iframe-et tárolja */
+.spotify-player-placeholder-visible {
+    width: 100%; /* Kitölti a container 1px-es szélességét */
+    height: 100%; /* Kitölti a container 1px-es magasságát */
+    display: flex; /* Hogy a benne lévő iframe-et jól elrendezze */
     justify-content: center;
     align-items: center;
-    color: #b3b3b3;
-    font-size: 0.9em;
 }
 
 .spotify-player-placeholder-visible iframe {
-    width: 100%;
+    width: 300px; /* Az iframe valós mérete (ez az 1x1-es containeren kívülre fog lógni, de elrejti az overflow) */
     height: 80px;
     border: none;
-    pointer-events: auto; /* Mostantól kattintható az iframe */
+    /* pointer-events: auto; */ /* Ne tegyük automatikusra, mert elrejtettük */
 }
 
 
-#playbackStatusMessage { /* A spotify-note most a playback status message lesz */
+#playbackStatusMessage { /* A Spotify status message */
     font-size: 0.8em;
     color: #888;
     margin-top: 0px;
@@ -418,11 +420,15 @@ button:disabled {
     .menu-button .subtitle {
         font-size: 0.7em;
     }
-    .spotify-player-placeholder-visible {
-        height: 60px; /* Kisebb lejátszó mobil nézetben */
+    /* A Spotify player-container stílusai */
+    .spotify-player-container {
+        width: 1px;
+        height: 1px;
+        top: -9999px;
+        left: -9999px;
     }
     .spotify-player-placeholder-visible iframe {
-        height: 60px;
+        /* Nem kell külön mobil stílus, mert a container takarja */
     }
     .scrollable-content {
         max-height: calc(98vh - 220px);
