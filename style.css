@@ -206,7 +206,7 @@ button:disabled {
     height: 1px;
     overflow: hidden;
     position: absolute;
-    top: -9999px;
+    top: -9999px; /* Eltolva a látható területről */
     left: -9999px;
     visibility: hidden;
     opacity: 0;
