@@ -402,3 +402,52 @@ button:disabled {
         height: 150px;
     }
 }
+
+/* ... (a korábbi body, hidden, game-container, logo, screen-title, button, spotify-connect-button, start-game-button, menu-button, spotify-status, setting-category, setting-option-button, back-to-main-menu-button, song-info-display, spotify-player-container, game-controls, game-control-button, year-label, yearGuess, remainingTimeSlider, timeRemainingText, action-button, qr-code-display stílusok maradnak) ... */
+
+/* Results Screen stílusok */
+.screen-title.results-congrats {
+    font-size: 1.8em;
+    color: #4CAF50; /* Zöld gratuláció */
+    margin-bottom: 30px;
+}
+
+.results-display {
+    width: 90%;
+    margin-bottom: 20px;
+    background-color: #1a1a2e;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.results-label {
+    font-size: 1.2em;
+    color: #e0e0e0;
+    margin-bottom: 10px;
+}
+
+.current-score, .best-score {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #2196f3; /* Kék a pontszámnak */
+    margin-bottom: 15px;
+}
+
+.best-score-label {
+    font-size: 0.9em;
+    color: #888;
+    margin-bottom: 5px;
+}
+
+/* Reszponzív design */
+@media (max-width: 600px) {
+    /* ... (korábbi reszponzív stílusok maradnak) ... */
+    .screen-title.results-congrats {
+        font-size: 1.5em;
+    }
+    .current-score, .best-score {
+        font-size: 2em;
+    }
+}
+
