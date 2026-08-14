@@ -4,8 +4,8 @@ let isSongsDataLoaded = false;
 document.addEventListener('DOMContentLoaded', async () => {
     // --- Képernyő elemek ---
     const splashScreen = document.getElementById('splashScreen');
-    const startAppBtn = document.getElementById('startAppBtn'); // ÁTNEVEZVE spotifyConnectBtn-ről
-    const appStatus = document.getElementById('appStatus');     // ÁTNEVEZVE spotifyStatus-ról
+    const startAppBtn = document.getElementById('startAppBtn');
+    const appStatus = document.getElementById('appStatus');
 
     const mainMenuScreen = document.getElementById('mainMenuScreen');
     const qrScanBtn = document.getElementById('qrScanBtn');
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const qrScanScreen = document.getElementById('qrScanScreen');
     const replayQrMusicBtn = document.getElementById('replayQrMusicBtn');
-    const backToMainMenuFromQrBtn = document = document.getElementById('backToMainMenuFromQr');
+    const backToMainMenuFromQrBtn = document.getElementById('backToMainMenuFromQr'); // <-- JAVÍTVA VOLT AZ ELÍRÁS
 
     const resultsScreen = document.getElementById('resultsScreen');
     const currentScoreDisplay = document.getElementById('currentScore');
@@ -154,9 +154,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 clearInterval(playbackInterval);
                 timeRemainingText.textContent = "Idő lejárt!";
                 if(isPlaying) {
-                    // Itt nem hívunk click-et, hanem csak leállítjuk az isPlaying flag-et,
-                    // és jelezzük a felhasználónak, hogy vége van az időnek
-                    // A felhasználónak kell leállítania a Spotify lejátszón.
                     isPlaying = false; // A mi időzítőnk szerint vége a hallgatási időnek
                     playMusicGameBtn.disabled = true; // Letiltjuk, hogy ne indítson újra
                     playbackStatusMessage.textContent = "Idő lejárt! Kérem állítsa le a zenét és válaszoljon.";
@@ -216,7 +213,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Új kör indítása ---
     function startNewRound() {
-        if (currentRound >= totalRounds) {
+        if (currentRound > totalRounds) {
             // Játék vége
             endGame();
             return;
@@ -298,11 +295,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             alert('A dal adatok még nem töltődtek be. Kérjük, várjon!');
         }
     });
-
-    // Játék indítása (Kezdőképernyőről a Főmenübe) - EZ A GOMB MÁR NINCS AZ INDEX.HTML-BEN
-    // startGameBtn.addEventListener('click', () => {
-    //     showScreen('mainMenuScreen');
-    // });
 
     // Főmenü - QR-kód olvasás
     qrScanBtn.addEventListener('click', () => {
