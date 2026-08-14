@@ -41,6 +41,42 @@
     </div>
     <!-- END MAIN MENU SCREEN -->
 
+    <!-- SETTINGS SCREEN -->
+    <div class="game-container hidden" id="settingsScreen">
+        <div class="logo">
+            <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
+        </div>
+        <h2 class="screen-title">Beállítások</h2>
+
+        <!-- Zenehallgatás időtartama -->
+        <h3 class="setting-category">Zenehallgatás időtartama</h3>
+        <button class="setting-option-button selected" data-setting="listeningTime" data-value="45">45 mp</button>
+        <button class="setting-option-button" data-setting="listeningTime" data-value="90">90 mp</button>
+        <button class="setting-option-button" data-setting="listeningTime" data-value="full">Teljes dal</button>
+
+        <!-- Zenestílus kiválasztása -->
+        <h3 class="setting-category">Zenestílus kiválasztása</h3>
+        <!-- Megjegyzés: Itt csak a példa kedvéért teszünk be párat. Később ezt dinamikusan generálhatjuk az adatbázisból. -->
+        <button class="setting-option-button selected" data-setting="musicStyle" data-value="POP">POP</button>
+        <button class="setting-option-button" data-setting="musicStyle" data-value="ROCK">ROCK</button>
+        <button class="setting-option-button" data-setting="musicStyle" data-value="HU">MAGYAR ZENE</button>
+        <button class="setting-option-button" data-setting="musicStyle" data-value="MOV">FILMZENE</button>
+        <button class="setting-option-button" data-setting="musicStyle" data-value="XMAS">KARÁCSONYI</button>
+        <button class="setting-option-button" data-setting="musicStyle" data-value="ALL">ÖSSZES KATEGÓRIA</button>
+
+
+        <!-- Zeneszámok mennyisége (slider helyett most fix gombok) -->
+        <h3 class="setting-category">Zeneszámok mennyisége</h3>
+        <button class="setting-option-button selected" data-setting="songCount" data-value="50">50 db</button>
+        <button class="setting-option-button" data-setting="songCount" data-value="100">100 db</button>
+        <button class="setting-option-button" data-setting="songCount" data-value="300">300 db</button>
+        <button class="setting-option-button" data-setting="songCount" data-value="all">Összes adatbázis</button>
+
+        <button class="start-game-button" id="startPhoneGameBtn">Játék kezdése</button>
+        <button class="back-to-main-menu-button" id="backToMainMenuFromSettings">Vissza a Főmenübe</button>
+    </div>
+    <!-- END SETTINGS SCREEN -->
+
 
     <script src="script.js"></script>
 </body>
