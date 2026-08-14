@@ -451,3 +451,28 @@ button:disabled {
     }
 }
 
+/* ... (a korábbi body, hidden, game-container, logo, screen-title, button, spotify-connect-button, start-game-button, menu-button, spotify-status, setting-category, setting-option-button, back-to-main-menu-button, song-info-display, spotify-player-container, game-controls, game-control-button, year-label, yearGuess, remainingTimeSlider, timeRemainingText, action-button, qr-code-display, results-congrats, results-display, results-label, current-score, best-score, best-score-label stílusok maradnak) ... */
+
+/* Görgethető tartalom a Beállítások képernyőn */
+.scrollable-content {
+    max-height: calc(100vh - 300px); /* Max magasság, hogy a gombok alá férjen, és legyen hely a logo/headernek. Ezt finomítani lehet. */
+    overflow-y: auto; /* Függőleges görgetés, ha szükséges */
+    width: 100%; /* Szélesség, hogy a belső elemek szélessége érvényesüljön */
+    padding: 10px 0; /* Kicsi padding felül-alul, ha görgetősáv jelenik meg */
+    box-sizing: border-box; /* Hogy a padding ne nyújtsa ki a boxot */
+    -webkit-overflow-scrolling: touch; /* Sima görgetés iOS-en */
+}
+
+/* Játék képernyő stílusok - Ez már az előző verzióban is benne volt */
+/* ... (A game-screen stílusoktól lefelé marad minden változatlan) ... */
+
+
+/* Reszponzív design */
+@media (max-width: 600px) {
+    /* ... (korábbi reszponzív stílusok maradnak) ... */
+    .scrollable-content {
+        max-height: calc(100vh - 250px); /* Mobil nézetben kisebb hely marad a tartalomnak */
+        padding: 5px 0;
+    }
+}
+
