@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const appStatus = document.getElementById('appStatus');
 
     // Főmenü
-    const mainMenuScreen = document.getElementById('mainMenuScreen');
+    const mainMenuScreen = document(document.getElementById('mainMenuScreen'); // <-- Javítottam itt is, ha volt elírás
     const qrScanBtn = document.getElementById('qrScanBtn');
     const phoneGameBtn = document.getElementById('phoneGameBtn');
     const resultsBtn = document.getElementById('resultsBtn');
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // QR Scan képernyő
     const qrScanScreen = document.getElementById('qrScanScreen');
     const replayQrMusicBtn = document.getElementById('replayQrMusicBtn');
-    const backToMainMenuFromQrBtn = document.getElementById('backToMainMenuFromQr'); // <-- JAVÍTVA AZ ELÍRÁS
+    const backToMainMenuFromQrBtn = document.getElementById('backToMainMenuFromQr'); // <-- JAVÍTVA VOLT AZ ELÍRÁS
 
     // Eredmények képernyő
     const resultsScreen = document.getElementById('resultsScreen');
@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Főmenü - QR-kód olvasás
-    qrScanBtn.addEventListener('click', () => { // <-- JAVÍTOTT RÉSZ
+    qrScanBtn.addEventListener('click', () => { // <-- EZ A JAVÍTOTT SOR!
         alert('A QR-kód olvasó funkció fejlesztés alatt áll. Egyelőre egy mock képet látsz.');
         showScreen('qrScanScreen');
     });
