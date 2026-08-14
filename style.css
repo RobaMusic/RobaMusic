@@ -156,7 +156,7 @@ button:disabled {
 }
 
 .setting-option-button.selected {
-    background-color: #4caf50;
+    background-color: #4CAF50;
     border: 2px solid #66bb6a;
 }
 
@@ -191,53 +191,45 @@ button:disabled {
 }
 
 /* Játék képernyő stílusok */
-.song-info-display {
+/* Spotify lejátszó "eltakarva" */
+.spotify-hidden-player-wrapper {
     width: 90%;
-    margin-bottom: 20px;
-    background-color: #1a1a2e;
-    padding: 15px;
-    border-radius: 8px;
-    text-align: left;
+    height: 80px; /* Annyi, amennyi a lejátszó magassága */
+    overflow: hidden; /* ELREJTI a tartalmat, ami kilóg */
+    position: relative;
+    border-radius: 8px; /* Hogy a wrapper sarka kerek legyen */
+    background-color: #282828; /* Spotify player háttér színe, ha látszana alatta valami */
+    display: flex; /* Hogy középre tudjuk igazítani a placeholdert, ha nincs iframe */
+    justify-content: center;
+    align-items: center;
 }
 
-.song-info-display p {
-    margin: 5px 0;
-    font-size: 1em;
-    color: #e0e0e0;
-}
-
-.song-info-display .revealed-info {
-    color: #888;
-}
-
-.song-info-display .revealed-info.active {
-    color: #e0e0e0;
-    font-weight: bold;
-}
-
-.spotify-player-container {
+.spotify-player-placeholder {
     width: 100%;
-    margin-bottom: 20px;
-    text-align: center;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #b3b3b3;
+    font-size: 0.9em;
 }
 
-/* Elrejtjük a Spotify lejátszó adatait egy div-vel */
-.spotify-player-container iframe[src*="open.spotify.com/embed/track"] {
+.spotify-player-placeholder iframe {
     width: 100%;
-    height: 80px;
+    height: 100%; /* Kitölti a wrapper-t */
     border: none;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    /* Ezek a stílusok próbálják elrejteni a dal információkat az iframe-en belül */
-    /* Nehezebb direktben eltüntetni az iframe tartalmát CSS-ből,
-       ezért a HTML-ben a data-skip-spotify-uri="true" attribútum a fontosabb */
+    /* A valós Spotify lejátszó iframe-en belül nem könnyű elrejteni a szöveges infót CSS-ből.
+       A 'data-skip-spotify-uri="true"' attribútummal a JS-ben próbáljuk meg. */
+    transform: translateY(-100px); /* Eltoljuk az iframe-et felfelé, hogy ne látszódjon a gombokon kívül semmi */
+    pointer-events: none; /* Ne lehessen rákattintani a lejátszóra */
 }
 
 
 .spotify-note {
     font-size: 0.8em;
     color: #888;
-    margin-top: -10px;
+    margin-top: 0px; /* Már nincs szükség -10px, mert a lejátszó el van rejtve */
+    margin-bottom: 20px; /* Adunk neki egy kis alul margót */
 }
 
 .game-controls {
@@ -249,16 +241,18 @@ button:disabled {
     margin-bottom: 20px;
 }
 
-.guess-label { /* ÚJ: input címkék stílusa */
+.year-label {
     margin-top: 10px;
     margin-bottom: 5px;
     font-size: 0.95em;
     color: #b3b3b3;
-    align-self: flex-start; /* Balra igazítás */
-    padding-left: 5%; /* Kis behúzás */
+    align-self: flex-start;
+    padding-left: 5%;
 }
 
-input[type="text"], input[type="number"] { /* ÚJ: input mezők stílusa */
+/* Input mezők elrejtve, már nem kellenek az önbevallás miatt */
+/*
+input[type="text"], input[type="number"] {
     width: calc(90% - 20px);
     padding: 10px;
     border: 1px solid #555;
@@ -267,8 +261,9 @@ input[type="text"], input[type="number"] { /* ÚJ: input mezők stílusa */
     border-radius: 5px;
     font-size: 1em;
     text-align: center;
-    margin-bottom: 5px; /* Kisebb térköz egymás között */
+    margin-bottom: 5px;
 }
+*/
 
 #remainingTimeSlider {
     width: 90%;
@@ -383,64 +378,45 @@ input[type="text"], input[type="number"] { /* ÚJ: input mezők stílusa */
     margin-bottom: 5px;
 }
 
-/* Score Modal */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Félátlátszó háttér */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000; /* Legyen felül */
-    backdrop-filter: blur(5px); /* Enyhe elmosás a háttérben */
-}
-
-.modal-content {
-    background-color: #0f0f1d;
-    padding: 30px;
-    border-radius: 15px;
-    text-align: center;
+/* Helyes válasz és önbevallás panel stílusok */
+.answer-reveal-panel {
+    background-color: #1a1a2e;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
     width: 90%;
-    max-width: 350px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
-    animation: fadeInScale 0.3s ease-out; /* Animáció */
+    text-align: left;
 }
 
-@keyframes fadeInScale {
-    from { opacity: 0; transform: scale(0.9) translateY(-50%); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.modal-content h3 {
-    font-size: 1.5em;
+.answer-reveal-panel h3 {
+    font-size: 1.2em;
     color: #e0e0e0;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    text-align: center;
 }
 
-.modal-song-info {
+.answer-reveal-panel p {
+    margin: 8px 0;
     font-size: 1em;
     color: #b3b3b3;
-    margin-bottom: 25px;
-    line-height: 1.5;
 }
 
-.modal-song-info span {
+.answer-reveal-panel .revealed-value {
     font-weight: bold;
     color: #4CAF50; /* A helyes válasz zöld színben */
 }
 
-.checkbox-group {
+.self-assessment-group {
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* Balra igazítás */
-    margin-bottom: 25px;
     gap: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-top: 1px solid #333;
+    padding-top: 15px;
 }
 
-.checkbox-group label {
+.self-assessment-group label {
     font-size: 0.95em;
     color: #e0e0e0;
     cursor: pointer;
@@ -449,13 +425,18 @@ input[type="text"], input[type="number"] { /* ÚJ: input mezők stílusa */
     gap: 8px;
 }
 
-.checkbox-group input[type="checkbox"] {
+.self-assessment-group input[type="checkbox"] {
     width: 18px;
     height: 18px;
     accent-color: #1DB954; /* Checkbox szín Spotify zöld */
     cursor: pointer;
 }
 
+/* Az új gombok stílusa a panelen belül */
+#recordScoreAndNextBtn, #recordScoreAndFinishBtn {
+    width: 100%; /* Kitöltik a panel szélességét */
+    margin-top: 10px;
+}
 
 /* Reszponzív design */
 @media (max-width: 600px) {
@@ -483,19 +464,16 @@ input[type="text"], input[type="number"] { /* ÚJ: input mezők stílusa */
     .song-info-display p {
         font-size: 0.9em;
     }
-    .spotify-player-placeholder {
+    .spotify-hidden-player-wrapper {
         height: 60px;
     }
-    .spotify-player-container iframe {
-        height: 60px;
+    .spotify-player-placeholder iframe {
+        transform: translateY(-80px); /* Kisebb eltolás mobil nézetben */
     }
     .guess-label {
         font-size: 0.85em;
     }
-    input[type="text"], input[type="number"] {
-        width: calc(90% - 15px);
-        font-size: 0.9em;
-    }
+    /* Input mezők elrejtve, így nem kell reszponzív stílus */
     .scrollable-content {
         max-height: calc(98vh - 220px);
         padding: 5px 0;
@@ -506,16 +484,13 @@ input[type="text"], input[type="number"] { /* ÚJ: input mezők stílusa */
     .current-score, .best-score {
         font-size: 2em;
     }
-    .modal-content {
-        padding: 20px;
+    .answer-reveal-panel h3 {
+        font-size: 1.1em;
     }
-    .modal-content h3 {
-        font-size: 1.3em;
-    }
-    .modal-song-info {
+    .answer-reveal-panel p {
         font-size: 0.9em;
     }
-    .checkbox-group label {
+    .self-assessment-group label {
         font-size: 0.85em;
     }
 }
