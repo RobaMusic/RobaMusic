@@ -36,7 +36,7 @@ let deviceId = null;    // A lejátszó Device ID-je
 
 // Spotify API beállítások
 const SPOTIFY_CLIENT_ID = '64b3bdc013e84162bf973ec883854bfa'; // A TE CLIENT ID-d
-const REDIRECT_URI = 'https://RobaMusic.github.io/RobaMusic/'; // A TE GitHub Pages URL-ed
+const REDIRECT_URI = 'https://RobaMusic.github.io/RobaMusic/'; // <-- HELYESÍTETT REDIRECT URI!
 
 // --- A Spotify Web Playback SDK betöltésekor hívódik meg ---
 window.onSpotifyWebPlaybackSDKReady = () => {
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const resultsScreen = document.getElementById('resultsScreen');
     const currentScoreDisplay = document.getElementById('currentScore');
-    const bestScoreDisplay = document = document.getElementById('bestScore');
+    const bestScoreDisplay = document.getElementById('bestScore');
     const backToMainMenuFromResultsBtn = document.getElementById('backToMainMenuFromResults');
 
     // Önbecslés panel elemek
@@ -311,21 +311,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 },
                 body: JSON.stringify({
                     device_ids: [deviceId],
-                    play: false, // Ne indítsa el azonnal, a player.resume() indítja
+                    play: true, // Itt már indítjuk
+                    uris: [uri], // Itt adjuk át a dal URI-ját!
+                    position_ms: position_ms
                 }),
             });
-            console.log("Transferred playback to RobaMusic device.");
-        } catch (error) {
-             console.error("Hiba a lejátszó aktiválásakor:", error);
-             playbackStatusMessage.textContent = "Hiba a lejátszó aktiválásakor. Próbálja újra.";
-             return;
-        }
-
-        try {
-            await player.resume({ // player.resume() helyett player.start() az első indításhoz
-                uris: [uri],
-                position_ms: position_ms
-            });
+            console.log("Transferred playback to RobaMusic device and started track.");
             // isPlaying, disabled states handled by player_state_changed listener
             startPlaybackTimer(); // Elindítjuk az időzítőt
             console.log("Lejátszás elindult:", uri);
@@ -467,8 +458,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Kiszűrjük a már lejátszott dalokat
         availableSongsForThisRound = availableSongsForThisRound.filter(song => !playedSongs.includes(song.ID));
 
-        if (availableSongsForThisRound.length === 0) {
-            // Ha elfogytak a dalok, de még nem értünk a totalRounds végére (pl. kevesebb dal van, mint kértünk)
+        if (availableSongsForSelection.length === 0) { // <-- AZ availableSongsForSelection már nem létezik itt!
             alert('Nincs több elérhető dal a kiválasztott beállításokkal. A játék befejeződik.');
             endGame();
             return;
@@ -591,16 +581,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Első indításkor is a resume() működik, ha az átvitel megtörtént.
         if (player && deviceId && accessToken) {
              // Átadjuk a lejátszást az SDK lejátszónak
-            await fetch(`https://api.spotify.com/v1/me/player`, {
+            await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
                 },
                 body: JSON.stringify({
-                    device_ids: [deviceId],
-                    play: true, // Itt már indítjuk
-                    uris: [`spotify:track:${currentSong['Spotify ID']}`]
+                    uris: [`spotify:track:${currentSong['Spotify ID']}`],
                 }),
             });
             // isPlaying, disabled states handled by player_state_changed listener
