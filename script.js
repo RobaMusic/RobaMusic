@@ -35,26 +35,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     const replayQrMusicBtn = document.getElementById('replayQrMusicBtn');
     const backToMainMenuFromQrBtn = document.getElementById('backToMainMenuFromQr');
 
-    const resultsScreen = document.getElementById('resultsScreen'); // ÚJ: Eredmények képernyő
-    const currentScoreDisplay = document.getElementById('currentScore'); // ÚJ: Aktuális pontszám megjelenítése
-    const bestScoreDisplay = document.getElementById('bestScore');       // ÚJ: Legjobb pontszám megjelenítése
-    const backToMainMenuFromResultsBtn = document.getElementById('backToMainMenuFromResults'); // ÚJ: Vissza a főmenübe gomb
+    const resultsScreen = document.getElementById('resultsScreen');
+    const currentScoreDisplay = document.getElementById('currentScore');
+    const bestScoreDisplay = document.getElementById('bestScore');
+    const backToMainMenuFromResultsBtn = document.getElementById('backToMainMenuFromResults');
 
     // --- Játék állapot változók ---
     const gameSettings = {
         listeningTime: '45',
-        musicStyle: 'POP',
-        songCount: '50'
+        musicStyle: 'ALL',   // Alapértelmezett: ÖSSZES KATEGÓRIA
+        songCount: '50'      // Alapértelmezett: 50 dal
     };
     let currentSong = null;
     let spotifyIframe = null;
     let playbackInterval = null;
-    let currentScore = 0; // Aktuális pontszám
-    let bestScore = localStorage.getItem('robaMusicBestScore') || 0; // Legjobb pontszám localStorage-ből
+    let currentScore = 0;
+    let bestScore = localStorage.getItem('robaMusicBestScore') || 0;
 
-    // Legjobb pontszám megjelenítése az induláskor
     bestScoreDisplay.textContent = bestScore;
-
 
     // --- Dal adatbázis betöltése ---
     async function loadSongsData() {
@@ -109,7 +107,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         pauseMusicBtn.disabled = false;
     }
 
-    // Lejátszás időzítő indítása (MOCK)
+    // Lejátszás időzítő indítása
     function startPlaybackTimer() {
         clearInterval(playbackInterval);
 
@@ -138,6 +136,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (timeLeft <= 0) {
                 clearInterval(playbackInterval);
                 timeRemainingText.textContent = "Idő lejárt!";
+                // Opcionálisan: showAnswer(); // Lejátszási idő lejártakor automatikus megfejtés
+                // Vagy: autoCheckAnswer(); // ha van rá külön logika
             }
         }, 1000);
     }
@@ -191,10 +191,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         showScreen('settingsScreen');
     });
 
-    // Főmenü - Eredmények (átvezet az Eredmények képernyőre)
+    // Főmenü - Eredmények
     resultsBtn.addEventListener('click', () => {
-        currentScoreDisplay.textContent = currentScore; // Frissítjük az aktuális pontszámot
-        bestScoreDisplay.textContent = bestScore;       // Frissítjük a legjobb pontszámot
+        currentScoreDisplay.textContent = currentScore;
+        bestScoreDisplay.textContent = bestScore;
         showScreen('resultsScreen');
     });
 
@@ -209,10 +209,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             const settingType = button.dataset.setting;
             const settingValue = button.dataset.value;
 
-            document.querySelectorAll(`.setting-option-button[data-setting="${settingType}"]`).forEach(btn => {
-                btn.classList.remove('selected');
-            });
-            button.classList.add('selected');
+            // Különleges kezelés a zenestílus gombokra:
+            // Leveszi a selected osztályt az összes zenestílus gombról, ha "ALL" van kiválasztva
+            if (settingType === 'musicStyle') {
+                 // Ha "Összes kategória"-t választja ki, akkor az összes többit is aktívnak tekintjük logikailag
+                 // de a kijelzőn csak az "ALL" gomb marad kiválasztva.
+                 // Ha bármely más stílust választ, akkor az "ALL" gomb selected állapotát elveszi
+                document.querySelectorAll(`.setting-option-button[data-setting="musicStyle"]`).forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                button.classList.add('selected');
+            } else if (settingType === 'songCount') {
+                document.querySelectorAll(`.setting-option-button[data-setting="songCount"]`).forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                button.classList.add('selected');
+            } else { // listeningTime
+                document.querySelectorAll(`.setting-option-button[data-setting="${settingType}"]`).forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                button.classList.add('selected');
+            }
+
             gameSettings[settingType] = settingValue;
             console.log('Aktuális beállítások:', gameSettings);
         });
@@ -225,8 +243,35 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // --- Játék előkészítése ---
-        currentSong = songsData.find(song => song.ID === 'RO001'); // prototípushoz fix RO001
+        // --- Dal kiválasztása a beállítások alapján ---
+        let availableSongs = songsData;
+
+        // Szűrés kategória szerint
+        if (gameSettings.musicStyle !== 'ALL') {
+            availableSongs = availableSongs.filter(song => song.Kategória === gameSettings.musicStyle);
+        }
+
+        // Szűrés aktív státusz szerint
+        availableSongs = availableSongs.filter(song => song.Aktív === 'Igen');
+
+        // Ellenőrzés, hogy van-e elérhető dal
+        if (availableSongs.length === 0) {
+            alert('Nincs elérhető dal a kiválasztott kategóriában. Kérjük, módosítsa a beállításokat!');
+            return;
+        }
+
+        // Dalok számának korlátozása és véletlenszerű kiválasztás
+        let songsToPickFrom = availableSongs;
+        if (gameSettings.songCount !== 'all' && parseInt(gameSettings.songCount) < availableSongs.length) {
+            // Ha a kért szám kevesebb, mint az elérhető dalok száma, véletlenszerűen kiválasztunk annyit.
+            // Egyszerűsített megközelítés: shuffle, majd take. Valós játékban érdemes elkerülni az ismétléseket.
+            songsToPickFrom = availableSongs
+                .sort(() => 0.5 - Math.random()) // Shuffle
+                .slice(0, parseInt(gameSettings.songCount));
+        }
+
+        // Véletlenszerű dal kiválasztása a szűrt listából
+        currentSong = songsToPickFrom[Math.floor(Math.random() * songsToPickFrom.length)];
 
         if (currentSong) {
             console.log("Aktuális dal:", currentSong);
@@ -243,7 +288,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             startPlaybackTimer();
             showScreen('gameScreen');
         } else {
-            alert('Hiba: Az RO001 dal nem található az adatbázisban.');
+            alert('Hiba: Nem sikerült dalt választani a megadott beállításokkal. Ellenőrizze a songsData-t és a szűrési logikát.');
         }
     });
 
@@ -265,21 +310,38 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        showAnswer();
-        stopPlaybackTimer();
+        stopPlaybackTimer(); // Leállítjuk az időzítőt, ha tippeltek
 
-        // Pontozás (prototípusban csak az évszám)
+        // --- Pontozás implementálása ---
         let scoreForThisRound = 0;
-        if (currentSong && guessedYear === currentSong['Megjelenési év']) {
-            scoreForThisRound = 10; // 10 pont az évszámért
-            alert('Helyes megfejtés! Gratulálok!');
-        } else {
-            alert(`Helytelen megfejtés! A helyes év: ${currentSong['Megjelenési év']}`);
+        let yearScore = 0;
+        let artistScore = 0;
+        let titleScore = 0;
+
+        // Évszám pontozás
+        if (currentSong) {
+            const yearDifference = Math.abs(currentSong['Megjelenési év'] - guessedYear);
+            if (yearDifference === 0) {
+                yearScore = 10;
+            } else if (yearDifference <= 2) { // Pl. +/- 2 év
+                yearScore = 5;
+            } else {
+                yearScore = 0;
+            }
         }
-        currentScore += scoreForThisRound; // Hozzáadjuk az aktuális pontszámhoz
-        if (currentScore > bestScore) { // Ha új rekord
+        scoreForThisRound += yearScore;
+
+        // Mivel egyelőre csak az évszámot tippeljük, az előadó és dalcím pontszámát itt most 0-ra vesszük.
+        // Később lehetne szöveges input mezőket adni az előadónak és dalcímnek.
+
+        showAnswer(); // Megjelenítjük a helyes adatokat
+
+        alert(`Játék vége!\nTipped: ${guessedYear}\nHelyes év: ${currentSong['Megjelenési év']}\nPontszám az évszámért: ${yearScore}`);
+
+        currentScore += scoreForThisRound;
+        if (currentScore > bestScore) {
             bestScore = currentScore;
-            localStorage.setItem('robaMusicBestScore', bestScore); // Elmentjük a legjobb pontszámot
+            localStorage.setItem('robaMusicBestScore', bestScore);
         }
 
         checkAnswerBtn.disabled = true;
