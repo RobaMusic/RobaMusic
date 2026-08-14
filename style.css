@@ -1,59 +1,173 @@
-/* ... (a korábbi body, hidden, game-container, logo, screen-title, button, spotify-connect-button, start-game-button, menu-button, spotify-status stílusok maradnak) ... */
+/* ... (a korábbi body, hidden, game-container, logo, screen-title, button, spotify-connect-button, start-game-button, menu-button, spotify-status, setting-category, setting-option-button, back-to-main-menu-button stílusok maradnak) ... */
 
-/* Beállítások képernyő */
-.setting-category {
-    font-size: 1.1em;
-    color: #a0a0a0;
-    margin-top: 20px;
-    margin-bottom: 10px;
-    text-align: left; /* Balra igazítjuk a kategória címeket */
-    width: 90%; /* Ugyanaz a szélesség, mint a gomboknál */
+/* Játék képernyő stílusok */
+.song-info-display {
+    width: 90%;
+    margin-bottom: 20px;
+    background-color: #1a1a2e;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: left;
 }
 
-.setting-option-button {
-    background-color: #3f51b5; /* Kékebb árnyalat a beállítások gomboknak */
-    color: white;
+.song-info-display p {
+    margin: 5px 0;
+    font-size: 1em;
+    color: #e0e0e0;
+}
+
+.song-info-display .revealed-info {
+    /* Kezdetben a szövegek színe legyen szürke, ha még nem fejtették meg */
+    color: #888;
+}
+
+.song-info-display .revealed-info.active {
+    color: #e0e0e0; /* Felfedés után világosabb szín */
+    font-weight: bold;
+}
+
+
+.spotify-player-container {
+    width: 100%;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.spotify-player-placeholder {
+    width: 90%; /* A lejátszó szélessége */
+    height: 80px; /* A lejátszó magassága */
+    background-color: #282828; /* Spotify szín */
+    color: #b3b3b3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    margin: 0 auto 10px auto;
+    font-size: 0.9em;
+}
+
+
+.spotify-player-container iframe {
+    width: 100%; /* A beágyazott lejátszó is 100% széles legyen */
+    height: 80px; /* Alacsonyabb lejátszó */
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.spotify-note {
+    font-size: 0.8em;
+    color: #888;
+    margin-top: -10px;
+}
+
+.game-controls {
     width: 90%;
-    margin-bottom: 8px; /* Kicsit kisebb térköz egymás között */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.game-control-button {
+    background-color: #6200ea; /* Kicsit más szín a játékvezérlő gomboknak */
+    color: white;
+    width: 100%;
     padding: 12px 20px;
 }
 
-.setting-option-button:hover {
-    background-color: #303f9f;
+.game-control-button:not(:disabled):hover {
+    background-color: #3700b3;
     transform: translateY(-2px);
 }
 
-.setting-option-button.selected {
-    background-color: #4caf50; /* Zöld, a kiválasztott állapot jelzésére */
-    border: 2px solid #66bb6a;
+.year-label {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    font-size: 0.95em;
+    color: #b3b3b3;
 }
 
-.setting-option-button.selected:hover {
-    background-color: #43a047;
+#yearGuess {
+    width: calc(90% - 20px); /* Kicsit keskenyebb az input mező */
+    padding: 10px;
+    border: 1px solid #555;
+    background-color: #333;
+    color: #e0e0e0;
+    border-radius: 5px;
+    font-size: 1em;
+    text-align: center;
+    margin-bottom: 15px;
 }
 
-/* Vissza gomb a beállításoknál (külön stílussal, ha szükséges) */
-.back-to-main-menu-button {
-    background-color: #616161; /* Sötétszürke szín a vissza gombnak */
+#remainingTimeSlider {
+    width: 90%;
+    margin: 10px 0;
+    -webkit-appearance: none; /* Safari */
+    appearance: none;
+    height: 8px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    border-radius: 5px;
+}
+
+#remainingTimeSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+#remainingTimeSlider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+#timeRemainingText {
+    font-size: 0.9em;
+    color: #b3b3b3;
+    margin-top: -5px;
+    margin-bottom: 10px;
+}
+
+.action-button {
+    background-color: #4CAF50; /* Zöld a fő akció gombnak */
     color: white;
-    margin-top: 15px; /* Kicsit elválasztva az "Játék kezdése" gomból */
+    width: 90%;
 }
 
-.back-to-main-menu-button:hover {
-    background-color: #424242;
+.action-button:not(:disabled):hover {
+    background-color: #43a047;
     transform: translateY(-2px);
 }
-
 
 /* Reszponzív design */
 @media (max-width: 600px) {
     /* ... (korábbi reszponzív stílusok maradnak) ... */
-
-    .setting-category {
-        font-size: 1em;
+    .song-info-display {
+        padding: 10px;
     }
-    .setting-option-button {
-        padding: 10px 15px;
-        font-size: 0.95em;
+    .song-info-display p {
+        font-size: 0.9em;
+    }
+    .spotify-player-placeholder {
+        height: 60px;
+    }
+    .spotify-player-container iframe {
+        height: 60px;
+    }
+    #yearGuess {
+        width: calc(90% - 15px);
+        font-size: 0.9em;
     }
 }
