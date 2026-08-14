@@ -29,10 +29,15 @@ body {
 }
 
 /* Logó és címek */
+.logo {
+    margin-bottom: 20px; 
+}
+
 .logo img {
-    width: 80px; /* Logó mérete */
-    height: 80px;
-    margin-bottom: 10px;
+
+    width: 250px; 
+    max-width: 80%; 
+    height: auto; 
 }
 
 .logo h1 {
