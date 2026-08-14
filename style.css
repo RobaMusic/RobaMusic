@@ -26,15 +26,18 @@ body {
     border-radius: 15px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     text-align: center;
-    display: flex; /* Alapértelmezett, ha látható */
+    display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start; /* Ezt módosítottuk, hogy a scrollable-content görgethető legyen */
     align-items: center;
     gap: 15px; /* Elemek közötti térköz */
     position: absolute; /* Hogy a konténerek egymás fölé kerüljenek, ne egymás mellé */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    /* ÚJ: Magasság korlátozása, hogy legyen mit görgetni */
+    max-height: 95vh; /* Max 95% a viewport magasságából */
+    overflow: hidden; /* A game-container maga ne görgetődjön */
 }
 
 /* Logó és címek */
@@ -155,7 +158,7 @@ button:disabled {
 }
 
 .setting-option-button.selected {
-    background-color: #4caf50; /* Zöld, a kiválasztott állapot jelzésére */
+    background-color: #4CAF50; /* Zöld, a kiválasztott állapot jelzésére */
     border: 2px solid #66bb6a;
 }
 
@@ -173,6 +176,20 @@ button:disabled {
 .back-to-main-menu-button:hover {
     background-color: #424242;
     transform: translateY(-2px);
+}
+
+/* Görgethető tartalom a Beállítások képernyőn */
+.scrollable-content {
+    max-height: calc(95vh - 250px); /* Max magasság, hogy a gombok alá férjen, és legyen hely a logo/headernek. Ezt finomítani lehet. */
+    overflow-y: auto; /* Függőleges görgetés, ha szükséges */
+    width: 100%; /* Szélesség, hogy a belső elemek szélessége érvényesüljön */
+    padding: 10px 0; /* Kicsi padding felül-alul, ha görgetősáv jelenik meg */
+    box-sizing: border-box; /* Hogy a padding ne nyújtsa ki a boxot */
+    -webkit-overflow-scrolling: touch; /* Sima görgetés iOS-en */
+    flex-grow: 1; /* Hagyja, hogy a scrollable-content terjeszkedjen, amennyire tud */
+    display: flex; /* Flex konténer, hogy a belső elemei is jól rendeződjenek */
+    flex-direction: column;
+    align-items: center;
 }
 
 /* Játék képernyő stílusok */
@@ -326,46 +343,6 @@ button:disabled {
     transform: translateY(-2px);
 }
 
-/* Reszponzív design */
-@media (max-width: 600px) {
-    .game-container {
-        width: 95%;
-        padding: 15px;
-    }
-    .logo img {
-        width: 200px; /* Kisebb logó mobilon */
-    }
-    .screen-title {
-        font-size: 1.2em;
-    }
-    button {
-        padding: 12px 15px;
-        font-size: 1em;
-    }
-    .menu-button .subtitle {
-        font-size: 0.7em;
-    }
-    .song-info-display {
-        padding: 10px;
-    }
-    .song-info-display p {
-        font-size: 0.9em;
-    }
-    .spotify-player-placeholder {
-        height: 60px;
-    }
-    .spotify-player-container iframe {
-        height: 60px;
-    }
-    #yearGuess {
-        width: calc(90% - 15px);
-        font-size: 0.9em;
-    }
-}
-
-
-/* ... (a korábbi body, hidden, game-container, logo, screen-title, button, spotify-connect-button, start-game-button, menu-button, spotify-status, setting-category, setting-option-button, back-to-main-menu-button, song-info-display, spotify-player-container, game-controls, game-control-button, year-label, yearGuess, remainingTimeSlider, timeRemainingText, action-button stílusok maradnak) ... */
-
 /* QR Scan Screen stílusok */
 .qr-code-display {
     width: 90%;
@@ -393,17 +370,6 @@ button:disabled {
     font-size: 0.9em;
     color: #b3b3b3;
 }
-
-/* Reszponzív design */
-@media (max-width: 600px) {
-    /* ... (korábbi reszponzív stílusok maradnak) ... */
-    .qr-code-display img {
-        width: 150px;
-        height: 150px;
-    }
-}
-
-/* ... (a korábbi body, hidden, game-container, logo, screen-title, button, spotify-connect-button, start-game-button, menu-button, spotify-status, setting-category, setting-option-button, back-to-main-menu-button, song-info-display, spotify-player-container, game-controls, game-control-button, year-label, yearGuess, remainingTimeSlider, timeRemainingText, action-button, qr-code-display stílusok maradnak) ... */
 
 /* Results Screen stílusok */
 .screen-title.results-congrats {
@@ -442,7 +408,44 @@ button:disabled {
 
 /* Reszponzív design */
 @media (max-width: 600px) {
-    /* ... (korábbi reszponzív stílusok maradnak) ... */
+    .game-container {
+        width: 95%;
+        padding: 15px;
+        max-height: 98vh; /* Kisebb margó a széleknél */
+    }
+    .logo img {
+        width: 200px; /* Kisebb logó mobilon */
+    }
+    .screen-title {
+        font-size: 1.2em;
+    }
+    button {
+        padding: 12px 15px;
+        font-size: 1em;
+    }
+    .menu-button .subtitle {
+        font-size: 0.7em;
+    }
+    .song-info-display {
+        padding: 10px;
+    }
+    .song-info-display p {
+        font-size: 0.9em;
+    }
+    .spotify-player-placeholder {
+        height: 60px;
+    }
+    .spotify-player-container iframe {
+        height: 60px;
+    }
+    #yearGuess {
+        width: calc(90% - 15px);
+        font-size: 0.9em;
+    }
+    .scrollable-content {
+        max-height: calc(98vh - 220px); /* Mobil nézetben kisebb hely marad a tartalomnak */
+        padding: 5px 0;
+    }
     .screen-title.results-congrats {
         font-size: 1.5em;
     }
@@ -450,29 +453,3 @@ button:disabled {
         font-size: 2em;
     }
 }
-
-/* ... (a korábbi body, hidden, game-container, logo, screen-title, button, spotify-connect-button, start-game-button, menu-button, spotify-status, setting-category, setting-option-button, back-to-main-menu-button, song-info-display, spotify-player-container, game-controls, game-control-button, year-label, yearGuess, remainingTimeSlider, timeRemainingText, action-button, qr-code-display, results-congrats, results-display, results-label, current-score, best-score, best-score-label stílusok maradnak) ... */
-
-/* Görgethető tartalom a Beállítások képernyőn */
-.scrollable-content {
-    max-height: calc(100vh - 300px); /* Max magasság, hogy a gombok alá férjen, és legyen hely a logo/headernek. Ezt finomítani lehet. */
-    overflow-y: auto; /* Függőleges görgetés, ha szükséges */
-    width: 100%; /* Szélesség, hogy a belső elemek szélessége érvényesüljön */
-    padding: 10px 0; /* Kicsi padding felül-alul, ha görgetősáv jelenik meg */
-    box-sizing: border-box; /* Hogy a padding ne nyújtsa ki a boxot */
-    -webkit-overflow-scrolling: touch; /* Sima görgetés iOS-en */
-}
-
-/* Játék képernyő stílusok - Ez már az előző verzióban is benne volt */
-/* ... (A game-screen stílusoktól lefelé marad minden változatlan) ... */
-
-
-/* Reszponzív design */
-@media (max-width: 600px) {
-    /* ... (korábbi reszponzív stílusok maradnak) ... */
-    .scrollable-content {
-        max-height: calc(100vh - 250px); /* Mobil nézetben kisebb hely marad a tartalomnak */
-        padding: 5px 0;
-    }
-}
-
