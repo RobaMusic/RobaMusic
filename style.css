@@ -1,16 +1,16 @@
 /* Általános stílusok */
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Arial', sans-serif; /* Vagy bármilyen más betűtípus, amit szeretnél */
     margin: 0;
     padding: 0;
-    background-color: #1a1a2e;
-    color: #e0e0e0;
+    background-color: #1a1a2e; /* Sötét háttér, ahogy a képen látszik */
+    color: #e0e0e0; /* Világosabb szövegszín */
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    box-sizing: border-box;
-    overflow: hidden;
+    box-sizing: border-box; /* Hogy a padding ne növelje a doboz méretét */
+    overflow: hidden; /* Elrejti a görgetősávot, ha nincs rá szükség */
 }
 
 /* Képernyő elrejtése */
@@ -20,9 +20,9 @@ body {
 
 .game-container {
     width: 100%;
-    max-width: 400px;
+    max-width: 400px; /* Egy tipikus telefon képernyő szélessége */
     padding: 20px;
-    background-color: #0f0f1d;
+    background-color: #0f0f1d; /* Kicsit sötétebb, mint a háttér */
     border-radius: 15px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     text-align: center;
@@ -36,7 +36,7 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     max-height: 95vh;
-    overflow-y: auto; /* <-- EZ VÁLTOZOTT: hidden -> auto */
+    overflow-y: auto; /* A game-container maga görgetődjön, ha a tartalom túl nagy */
 }
 
 /* Logó és címek */
@@ -176,42 +176,43 @@ button:disabled {
     transform: translateY(-2px);
 }
 
-/* Görgethető tartalom a Beállítások képernyőn és most a Játék képernyőn is */
-/* Ezt a stílust általánosabbá tesszük, hogy több helyen is használható legyen */
+/* Görgethető tartalom a Beállítások képernyőn */
 .scrollable-content {
-    max-height: calc(95vh - 250px); /* Alapértelmezett magasság */
-    overflow-y: auto; /* Függőleges görgetés, ha szükséges */
-    width: 100%; /* Szélesség, hogy a belső elemek szélessége érvényesüljön */
-    padding: 10px 0; /* Kicsi padding felül-alul, ha görgetősáv jelenik meg */
-    box-sizing: border-box; /* Hogy a padding ne nyújtsa ki a boxot */
-    -webkit-overflow-scrolling: touch; /* Sima görgetés iOS-en */
-    flex-grow: 1; /* Hagyja, hogy a scrollable-content terjeszkedjen, amennyire tud */
-    display: flex; /* Flex konténer, hogy a belső elemei is jól rendeződjenek */
+    max-height: calc(95vh - 250px);
+    overflow-y: auto;
+    width: 100%;
+    padding: 10px 0;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+    flex-grow: 1;
+    display: flex;
     flex-direction: column;
     align-items: center;
 }
 
 
 /* Játék képernyő stílusok */
-/* Most már maga a .game-container fogja a görgetést kezelni, ha túl sok elem van */
-/* Eltávolítottam a .song-info-display stílust, mert nem használjuk */
-
 /* Spotify lejátszó "eltakarva" */
 .spotify-hidden-player-wrapper {
     width: 90%;
-    height: 80px; /* Annyi, amennyi a lejátszó magassága */
-    overflow: hidden; /* ELREJTI a tartalmat, ami kilóg */
-    position: relative;
-    border-radius: 8px; /* Hogy a wrapper sarka kerek legyen */
-    background-color: #282828; /* Spotify player háttér színe, ha látszana alatta valami */
-    display: flex; /* Hogy középre tudjuk igazítani a placeholdert, ha nincs iframe */
-    justify-content: center;
-    align-items: center;
+    height: 1px; /* <-- NAGYON FONTOS MÓDOSÍTÁS: Ezt állítottuk nagyon kicsire! */
+    overflow: hidden;
+    position: absolute; /* <-- Ezt is módosítottuk */
+    border-radius: 8px;
+    background-color: #0f0f1d; /* Kicsit sötétebbre állítva, hogy ne látszódjon a Spotify zöldje */
+    /* display: flex; /* Ezt már nem kell, ha absolute position van */
+    /* justify-content: center; */
+    /* align-items: center; */
+    margin-bottom: 0px;
+    opacity: 0;
+    z-index: -1;
+    /* Fontos, hogy ez a wrapper ne foglaljon helyet a layoutban, de az iframe betöltődjön */
 }
 
+/* A spotify-player-placeholder div, ami tartalmazza az iframe-et */
 .spotify-player-placeholder {
     width: 100%;
-    height: 100%;
+    height: 100%; /* Kitölti a 1px-es wrappert */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -221,10 +222,10 @@ button:disabled {
 
 .spotify-player-placeholder iframe {
     width: 100%;
-    height: 100%;
+    height: 80px; /* <-- Ezt visszaállítottuk az eredeti méretére */
     border: none;
-    transform: translateY(-100px); /* Eltoljuk az iframe-et felfelé */
-    pointer-events: none; /* Ne lehessen rákattintani a lejátszóra */
+    /* A transform: translateY(-100px); sort ELTÁVOLÍTOTTUK! */
+    pointer-events: none;
 }
 
 
@@ -436,31 +437,12 @@ button:disabled {
     .menu-button .subtitle {
         font-size: 0.7em;
     }
-    /* Eltávolítottam a song-info-display reszponzív stílusait is, mert nem használjuk */
-    /*
-    .song-info-display {
-        padding: 10px;
-    }
-    .song-info-display p {
-        font-size: 0.9em;
-    }
-    */
     .spotify-hidden-player-wrapper {
-        height: 60px;
+        height: 1px; /* Mobil nézetben is 1px */
     }
     .spotify-player-placeholder iframe {
-        transform: translateY(-80px); /* Kisebb eltolás mobil nézetben */
+        /* A transform: translateY(-100px) elhagyása miatt már nem kell módosítani mobilra */
     }
-    /* Input mezők elrejtve, így nem kell reszponzív stílus */
-    /*
-    .guess-label {
-        font-size: 0.85em;
-    }
-    input[type="text"], input[type="number"] {
-        width: calc(90% - 15px);
-        font-size: 0.9em;
-    }
-    */
     .scrollable-content {
         max-height: calc(98vh - 220px);
         padding: 5px 0;
