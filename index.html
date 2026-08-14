@@ -127,7 +127,6 @@
         <h2 class="screen-title">QR-kód olvasás</h2>
 
         <div class="qr-code-display">
-            <!-- Mock QR kód kép -->
             <img src="./assets/mock_qr_code.png" alt="Mock QR Code" id="mockQrCodeImg">
             <p class="qr-code-instruction">A játékos beolvassa a QR-kódot, szól a zene.</p>
         </div>
@@ -136,6 +135,24 @@
         <button class="back-to-main-menu-button" id="backToMainMenuFromQr">Visszalépés a Főmenübe</button>
     </div>
     <!-- END QR SCAN SCREEN -->
+
+    <!-- RESULTS SCREEN -->
+    <div class="game-container hidden" id="resultsScreen">
+        <div class="logo">
+            <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
+        </div>
+        <h2 class="screen-title results-congrats">Gratulálunk!!!</h2>
+
+        <div class="results-display">
+            <h3 class="results-label">Eredmények</h3>
+            <p class="current-score" id="currentScore">0</p>
+            <p class="best-score-label">Legjobb eredmény</p>
+            <p class="best-score" id="bestScore">0</p>
+        </div>
+
+        <button class="back-to-main-menu-button" id="backToMainMenuFromResults">Visszatérés a Főmenübe</button>
+    </div>
+    <!-- END RESULTS SCREEN -->
 
     <script src="script.js"></script>
 </body>
