@@ -4,9 +4,8 @@ let isSongsDataLoaded = false;
 document.addEventListener('DOMContentLoaded', async () => {
     // --- Képernyő elemek ---
     const splashScreen = document.getElementById('splashScreen');
-    const spotifyConnectBtn = document.getElementById('spotifyConnectBtn');
-    const spotifyStatus = document.getElementById('spotifyStatus');
-    const startGameBtn = document.getElementById('startGameBtn');
+    const startAppBtn = document.getElementById('startAppBtn'); // ÁTNEVEZVE spotifyConnectBtn-ről
+    const appStatus = document.getElementById('appStatus');     // ÁTNEVEZVE spotifyStatus-ról
 
     const mainMenuScreen = document.getElementById('mainMenuScreen');
     const qrScanBtn = document.getElementById('qrScanBtn');
@@ -77,15 +76,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             songsData = await response.json();
             isSongsDataLoaded = true;
             console.log("Dal adatok sikeresen betöltve:", songsData.length, "dal.");
-            // Ha a Spotify már "csatlakoztatva" van (mock), engedélyezzük a játék indítását
-            // Mivel most nincs valós Spotify csatlakozás, a gomb mindig engedélyezhető, ha a dalok betöltődtek
-            if (isSongsDataLoaded) { // Csak akkor engedélyezzük, ha a dal adatok is betöltődtek
-                startGameBtn.disabled = false;
+            // Ha a dalok betöltődtek, engedélyezzük az app indítását
+            if (isSongsDataLoaded) {
+                startAppBtn.disabled = false;
             }
-            spotifyStatus.textContent = 'Spotify lejátszás elérhető (Preview Mode).'; // Frissítjük a státuszt
+            appStatus.textContent = 'Készen áll az indításra.'; // Frissítjük a státuszt
         } catch (error) {
             console.error("Hiba a dal adatok betöltésekor:", error);
-            spotifyStatus.textContent = "Hiba a dal adatok betöltésekor. Kérjük, próbálja újra később.";
+            appStatus.textContent = "Hiba a dal adatok betöltésekor. Kérjük, próbálja újra később.";
         }
     }
 
@@ -123,7 +121,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Mivel a lejátszás az iframe-en belül történik, a Play gomb csak indítja az időzítőt
         playMusicGameBtn.disabled = false;
         stopMusicBtn.disabled = true; // Kezdetben leállítva, amíg nem nyomtak play-t
-        playbackStatusMessage.textContent = "Kattintson a lejátszás gombra az iframe-en."; // Utasítás a felhasználónak
+        playbackStatusMessage.textContent = "Kattintson az alábbi lejátszó Play gombjára a zene indításához!";
     }
     
     // Lejátszás időzítő indítása
@@ -155,11 +153,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (timeLeft <= 0) {
                 clearInterval(playbackInterval);
                 timeRemainingText.textContent = "Idő lejárt!";
-                // Automatikusan leállítja a zenét és megjeleníti a panelt
                 if(isPlaying) {
-                    // Itt manuálisan kell szólni a felhasználónak, hogy állítsa le a zenét az iframe-en belül
-                    // Majd a stopMusicBtn.click() meghívása után jön az önbevallás
-                    stopMusicBtn.click(); // Programozottan meghívjuk az önbevallást
+                    // Itt nem hívunk click-et, hanem csak leállítjuk az isPlaying flag-et,
+                    // és jelezzük a felhasználónak, hogy vége van az időnek
+                    // A felhasználónak kell leállítania a Spotify lejátszón.
+                    isPlaying = false; // A mi időzítőnk szerint vége a hallgatási időnek
+                    playMusicGameBtn.disabled = true; // Letiltjuk, hogy ne indítson újra
+                    playbackStatusMessage.textContent = "Idő lejárt! Kérem állítsa le a zenét és válaszoljon.";
+                    stopMusicBtn.disabled = false; // Engedélyezzük a válasz gombot
                 }
             }
         }, 1000);
@@ -215,7 +216,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Új kör indítása ---
     function startNewRound() {
-        if (currentRound > totalRounds) { // currentRound >= totalRounds helyett currentRound > totalRounds, mert az első kör az 1.
+        if (currentRound >= totalRounds) {
             // Játék vége
             endGame();
             return;
@@ -260,6 +261,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             playMusicGameBtn.disabled = false; // Engedélyezzük a lejátszás gombot
             stopMusicBtn.disabled = true; // Letiltjuk a leállítás gombot (csak akkor kell, ha szól a zene)
             isPlaying = false; // Még nem szól a zene
+            playbackStatusMessage.textContent = "Kattintson az alábbi lejátszó Play gombjára a zene indításához!";
 
             loadSpotifyPlayer(currentSong['Spotify ID'], 0); // Spotify lejátszó betöltése autoplay=0-val
         } else {
@@ -288,22 +290,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Eseménykezelők ---
 
-    // Spotify csatlakoztatása gomb (Most már csak mock, mert iframe-et használunk)
-    spotifyConnectBtn.addEventListener('click', () => {
-        spotifyConnectBtn.disabled = true;
-        spotifyStatus.textContent = 'Csatlakozás Spotifyhoz...';
-        // Nincs valós OAuth, csak szimuláció
-        setTimeout(() => {
-            spotifyStatus.textContent = 'Spotify lejátszás elérhető (Preview Mode).';
-            startGameBtn.disabled = false; // A játék indítása gomb aktív lesz
-            spotifyConnectBtn.style.display = 'none'; // Elrejtjük a Spotify gombot
-        }, 2000);
+    // Alkalmazás indítása gomb (korábbi Spotify Connect helyett)
+    startAppBtn.addEventListener('click', () => {
+        if (isSongsDataLoaded) {
+            showScreen('mainMenuScreen');
+        } else {
+            alert('A dal adatok még nem töltődtek be. Kérjük, várjon!');
+        }
     });
 
-    // Játék indítása (Kezdőképernyőről a Főmenübe)
-    startGameBtn.addEventListener('click', () => {
-        showScreen('mainMenuScreen');
-    });
+    // Játék indítása (Kezdőképernyőről a Főmenübe) - EZ A GOMB MÁR NINCS AZ INDEX.HTML-BEN
+    // startGameBtn.addEventListener('click', () => {
+    //     showScreen('mainMenuScreen');
+    // });
 
     // Főmenü - QR-kód olvasás
     qrScanBtn.addEventListener('click', () => {
