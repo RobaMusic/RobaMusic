@@ -86,47 +86,54 @@
         <div class="logo">
             <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
         </div>
+        
+        <h2 class="screen-title">Találd ki a dalt!</h2> <!-- Új cím a játékképernyőre -->
 
-        <!-- Dal adatai (ezek a checkAnswerBtn után fognak megjelenni) -->
-        <div class="song-info-display">
-            <p id="displayArtist" class="revealed-info">Előadó: ???</p>
-            <p id="displayTitle" class="revealed-info">Dal címe: ???</p>
-            <p id="displayYear" class="revealed-info">Megjelenés éve: ????</p>
-        </div>
-
-        <!-- Spotify lejátszó iframe -->
-        <div class="spotify-player-container">
+        <!-- Zene lejátszása gomb (Spotifyt indítja) -->
+        <button class="game-control-button" id="playMusicGameBtn">
+            <img src="./assets/play_icon.png" alt="Play Icon"> Zene lejátszása
+        </button>
+        <!-- Spotify lejátszó "eltakarva" -->
+        <div class="spotify-hidden-player-wrapper"> <!-- Új wrapper div -->
             <div id="spotifyPlayerPlaceholder" class="spotify-player-placeholder">
                 Spotify lejátszó töltődik...
             </div>
-            <p class="spotify-note">A zene a Spotify-ról töltődik be. Kérjük, használja a lejátszó gombjait.</p>
         </div>
+        <p class="spotify-note">Kattintson a lejátszás gombra a zene indításához.</p>
+
 
         <!-- Játék vezérlők -->
         <div class="game-controls">
-            <!-- Eredeti play/pause gombok már nem kellenek, ha az iframe a forrás -->
-            <!-- <button class="game-control-button" id="playMusicBtn" disabled>
-                <img src="./assets/play_icon.png" alt="Play Icon"> Zene lejátszása
-            </button>
-            <button class="game-control-button" id="pauseMusicBtn" disabled>
-                <img src="./assets/pause_icon.png" alt="Pause Icon"> Zene leállítása
-            </button> -->
-
             <label for="remainingTimeSlider" class="year-label">Hallgatási idő:</label>
             <input type="range" id="remainingTimeSlider" min="0" max="100" value="100" disabled>
             <p id="timeRemainingText">00:45</p>
 
-            <label for="guessArtistInput" class="guess-label">Előadó:</label>
-            <input type="text" id="guessArtistInput" placeholder="Ki az előadó?">
-
-            <label for="guessTitleInput" class="guess-label">Dal címe:</label>
-            <input type="text" id="guessTitleInput" placeholder="Mi a dal címe?">
-
-            <label for="yearGuessInput" class="guess-label">Megjelenési év:</label>
-            <input type="number" id="yearGuessInput" placeholder="Melyik évben (pl. 1990)" min="1900" max="2025">
-
-            <button class="action-button" id="checkAnswerBtn">Válasz ellenőrzése</button>
+            <button class="action-button" id="stopMusicBtn">Zene leállítása és válasz</button> <!-- Új gomb -->
         </div>
+
+        <!-- Helyes válasz és önbevallás panel (kezdetben rejtett) -->
+        <div class="answer-reveal-panel hidden" id="answerRevealPanel">
+            <h3>Helyes megfejtés:</h3>
+            <p id="revealedArtist">Előadó: <span class="revealed-value"></span></p>
+            <p id="revealedTitle">Dal címe: <span class="revealed-value"></span></p>
+            <p id="revealedYear">Megjelenési év: <span class="revealed-value"></span></p>
+
+            <h3>Kérjük, értékeld a tipped!</h3>
+            <div class="self-assessment-group">
+                <label>
+                    <input type="checkbox" id="hitTitle"> Eltaláltam a dal címét (1 pont)
+                </label>
+                <label>
+                    <input type="checkbox" id="hitArtist"> Eltaláltam az előadót (1 pont)
+                </label>
+                <label>
+                    <input type="checkbox" id="hitYear"> Eltaláltam a megjelenési évet (1 pont)
+                </label>
+            </div>
+            <button class="action-button" id="recordScoreAndNextBtn">Pontszám rögzítése és következő dal</button>
+            <button class="back-to-main-menu-button" id="recordScoreAndFinishBtn">Pontszám rögzítése és Játék vége</button>
+        </div>
+
 
         <button class="back-to-main-menu-button" id="backToMainMenuFromGame">Visszatérés a Főmenübe</button>
     </div>
@@ -166,28 +173,6 @@
         <button class="back-to-main-menu-button" id="backToMainMenuFromResults">Visszatérés a Főmenübe</button>
     </div>
     <!-- END RESULTS SCREEN -->
-
-    <!-- SCORE/SELF-ASSESSMENT MODAL -->
-    <div class="modal hidden" id="scoreModal">
-        <div class="modal-content">
-            <h3>Kérjük, értékeld a tipped!</h3>
-            <p class="modal-song-info">A dal: <span id="modalSongTitle"></span> - <span id="modalArtist"></span> (<span id="modalYear"></span>)</p>
-
-            <div class="checkbox-group">
-                <label>
-                    <input type="checkbox" id="guessedTitle"> Eltaláltam a dal címét (1 pont)
-                </label>
-                <label>
-                    <input type="checkbox" id="guessedArtist"> Eltaláltam az előadót (1 pont)
-                </label>
-                <label>
-                    <input type="checkbox" id="guessedYear"> Eltaláltam a megjelenési évet (1 pont)
-                </label>
-            </div>
-            <button class="action-button" id="submitScoreBtn">Pontszám rögzítése</button>
-        </div>
-    </div>
-    <!-- END SCORE/SELF-ASSESSMENT MODAL -->
 
     <script src="script.js"></script>
 </body>
