@@ -9,6 +9,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const phoneGameBtn = document.getElementById('phoneGameBtn');
     const resultsBtn = document.getElementById('resultsBtn');
 
+    const settingsScreen = document.getElementById('settingsScreen');
+    const startPhoneGameBtn = document.getElementById('startPhoneGameBtn');
+    const backToMainMenuFromSettingsBtn = document.getElementById('backToMainMenuFromSettings');
+    const settingOptionButtons = document.querySelectorAll('.setting-option-button');
+
+    // Objektum a játék beállításainak tárolására
+    const gameSettings = {
+        listeningTime: '45', // Alapértelmezett: 45 mp
+        musicStyle: 'POP',   // Alapértelmezett: POP
+        songCount: '50'      // Alapértelmezett: 50 dal
+    };
+
+    // --- Képernyőváltó funkció ---
+    function showScreen(screenId) {
+        // Elrejt minden képernyőt
+        document.querySelectorAll('.game-container').forEach(screen => {
+            screen.classList.add('hidden');
+        });
+        // Megjeleníti a kívánt képernyőt
+        document.getElementById(screenId).classList.remove('hidden');
+    }
+
+    // --- Eseménykezelők ---
+
     // MOCK: Spotify csatlakoztatása
     spotifyConnectBtn.addEventListener('click', () => {
         spotifyConnectBtn.disabled = true;
@@ -22,23 +46,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Játék indítása (Kezdőképernyőről a Főmenübe)
     startGameBtn.addEventListener('click', () => {
-        splashScreen.classList.add('hidden'); // Elrejtjük a kezdőképernyőt
-        mainMenuScreen.classList.remove('hidden'); // Megjelenítjük a főmenüt
+        showScreen('mainMenuScreen');
     });
 
-    // Főmenü gombok (egyelőre csak alert üzenetek)
+    // Főmenü - QR-kód olvasás
     qrScanBtn.addEventListener('click', () => {
-        alert('QR-kód olvasás oldal betöltése...');
-        // Valós implementációban: mainMenuScreen.classList.add('hidden'); qrScanScreen.classList.remove('hidden');
+        alert('QR-kód olvasás oldal betöltése... (Funkcionalitás később)');
+        // Valós implementációban: showScreen('qrScanScreen');
     });
 
+    // Főmenü - Telefonos játék (átvezet a Beállítások képernyőre)
     phoneGameBtn.addEventListener('click', () => {
-        alert('Telefonos játék oldal betöltése...');
-        // Valós implementációban: mainMenuScreen.classList.add('hidden'); phoneGameScreen.classList.remove('hidden');
+        showScreen('settingsScreen');
     });
 
+    // Főmenü - Eredmények
     resultsBtn.addEventListener('click', () => {
-        alert('Eredmények oldal betöltése...');
-        // Valós implementációban: mainMenuScreen.classList.add('hidden'); resultsScreen.classList.remove('hidden');
+        alert('Eredmények oldal betöltése... (Funkcionalitás később)');
+        // Valós implementációban: showScreen('resultsScreen');
+    });
+
+    // Beállítások képernyő - Vissza a Főmenübe
+    backToMainMenuFromSettingsBtn.addEventListener('click', () => {
+        showScreen('mainMenuScreen');
+    });
+
+    // Beállítási opciók kiválasztása
+    settingOptionButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const settingType = button.dataset.setting; // Milyen beállítás (pl. listeningTime)
+            const settingValue = button.dataset.value;   // Melyik érték (pl. 45)
+
+            // Előző kiválasztott gomb de-szelektálása ugyanazon beállítási típuson belül
+            document.querySelectorAll(`.setting-option-button[data-setting="${settingType}"]`).forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            // Aktuális gomb szelektálása
+            button.classList.add('selected');
+
+            // Beállítás mentése az objektumba
+            gameSettings[settingType] = settingValue;
+            console.log('Aktuális beállítások:', gameSettings); // Konzolra írás ellenőrzéshez
+        });
+    });
+
+    // Beállítások képernyő - Játék kezdése (telefonos játék)
+    startPhoneGameBtn.addEventListener('click', () => {
+        alert(`Játék indítása a következő beállításokkal:\nIdőtartam: ${gameSettings.listeningTime} mp\nStílus: ${gameSettings.musicStyle}\nDalok száma: ${gameSettings.songCount}`);
+        // Valós implementációban: showScreen('phoneGameScreen'); és elkezdődik a játék a kiválasztott beállításokkal
     });
 });
