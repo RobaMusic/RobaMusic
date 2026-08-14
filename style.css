@@ -1,16 +1,16 @@
 /* Általános stílusok */
 body {
-    font-family: 'Arial', sans-serif; /* Vagy bármilyen más betűtípus, amit szeretnél */
+    font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #1a1a2e; /* Sötét háttér, ahogy a képen látszik */
-    color: #e0e0e0; /* Világosabb szövegszín */
+    background-color: #1a1a2e;
+    color: #e0e0e0;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    box-sizing: border-box; /* Hogy a padding ne növelje a doboz méretét */
-    overflow: hidden; /* Elrejti a görgetősávot, ha nincs rá szükség */
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 /* Képernyő elrejtése */
@@ -20,9 +20,9 @@ body {
 
 .game-container {
     width: 100%;
-    max-width: 400px; /* Egy tipikus telefon képernyő szélessége */
+    max-width: 400px;
     padding: 20px;
-    background-color: #0f0f1d; /* Kicsit sötétebb, mint a háttér */
+    background-color: #0f0f1d;
     border-radius: 15px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     text-align: center;
@@ -192,44 +192,24 @@ button:disabled {
 
 
 /* Játék képernyő stílusok */
-/* Spotify lejátszó "eltakarva" */
-.spotify-hidden-player-wrapper {
-    width: 90%;
-    height: 1px; /* <-- NAGYON FONTOS MÓDOSÍTÁS: Ezt állítottuk nagyon kicsire! */
-    overflow: hidden;
-    position: absolute; /* <-- Ezt is módosítottuk */
-    border-radius: 8px;
-    background-color: #0f0f1d; /* Kicsit sötétebbre állítva, hogy ne látszódjon a Spotify zöldje */
-    /* display: flex; /* Ezt már nem kell, ha absolute position van */
-    /* justify-content: center; */
-    /* align-items: center; */
-    margin-bottom: 0px;
-    opacity: 0;
-    z-index: -1;
-    /* Fontos, hogy ez a wrapper ne foglaljon helyet a layoutban, de az iframe betöltődjön */
-}
-
-/* A spotify-player-placeholder div, ami tartalmazza az iframe-et */
+/* A Spotify lejátszó "eltakarva" -- már nem az iframe, hanem az SDK vezérel */
+/* Az iframe valójában egy 1x1 pixeles, eltolt elemben lesz */
 .spotify-player-placeholder {
-    width: 100%;
-    height: 100%; /* Kitölti a 1px-es wrappert */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #b3b3b3;
-    font-size: 0.9em;
+    width: 1px; /* Nagyon kicsi méret */
+    height: 1px;
+    position: absolute; /* Eltávolítva a normál flow-ból */
+    top: -9999px; /* Eltolva a látható területről */
+    left: -9999px;
+    overflow: hidden; /* Elrejti a tartalmát, ha mégis kilógna */
+    visibility: hidden; /* További biztosíték az elrejtésre */
+    opacity: 0; /* További biztosíték az elrejtésre */
+    z-index: -1; /* Legyen más elemek alatt */
+    pointer-events: none; /* Ne lehessen rákattintani */
+    /* background-color: transparent; /* Nincs háttér */
 }
 
-.spotify-player-placeholder iframe {
-    width: 100%;
-    height: 80px; /* <-- Ezt visszaállítottuk az eredeti méretére */
-    border: none;
-    /* A transform: translateY(-100px); sort ELTÁVOLÍTOTTUK! */
-    pointer-events: none;
-}
-
-
-.spotify-note {
+/* A spotify-note most a playback status message lesz */
+#playbackStatusMessage {
     font-size: 0.8em;
     color: #888;
     margin-top: 0px;
@@ -405,61 +385,4 @@ button:disabled {
     gap: 8px;
 }
 
-.self-assessment-group input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: #1DB954;
-    cursor: pointer;
-}
-
-#recordScoreAndNextBtn, #recordScoreAndFinishBtn {
-    width: 100%;
-    margin-top: 10px;
-}
-
-/* Reszponzív design */
-@media (max-width: 600px) {
-    .game-container {
-        width: 95%;
-        padding: 15px;
-        max-height: 98vh;
-    }
-    .logo img {
-        width: 200px;
-    }
-    .screen-title {
-        font-size: 1.2em;
-    }
-    button {
-        padding: 12px 15px;
-        font-size: 1em;
-    }
-    .menu-button .subtitle {
-        font-size: 0.7em;
-    }
-    .spotify-hidden-player-wrapper {
-        height: 1px; /* Mobil nézetben is 1px */
-    }
-    .spotify-player-placeholder iframe {
-        /* A transform: translateY(-100px) elhagyása miatt már nem kell módosítani mobilra */
-    }
-    .scrollable-content {
-        max-height: calc(98vh - 220px);
-        padding: 5px 0;
-    }
-    .screen-title.results-congrats {
-        font-size: 1.5em;
-    }
-    .current-score, .best-score {
-        font-size: 2em;
-    }
-    .answer-reveal-panel h3 {
-        font-size: 1.1em;
-    }
-    .answer-reveal-panel p {
-        font-size: 0.9em;
-    }
-    .self-assessment-group label {
-        font-size: 0.85em;
-    }
-}
+.self-assessment-
