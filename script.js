@@ -5,14 +5,11 @@ let accessToken = null; // Ide tároljuk a Spotify Access Token-t
 let player = null;      // A Spotify Web Playback Player objektum
 let deviceId = null;    // A lejátszó Device ID-je
 
-const SPOTIFY_CLIENT_ID = '64b3bdc013e84162bf973ec883854bfa'; // <-- A TE CLIENT ID-D IDE!
-const REDIRECT_URI = 'https://robaadam88.github.io/RobaMusic/'; // <-- A TE GitHub Pages URL-ed IDE!
+const SPOTIFY_CLIENT_ID = '64b3bdc013e84162bf973ec883854bfa'; // <-- A TE CLIENT ID-D
+const REDIRECT_URI = 'https://robaadam88.github.io/RobaMusic/'; // <-- HELYESÍTVE: A TE GitHub Pages URL-ed
 
 // --- A Spotify Web Playback SDK betöltésekor hívódik meg ---
 window.onSpotifyWebPlaybackSDKReady = () => {
-    // Ez a függvény csak akkor fut le, ha az SDK script betöltődött.
-    // Ekkor már engedélyezhetjük a Spotify csatlakozás gombot (ha szükséges)
-    // De az autentikációt csak akkor indítjuk, ha rákattintanak a gombra.
     console.log("Spotify Web Playback SDK ready.");
 };
 
@@ -198,7 +195,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             startGameBtn.disabled = true; // Letiltjuk a játékot, ha offline
         });
 
-        // Csatlakoztatjuk a lejátszót a Spotify-hoz
+        // Csatlakozunk a lejátszóhoz
         player.connect();
     }
 
@@ -216,12 +213,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function playSpotifyTrack(uri, position_ms = 0) {
         if (!player || !deviceId || !accessToken) {
             console.error("Spotify lejátszó nincs inicializálva, vagy hiányzik a token/device ID.");
-            playbackStatusMessage.textContent = "Hiba: Spotify lejátszó nem kész.";
+            playbackStatusMessage.textContent = "Hiba: Spotify lejátszó nem kész. Kérjük, csatlakozzon újra.";
             return;
         }
         
         // Mivel a Web Playback SDK csak a felhasználó saját eszközén tud lejátszani,
-        // aktiválnunk kell a lejátszót az aktuális eszközön.
+        // át kell adni a lejátszást a Web Playback SDK eszközre.
         try {
             await fetch(`https://api.spotify.com/v1/me/player`, {
                 method: 'PUT',
@@ -231,7 +228,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 },
                 body: JSON.stringify({
                     device_ids: [deviceId],
-                    play: true,
+                    play: false, // Ne indítsa el azonnal, a play() hívás indítja
                 }),
             });
             console.log("Transferred playback to RobaMusic device.");
@@ -324,7 +321,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 clearInterval(playbackInterval);
                 timeRemainingText.textContent = "Idő lejárt!";
                 // Automatikusan leállítja a zenét és megjeleníti a panelt
-                // Csak akkor hívjuk meg a click eseményt, ha még nem állítottuk le manuálisan
                 if(isPlaying) {
                     stopMusicBtn.click();
                 }
@@ -432,7 +428,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             stopMusicBtn.disabled = true; // Letiltjuk a leállítás gombot (csak akkor kell, ha szól a zene)
             playbackStatusMessage.textContent = "Kattintson a lejátszás gombra a zene indításához.";
 
-            setupSpotifyPlayer(currentSong['Spotify ID']); // Spotify lejátszó előkészítése (SDK-val már nem iframe)
+            // A lejátszót most már nem kell újra inicializálni, csak lejátszani az új dalt
+            // setupSpotifyPlayer(currentSong['Spotify ID']); // Ezt már nem kell hívni minden körben, a player készen van
         } else {
             alert('Hiba: Nem sikerült dalt választani a megadott beállításokkal. Ellenőrizze a songsData-t és a szűrési logikát.');
             endGame();
@@ -444,7 +441,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         stopSpotifyTrack(); // Leállítjuk a zenét
         stopPlaybackTimer(); // Leállítjuk az időzítőt is
         // Az SDK lejátszót nem kell eltávolítani, csak megállítani.
-        // if (spotifyIframe) { spotifyIframe.remove(); spotifyIframe = null; }
         answerRevealPanel.classList.add('hidden'); // Elrejtjük az önbevallás panelt is
         playMusicGameBtn.disabled = true;
         stopMusicBtn.disabled = true;
@@ -459,6 +455,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Spotify csatlakoztatása gomb (OAuth indítása)
     spotifyConnectBtn.addEventListener('click', () => {
+        // Fontos: a 'streaming' scope kell a Web Playback SDK-hoz
         const scopes = 'user-read-playback-state user-modify-playback-state streaming user-read-email user-read-private';
         window.location = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${scopes}&response_type=token&show_dialog=true`;
     });
