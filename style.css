@@ -78,14 +78,25 @@ button img {
     height: 24px;
 }
 
-/* Spotify csatlakozás gomb (most általános start gomb) */
-.start-game-button { /* Átneveztem a spotify-connect-button-t erre */
-    background-color: #1DB954; /* Még mindig zöld, mint a régi connect gomb */
+/* Spotify csatlakozás gomb (most már PKCE flow-val) */
+.spotify-connect-button {
+    background-color: #1DB954; /* Spotify zöld */
+    color: white;
+}
+
+.spotify-connect-button:not(:disabled):hover {
+    background-color: #1ed760;
+    transform: translateY(-2px);
+}
+
+/* Játék indítása gomb */
+.start-game-button {
+    background-color: #007bff;
     color: white;
 }
 
 .start-game-button:not(:disabled):hover {
-    background-color: #1ed760;
+    background-color: #0056b3;
     transform: translateY(-2px);
 }
 
@@ -115,7 +126,7 @@ button:disabled {
 }
 
 /* App státusz szöveg */
-#appStatus { /* Az eredeti spotify-status most #appStatus */
+#appStatus {
     font-size: 0.9em;
     color: #888;
     margin-top: -10px;
@@ -179,40 +190,34 @@ button:disabled {
     align-items: center;
 }
 
-
 /* Játék képernyő stílusok */
-/* Spotify lejátszó "elrejtése" egy még agresszívebb módon */
-.spotify-player-container {
-    width: 1px; /* Nagyon kicsi szélesség */
-    height: 1px; /* Nagyon kicsi magasság */
-    overflow: hidden; /* Elrejti, ami kilóg az 1x1-ből */
-    position: absolute; /* Eltávolítja a normál dokumentumfolyamból */
-    top: -9999px; /* Eltolja a képernyőn kívülre */
+/* Lejátszó eszköz statusz div */
+.player-device-status {
+    font-size: 0.9em;
+    color: #b3b3b3;
+    margin-top: -10px;
+    margin-bottom: 10px;
+}
+
+/* Spotify lejátszó "eltakarása" az SDK használatával */
+/* Ezt a placeholder div-et most az SDK használja, nem az iframe */
+#spotifyPlayerPlaceholder {
+    width: 1px; /* Nagyon kicsi méret */
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    top: -9999px;
     left: -9999px;
-    opacity: 0; /* Teljesen átlátszatlan */
-    z-index: -1; /* Más elemek alá kerül */
-    pointer-events: none; /* Ne lehessen rákattintani */
-    /* display: none; */ /* Ha ez van, akkor valószínűleg nem szól a hang */
-}
-
-/* A lejátszó placeholder-je most az iframe-et tárolja */
-.spotify-player-placeholder-visible {
-    width: 100%; /* Kitölti a container 1px-es szélességét */
-    height: 100%; /* Kitölti a container 1px-es magasságát */
-    display: flex; /* Hogy a benne lévő iframe-et jól elrendezze */
-    justify-content: center;
-    align-items: center;
-}
-
-.spotify-player-placeholder-visible iframe {
-    width: 300px; /* Az iframe valós mérete (ez az 1x1-es containeren kívülre fog lógni, de elrejti az overflow) */
-    height: 80px;
-    border: none;
-    /* pointer-events: auto; */ /* Ne tegyük automatikusra, mert elrejtettük */
+    visibility: hidden;
+    opacity: 0;
+    z-index: -1;
+    pointer-events: none;
+    /* Háttérszín, hogy ha mégis látszódna valahol, ne legyen zavaró */
+    background-color: #0f0f1d; 
 }
 
 
-#playbackStatusMessage { /* A Spotify status message */
+#playbackStatusMessage {
     font-size: 0.8em;
     color: #888;
     margin-top: 0px;
@@ -421,14 +426,11 @@ button:disabled {
         font-size: 0.7em;
     }
     /* A Spotify player-container stílusai */
-    .spotify-player-container {
+    #spotifyPlayerPlaceholder { /* Most már ez rejti el az SDK playert */
         width: 1px;
         height: 1px;
         top: -9999px;
         left: -9999px;
-    }
-    .spotify-player-placeholder-visible iframe {
-        /* Nem kell külön mobil stílus, mert a container takarja */
     }
     .scrollable-content {
         max-height: calc(98vh - 220px);
