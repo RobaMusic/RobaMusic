@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const appStatus = document.getElementById('appStatus');
 
     // Főmenü
-    const mainMenuScreen = document.getElementById('mainMenuScreen'); 
+    const mainMenuScreen = document.getElementById('mainMenuScreen'); // <-- HELYREHOZVA!
     const qrScanBtn = document.getElementById('qrScanBtn');
     const phoneGameBtn = document.getElementById('phoneGameBtn');
     const resultsBtn = document.getElementById('resultsBtn');
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // QR Scan képernyő
     const qrScanScreen = document.getElementById('qrScanScreen');
     const replayQrMusicBtn = document.getElementById('replayQrMusicBtn');
-    const backToMainMenuFromQrBtn = document.getElementById('backToMainMenuFromQr'); // <-- JAVÍTOTT
+    const backToMainMenuFromQrBtn = document.getElementById('backToMainMenuFromQr');
 
     // Eredmények képernyő
     const resultsScreen = document.getElementById('resultsScreen');
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const revealedTitleText = document.getElementById('revealedTitleText');
     const revealedYearText = document.getElementById('revealedYearText');
     const hitTitleCheckbox = document.getElementById('hitTitle');
-    const hitArtistCheckbox = document.getElementById('hitArtist'); // <-- JAVÍTOTT
+    const hitArtistCheckbox = document.getElementById('hitArtist');
     const hitYearCheckbox = document.getElementById('hitYear');
     const recordScoreAndNextBtn = document.getElementById('recordScoreAndNextBtn');
     const recordScoreAndFinishBtn = document.getElementById('recordScoreAndFinishBtn');
@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         function updateTimerDisplay() {
             const minutes = Math.floor(timeLeft / 60);
-            const seconds = Math.floor(timeLeft % 60); // Math.floor, hogy egész szám legyen
+            const seconds = Math.floor(timeLeft % 60);
             timeRemainingText.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             remainingTimeSlider.value = timeLeft;
         }
