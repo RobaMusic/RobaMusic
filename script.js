@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const gameScreen = document.getElementById('gameScreen');
     const playMusicGameBtn = document.getElementById('playMusicGameBtn');
     const playbackStatusMessage = document.getElementById('playbackStatusMessage');
-    const spotifyPlayerPlaceholder = document.getElementById('spotifyPlayerPlaceholder');
+    const spotifyPlayerPlaceholder = document.getElementById('spotifyPlayerPlaceholder'); // Ez most az iframe-et fogja tárolni
     const remainingTimeSlider = document.getElementById('remainingTimeSlider');
     const timeRemainingText = document.getElementById('timeRemainingText');
     const stopMusicBtn = document.getElementById('stopMusicBtn');
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // QR Scan képernyő
     const qrScanScreen = document.getElementById('qrScanScreen');
     const replayQrMusicBtn = document.getElementById('replayQrMusicBtn');
-    const backToMainMenuFromQrBtn = document.getElementById('backToMainMenuFromQr'); // <-- Itt volt az elírás (document = document...)
+    const backToMainMenuFromQrBtn = document.getElementById('backToMainMenuFromQr'); // <-- JAVÍTVA AZ ELÍRÁS
 
     // Eredmények képernyő
     const resultsScreen = document.getElementById('resultsScreen');
@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Főmenü - QR-kód olvasás
-    qrScanBtn.addEventListener('click', ()hozzáadva => {
+    qrScanBtn.addEventListener('click', () => { // <-- JAVÍTOTT RÉSZ
         alert('A QR-kód olvasó funkció fejlesztés alatt áll. Egyelőre egy mock képet látsz.');
         showScreen('qrScanScreen');
     });
