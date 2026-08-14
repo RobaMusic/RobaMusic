@@ -31,9 +31,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const checkAnswerBtn = document.getElementById('checkAnswerBtn');
     const backToMainMenuFromGameBtn = document.getElementById('backToMainMenuFromGame');
 
-    const qrScanScreen = document.getElementById('qrScanScreen'); // ÚJ: QR Scan képernyő
-    const replayQrMusicBtn = document.getElementById('replayQrMusicBtn'); // ÚJ: Újrajátszás gomb
-    const backToMainMenuFromQrBtn = document.getElementById('backToMainMenuFromQr'); // ÚJ: Vissza a főmenübe gomb
+    const qrScanScreen = document.getElementById('qrScanScreen');
+    const replayQrMusicBtn = document.getElementById('replayQrMusicBtn');
+    const backToMainMenuFromQrBtn = document.getElementById('backToMainMenuFromQr');
+
+    const resultsScreen = document.getElementById('resultsScreen'); // ÚJ: Eredmények képernyő
+    const currentScoreDisplay = document.getElementById('currentScore'); // ÚJ: Aktuális pontszám megjelenítése
+    const bestScoreDisplay = document.getElementById('bestScore');       // ÚJ: Legjobb pontszám megjelenítése
+    const backToMainMenuFromResultsBtn = document.getElementById('backToMainMenuFromResults'); // ÚJ: Vissza a főmenübe gomb
 
     // --- Játék állapot változók ---
     const gameSettings = {
@@ -44,6 +49,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     let currentSong = null;
     let spotifyIframe = null;
     let playbackInterval = null;
+    let currentScore = 0; // Aktuális pontszám
+    let bestScore = localStorage.getItem('robaMusicBestScore') || 0; // Legjobb pontszám localStorage-ből
+
+    // Legjobb pontszám megjelenítése az induláskor
+    bestScoreDisplay.textContent = bestScore;
+
 
     // --- Dal adatbázis betöltése ---
     async function loadSongsData() {
@@ -169,10 +180,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         showScreen('mainMenuScreen');
     });
 
-    // Főmenü - QR-kód olvasás (átvezet a QR Scan képernyőre)
+    // Főmenü - QR-kód olvasás
     qrScanBtn.addEventListener('click', () => {
         alert('A QR-kód olvasó funkció fejlesztés alatt áll. Egyelőre egy mock képet látsz.');
-        // TODO: Később itt kellene indítani a valós QR kód olvasót
         showScreen('qrScanScreen');
     });
 
@@ -181,10 +191,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         showScreen('settingsScreen');
     });
 
-    // Főmenü - Eredmények
+    // Főmenü - Eredmények (átvezet az Eredmények képernyőre)
     resultsBtn.addEventListener('click', () => {
-        alert('Eredmények oldal betöltése... (Funkcionalitás később)');
-        // showScreen('resultsScreen');
+        currentScoreDisplay.textContent = currentScore; // Frissítjük az aktuális pontszámot
+        bestScoreDisplay.textContent = bestScore;       // Frissítjük a legjobb pontszámot
+        showScreen('resultsScreen');
     });
 
     // Beállítások képernyő - Vissza a Főmenübe
@@ -226,6 +237,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             displayTitle.classList.remove('active');
             displayYear.classList.remove('active');
             yearGuessInput.value = '';
+            currentScore = 0; // Játék indításakor a pontszám nullázása
 
             loadSpotifyPlayer(currentSong['Spotify ID']);
             startPlaybackTimer();
@@ -256,11 +268,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         showAnswer();
         stopPlaybackTimer();
 
+        // Pontozás (prototípusban csak az évszám)
+        let scoreForThisRound = 0;
         if (currentSong && guessedYear === currentSong['Megjelenési év']) {
+            scoreForThisRound = 10; // 10 pont az évszámért
             alert('Helyes megfejtés! Gratulálok!');
         } else {
             alert(`Helytelen megfejtés! A helyes év: ${currentSong['Megjelenési év']}`);
         }
+        currentScore += scoreForThisRound; // Hozzáadjuk az aktuális pontszámhoz
+        if (currentScore > bestScore) { // Ha új rekord
+            bestScore = currentScore;
+            localStorage.setItem('robaMusicBestScore', bestScore); // Elmentjük a legjobb pontszámot
+        }
+
         checkAnswerBtn.disabled = true;
         yearGuessInput.disabled = true;
     });
@@ -282,11 +303,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // QR Scan képernyő - Újrajátszás (MOCK)
     replayQrMusicBtn.addEventListener('click', () => {
         alert('Zene újrajátszása a QR kód alapján (funkcionalitás később).');
-        // Itt kellene újra betölteni és elindítani a dalt a QR kód alapján
     });
 
     // QR Scan képernyő - Vissza a Főmenübe
     backToMainMenuFromQrBtn.addEventListener('click', () => {
+        showScreen('mainMenuScreen');
+    });
+
+    // Eredmények képernyő - Vissza a Főmenübe
+    backToMainMenuFromResultsBtn.addEventListener('click', () => {
         showScreen('mainMenuScreen');
     });
 });
