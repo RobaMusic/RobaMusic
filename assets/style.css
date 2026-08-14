@@ -1,57 +1,58 @@
 /* Általános stílusok */
 body {
-    font-family: 'Arial', sans-serif; /* Vagy bármilyen más betűtípus, amit szeretnél */
+    font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #1a1a2e; /* Sötét háttér, ahogy a képen látszik */
-    color: #e0e0e0; /* Világosabb szövegszín */
+    background-color: #1a1a2e;
+    color: #e0e0e0;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    box-sizing: border-box; /* Hogy a padding ne növelje a doboz méretét */
-    overflow: hidden; /* Elrejti a görgetősávot, ha nincs rá szükség */
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Képernyő elrejtése */
+.hidden {
+    display: none !important; /* Fontos a !important, hogy felülírja a flex-et */
 }
 
 .game-container {
     width: 100%;
-    max-width: 400px; /* Egy tipikus telefon képernyő szélessége */
+    max-width: 400px;
     padding: 20px;
-    background-color: #0f0f1d; /* Kicsit sötétebb, mint a háttér */
+    background-color: #0f0f1d;
     border-radius: 15px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     text-align: center;
-    display: flex; /* Flexbox a tartalom központozásához és elrendezéséhez */
+    display: flex; /* Alapértelmezett, ha látható */
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 15px; /* Elemek közötti térköz */
+    gap: 15px;
+    position: absolute; /* Hogy a konténerek egymás fölé kerüljenek, ne egymás mellé */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 /* Logó és címek */
 .logo {
-    margin-bottom: 20px; 
+    margin-bottom: 20px;
 }
 
 .logo img {
-
-    width: 250px; 
-    max-width: 80%; 
-    height: auto; 
+    width: 250px;
+    max-width: 80%;
+    height: auto;
 }
 
-.logo h1 {
-    font-size: 2.2em;
+.screen-title {
+    font-size: 1.4em;
     color: #e0e0e0;
-    margin: 0 0 5px 0;
+    margin-bottom: 20px;
     font-weight: bold;
-}
-
-.logo h2 {
-    font-size: 1.2em;
-    color: #aaaaaa;
-    margin: 0 0 20px 0;
-    font-weight: normal;
 }
 
 /* Gombok alap stílusa */
@@ -77,7 +78,7 @@ button img {
 
 /* Spotify csatlakozás gomb */
 .spotify-connect-button {
-    background-color: #1DB954; /* Spotify zöld */
+    background-color: #1DB954;
     color: white;
 }
 
@@ -88,7 +89,7 @@ button img {
 
 /* Játék indítása gomb */
 .start-game-button {
-    background-color: #007bff; /* Kék, mint a leírásban */
+    background-color: #007bff;
     color: white;
 }
 
@@ -96,6 +97,25 @@ button img {
     background-color: #0056b3;
     transform: translateY(-2px);
 }
+
+/* Menü gombok (új stílus) */
+.menu-button {
+    background-color: #2196f3; /* Kék szín, de eltérhet az indító gombétól */
+    color: white;
+    line-height: 1.3; /* Sorok közötti térköz a több soros gombokhoz */
+}
+
+.menu-button:hover {
+    background-color: #1976d2;
+    transform: translateY(-2px);
+}
+
+.menu-button .subtitle {
+    font-size: 0.8em; /* Alcím kisebb betűmérettel */
+    opacity: 0.8;
+    font-weight: normal;
+}
+
 
 /* Gombok inaktív állapota */
 button:disabled {
@@ -108,7 +128,7 @@ button:disabled {
 .spotify-status {
     font-size: 0.9em;
     color: #888;
-    margin-top: -10px; /* Kicsit feljebb tolja a gomb alá */
+    margin-top: -10px;
 }
 
 /* Reszponzív design */
@@ -117,14 +137,17 @@ button:disabled {
         width: 95%;
         padding: 15px;
     }
-    .logo h1 {
-        font-size: 1.8em;
+    .logo img {
+        width: 200px; /* Kisebb logó mobilon */
     }
-    .logo h2 {
-        font-size: 1em;
+    .screen-title {
+        font-size: 1.2em;
     }
     button {
         padding: 12px 15px;
         font-size: 1em;
+    }
+    .menu-button .subtitle {
+        font-size: 0.7em;
     }
 }
