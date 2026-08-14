@@ -13,13 +13,12 @@
         <div class="logo">
             <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
         </div>
-        <button class="spotify-connect-button" id="spotifyConnectBtn">
-            <img src="./assets/spotify_icon.png" alt="Spotify Icon"> SPOTIFY CSATLAKOZTATÁSA
+        <!-- A Spotify Connect gombot lecseréljük egy általánosabb "Indítás" gombra, 
+             mert nincs már valós Spotify OAuth csatlakozás -->
+        <button class="start-game-button" id="startAppBtn">
+            <img src="./assets/play_icon.png" alt="Play Icon"> ALKALMAZÁS INDÍTÁSA
         </button>
-        <p class="spotify-status" id="spotifyStatus">Spotify nincs csatlakoztatva</p>
-        <button class="start-game-button" id="startGameBtn" disabled>
-            <img src="./assets/play_icon.png" alt="Play Icon"> JÁTÉK INDÍTÁSA
-        </button>
+        <p class="spotify-status" id="appStatus">Készen áll az indításra.</p>
     </div>
 
     <!-- MAIN MENU SCREEN -->
@@ -91,11 +90,10 @@
 
         <!-- Spotify lejátszó iframe (látható) -->
         <div class="spotify-player-container">
-            <!-- IDE jön a Spotify lejátszó iframe -->
             <div id="spotifyPlayerPlaceholder" class="spotify-player-placeholder-visible">
                  Spotify lejátszó töltődik...
             </div>
-            <p class="spotify-note">A zene a Spotify-ról töltődik be. Kérjük, használja a lejátszó gombjait.</p>
+            <p class="spotify-note" id="playbackStatusMessage">Kattintson a lejátszó Play gombjára!</p>
         </div>
 
 
@@ -171,8 +169,6 @@
     </div>
     <!-- END RESULTS SCREEN -->
 
-    <!-- A Spotify Web Playback SDK-t eltávolítjuk, mert nem használjuk ezt a flow-t -->
-    <!-- <script src="https://sdk.scdn.co/spotify-player.js"></script> -->
     <script src="script.js"></script>
 </body>
 </html>
