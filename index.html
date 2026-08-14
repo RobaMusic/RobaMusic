@@ -63,7 +63,6 @@
         <button class="setting-option-button" data-setting="musicStyle" data-value="XMAS">KARÁCSONYI</button>
         <button class="setting-option-button" data-setting="musicStyle" data-value="ALL">ÖSSZES KATEGÓRIA</button>
 
-
         <!-- Zeneszámok mennyisége -->
         <h3 class="setting-category">Zeneszámok mennyisége</h3>
         <button class="setting-option-button selected" data-setting="songCount" data-value="50">50 db</button>
@@ -91,7 +90,6 @@
 
         <!-- Spotify lejátszó iframe -->
         <div class="spotify-player-container">
-            <!-- Ide fog bekerülni a Spotify lejátszó iframe a JS segítségével -->
             <div id="spotifyPlayerPlaceholder" class="spotify-player-placeholder">
                 Spotify lejátszó töltődik...
             </div>
@@ -100,16 +98,13 @@
 
         <!-- Játék vezérlők -->
         <div class="game-controls">
-            <!-- Játékos vezérlők (Play/Pause) - Ezeket valójában az iframe tartalmazza -->
             <button class="game-control-button" id="playMusicBtn" disabled>
                 <img src="./assets/play_icon.png" alt="Play Icon"> Zene lejátszása
             </button>
             <button class="game-control-button" id="pauseMusicBtn" disabled>
                 <img src="./assets/pause_icon.png" alt="Pause Icon"> Zene leállítása
             </button>
-            <!-- Megjegyzés: A pause ikonhoz szükségünk lesz egy pause_icon.png-re az assets mappában -->
 
-            <!-- Maradék idő csúszka (MOCK) -->
             <label for="yearGuess" class="year-label">Hallgatási idő:</label>
             <input type="range" id="remainingTimeSlider" min="0" max="100" value="100" disabled>
             <p id="timeRemainingText">00:45</p>
@@ -123,6 +118,24 @@
         <button class="back-to-main-menu-button" id="backToMainMenuFromGame">Visszatérés a Főmenübe</button>
     </div>
     <!-- END GAME SCREEN -->
+
+    <!-- QR SCAN SCREEN -->
+    <div class="game-container hidden" id="qrScanScreen">
+        <div class="logo">
+            <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
+        </div>
+        <h2 class="screen-title">QR-kód olvasás</h2>
+
+        <div class="qr-code-display">
+            <!-- Mock QR kód kép -->
+            <img src="./assets/mock_qr_code.png" alt="Mock QR Code" id="mockQrCodeImg">
+            <p class="qr-code-instruction">A játékos beolvassa a QR-kódot, szól a zene.</p>
+        </div>
+
+        <button class="action-button" id="replayQrMusicBtn">Újrajátszás</button>
+        <button class="back-to-main-menu-button" id="backToMainMenuFromQr">Visszalépés a Főmenübe</button>
+    </div>
+    <!-- END QR SCAN SCREEN -->
 
     <script src="script.js"></script>
 </body>
