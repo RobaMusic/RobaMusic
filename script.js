@@ -2,34 +2,40 @@ let songsData = [];
 let isSongsDataLoaded = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // --- Képernyő elemek ---
+    // --- Képernyő elemek lekérdezése ---
+    // Kezdőképernyő
     const splashScreen = document.getElementById('splashScreen');
     const startAppBtn = document.getElementById('startAppBtn');
     const appStatus = document.getElementById('appStatus');
 
+    // Főmenü
     const mainMenuScreen = document.getElementById('mainMenuScreen');
     const qrScanBtn = document.getElementById('qrScanBtn');
     const phoneGameBtn = document.getElementById('phoneGameBtn');
     const resultsBtn = document.getElementById('resultsBtn');
 
+    // Beállítások képernyő
     const settingsScreen = document.getElementById('settingsScreen');
     const startPhoneGameBtn = document.getElementById('startPhoneGameBtn');
     const backToMainMenuFromSettingsBtn = document.getElementById('backToMainMenuFromSettings');
     const settingOptionButtons = document.querySelectorAll('.setting-option-button');
 
+    // Játék képernyő
     const gameScreen = document.getElementById('gameScreen');
     const playMusicGameBtn = document.getElementById('playMusicGameBtn');
     const playbackStatusMessage = document.getElementById('playbackStatusMessage');
-    const spotifyPlayerPlaceholder = document.getElementById('spotifyPlayerPlaceholder'); // Ez most az iframe-et fogja tárolni
+    const spotifyPlayerPlaceholder = document.getElementById('spotifyPlayerPlaceholder');
     const remainingTimeSlider = document.getElementById('remainingTimeSlider');
     const timeRemainingText = document.getElementById('timeRemainingText');
     const stopMusicBtn = document.getElementById('stopMusicBtn');
     const backToMainMenuFromGameBtn = document.getElementById('backToMainMenuFromGame');
 
+    // QR Scan képernyő
     const qrScanScreen = document.getElementById('qrScanScreen');
     const replayQrMusicBtn = document.getElementById('replayQrMusicBtn');
-    const backToMainMenuFromQrBtn = document.getElementById('backToMainMenuFromQr'); // <-- JAVÍTVA VOLT AZ ELÍRÁS
+    const backToMainMenuFromQrBtn = document.getElementById('backToMainMenuFromQr'); // <-- Itt volt az elírás (document = document...)
 
+    // Eredmények képernyő
     const resultsScreen = document.getElementById('resultsScreen');
     const currentScoreDisplay = document.getElementById('currentScore');
     const bestScoreDisplay = document.getElementById('bestScore');
@@ -297,7 +303,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Főmenü - QR-kód olvasás
-    qrScanBtn.addEventListener('click', () => {
+    qrScanBtn.addEventListener('click', ()hozzáadva => {
         alert('A QR-kód olvasó funkció fejlesztés alatt áll. Egyelőre egy mock képet látsz.');
         showScreen('qrScanScreen');
     });
@@ -435,7 +441,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     backToMainMenuFromGameBtn.addEventListener('click', () => {
         if (confirm("Biztosan be akarod fejezni a játékot? Az aktuális pontszám elveszik.")) {
             endGame(); // A játék vége funkcióval térünk vissza a főmenübe
-            showScreen('mainMenuScreen'); // Vissza a főmenübe
+            // showScreen('mainMenuScreen'); // Ez már az endGame() része
         }
     });
 
