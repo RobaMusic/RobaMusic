@@ -89,17 +89,14 @@
         
         <h2 class="screen-title">Találd ki a dalt!</h2>
 
-        <!-- Zene lejátszása gomb -->
-        <button class="game-control-button" id="playMusicGameBtn">
-            <img src="./assets/play_icon.png" alt="Play Icon"> Zene lejátszása
-        </button>
-        
-        <!-- Spotify lejátszó "eltakarva" -- már nem az iframe, hanem az SDK vezérel -->
-        <div id="spotifyPlayerPlaceholder" class="spotify-player-placeholder">
-            <!-- Ide már nem az iframe jön, hanem csak egy placeholder -->
-            Spotify lejátszó előkészítése...
+        <!-- Spotify lejátszó iframe (látható) -->
+        <div class="spotify-player-container">
+            <!-- IDE jön a Spotify lejátszó iframe -->
+            <div id="spotifyPlayerPlaceholder" class="spotify-player-placeholder-visible">
+                 Spotify lejátszó töltődik...
+            </div>
+            <p class="spotify-note">A zene a Spotify-ról töltődik be. Kérjük, használja a lejátszó gombjait.</p>
         </div>
-        <p class="spotify-note" id="playbackStatusMessage">Kattintson a lejátszás gombra a zene indításához.</p>
 
 
         <!-- Játék vezérlők -->
@@ -108,7 +105,7 @@
             <input type="range" id="remainingTimeSlider" min="0" max="100" value="100" disabled>
             <p id="timeRemainingText">00:45</p>
 
-            <button class="action-button" id="stopMusicBtn" disabled>Zene leállítása és válasz</button>
+            <button class="action-button" id="stopMusicBtn">Zene leállítása és válasz</button>
         </div>
 
         <!-- Helyes válasz és önbevallás panel (kezdetben rejtett) -->
@@ -174,7 +171,8 @@
     </div>
     <!-- END RESULTS SCREEN -->
 
-    <script src="https://sdk.scdn.co/spotify-player.js"></script> <!-- ÚJ: Spotify Web Playback SDK -->
+    <!-- A Spotify Web Playback SDK-t eltávolítjuk, mert nem használjuk ezt a flow-t -->
+    <!-- <script src="https://sdk.scdn.co/spotify-player.js"></script> -->
     <script src="script.js"></script>
 </body>
 </html>
