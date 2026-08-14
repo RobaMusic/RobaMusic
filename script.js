@@ -36,7 +36,7 @@ let deviceId = null;    // A lejátszó Device ID-je
 
 // Spotify API beállítások
 const SPOTIFY_CLIENT_ID = '64b3bdc013e84162bf973ec883854bfa'; // A TE CLIENT ID-d
-const REDIRECT_URI = 'https://robadiver.github.io/RobaMusic/'; // <-- HELYESÍTETT REDIRECT URI!
+const REDIRECT_URI = 'https://RobaMusic.github.io/RobaMusic/'; // <-- HELYREHOZVA! Most már a helyes felhasználónévvel!
 
 // --- A Spotify Web Playback SDK betöltésekor hívódik meg ---
 window.onSpotifyWebPlaybackSDKReady = () => {
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- Képernyő elemek lekérdezése ---
     const splashScreen = document.getElementById('splashScreen');
     const spotifyConnectBtn = document.getElementById('spotifyConnectBtn');
-    const appStatus = document.getElementById('appStatus'); // Átnevezve spotifyStatus-ról
+    const appStatus = document.getElementById('appStatus'); 
     const startGameBtn = document.getElementById('startGameBtn');
 
     const mainMenuScreen = document.getElementById('mainMenuScreen'); 
@@ -66,9 +66,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const gameScreen = document.getElementById('gameScreen');
     const playMusicGameBtn = document.getElementById('playMusicGameBtn');
-    const pauseMusicGameBtn = document.getElementById('pauseMusicGameBtn'); // ÚJ GOMB
-    const playerDeviceStatus = document.getElementById('playerDeviceStatus'); // ÚJ Player status div
-    const playbackStatusMessage = document.getElementById('playbackStatusMessage'); // Az új ID a status üzenetnek
+    const pauseMusicGameBtn = document.getElementById('pauseMusicGameBtn'); 
+    const playerDeviceStatus = document.getElementById('playerDeviceStatus'); 
+    const playbackStatusMessage = document.getElementById('playbackStatusMessage'); 
     const remainingTimeSlider = document.getElementById('remainingTimeSlider');
     const timeRemainingText = document.getElementById('timeRemainingText');
     const stopMusicBtn = document.getElementById('stopMusicBtn');
@@ -102,14 +102,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         songCount: '50'
     };
     let currentSong = null;
-    let playbackInterval = null; // Az időzítő intervallum
-    let currentScore = 0; // Aktuális pontszám
-    let bestScore = localStorage.getItem('robaMusicBestScore') || 0; // Legjobb pontszám localStorage-ből
-    let isPlaying = false; // Jelzi, hogy a zene éppen szól-e
+    let playbackInterval = null; 
+    let currentScore = 0; 
+    let bestScore = localStorage.getItem('robaMusicBestScore') || 0; 
+    let isPlaying = false; 
 
-    let currentRound = 0; // Aktuális kör száma
-    let totalRounds = 0; // Összes kör száma a beállítások alapján
-    let playedSongs = []; // Eltárolja a már lejátszott dalok ID-it, hogy ne ismétlődjenek
+    let currentRound = 0; 
+    let totalRounds = 0; 
+    let playedSongs = []; 
 
     bestScoreDisplay.textContent = bestScore;
 
@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 },
                 body: JSON.stringify({
                     device_ids: [deviceId],
-                    play: false, // Ne indítsa el azonnal, a player.start() indítja
+                    play: false, // Ne indítsa el azonnal, a player.resume() indítja
                 }),
             });
             console.log("Transferred playback to RobaMusic device.");
@@ -322,13 +322,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         try {
-            await player.startPlayingForUser(deviceId, { uris: [uri], position_ms: position_ms });
-            // player.startPlayingForUser automatikusan beállítja az isPlaying-et
-            // isPlaying = true; // Ezt a player_state_changed kezeli
-            // playMusicGameBtn.disabled = true; // Ezt a player_state_changed kezeli
-            // pauseMusicGameBtn.disabled = false; // Ezt a player_state_changed kezeli
-            // playbackStatusMessage.textContent = "Zene szól..."; // Ezt a player_state_changed kezeli
-            startPlaybackTimer();
+            await player.resume({ // player.resume() helyett player.start() az első indításhoz
+                uris: [uri],
+                position_ms: position_ms
+            });
+            // isPlaying, disabled states handled by player_state_changed listener
+            startPlaybackTimer(); // Elindítjuk az időzítőt
             console.log("Lejátszás elindult:", uri);
         } catch (error) {
             console.error("Hiba a zene lejátszásakor:", error);
@@ -345,12 +344,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         try {
-            await player.pause();
-            // isPlaying = false; // Ezt a player_state_changed kezeli
-            // playMusicGameBtn.disabled = false; // Ezt a player_state_changed kezeli
-            // pauseMusicGameBtn.disabled = true; // Ezt a player_state_changed kezeli
-            // playbackStatusMessage.textContent = "Zene szüneteltetve."; // Ezt a player_state_changed kezeli
-            stopPlaybackTimer();
+            await player.pause(); // Szüneteltetjük a lejátszást
+            // isPlaying, disabled states handled by player_state_changed listener
+            stopPlaybackTimer(); // Leállítjuk az időzítőt
             console.log("Lejátszás szüneteltetve.");
         } catch (error) {
             console.error("Hiba a zene szüneteltetésekor:", error);
@@ -590,8 +586,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             alert("Nincs kiválasztott dal. Kérjük, indítson új játékot.");
             return;
         }
-        if (!isPlaying) {
-            // Transfer playback to RobaMusic device if not already on it
+        // Itt már van dal, és inicializált a player, deviceId is beállítva.
+        // A player.resume() már elindítja a lejátszást, ha szüneteltetve volt.
+        // Első indításkor is a resume() működik, ha az átvitel megtörtént.
+        if (player && deviceId && accessToken) {
+             // Átadjuk a lejátszást az SDK lejátszónak
             await fetch(`https://api.spotify.com/v1/me/player`, {
                 method: 'PUT',
                 headers: {
@@ -600,27 +599,30 @@ document.addEventListener('DOMContentLoaded', async () => {
                 },
                 body: JSON.stringify({
                     device_ids: [deviceId],
-                    play: false, // Ne indítsa el azonnal, a player.resume() indítja
+                    play: true, // Itt már indítjuk
+                    uris: [`spotify:track:${currentSong['Spotify ID']}`]
                 }),
             });
-            await player.resume(); // Indítjuk a lejátszást
             // isPlaying, disabled states handled by player_state_changed listener
             startPlaybackTimer(); // Elindítjuk az időzítőt
+            console.log("Lejátszás elindult.");
+        } else {
+            playbackStatusMessage.textContent = "Hiba: Spotify lejátszó nem kész. Kérjük, csatlakozzon újra a kezdőképernyőn.";
         }
     });
 
     // Játék képernyő - "Zene szüneteltetése" gomb (SDK-s pause)
     pauseMusicGameBtn.addEventListener('click', async () => {
-        if (isPlaying) {
+        if (player && isPlaying) {
             await player.pause(); // Szüneteltetjük a lejátszást
             // isPlaying, disabled states handled by player_state_changed listener
             stopPlaybackTimer(); // Leállítjuk az időzítőt
         }
     });
 
-    // Játék képernyő - "Zene leállítása és válasz" gomb (mi Play/Pause gombunk helyett)
+    // Játék képernyő - "Zene leállítása és válasz" gomb
     stopMusicBtn.addEventListener('click', async () => {
-        if (isPlaying) {
+        if (player && isPlaying) {
             await player.pause(); // Leállítjuk a lejátszást
         }
         stopPlaybackTimer(); // Leállítjuk az időzítőt is
