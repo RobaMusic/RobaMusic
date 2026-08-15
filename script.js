@@ -1,4 +1,4 @@
-// SCRIPT.JS (VÉGLEGES, LETISZTULT VERZIÓ, HELYES HTML SORRENDHEZ)
+// SCRIPT.JS (VÉGLEGES, FINOMHANGOLT VERZIÓ)
 
 // Globális "kapcsolók" az indításhoz
 let accessToken = null;
@@ -15,30 +15,19 @@ const SPOTIFY_CLIENT_ID = '64b3bdc013e84162bf973ec883854bfa';
 const REDIRECT_URI = 'https://RobaMusic.github.io/RobaMusic/';
 
 
-/**
- * Ezt a funkciót a Spotify szkriptje fogja meghívni, amint betöltődött.
- * A helyes HTML sorrend miatt ez a funkció már garantáltan létezni fog.
- */
 window.onSpotifyWebPlaybackSDKReady = () => {
     console.log("Spotify SDK betöltődött és készen áll.");
     isSpotifySdkReady = true;
-    tryToInitializePlayer(); // Megpróbáljuk indítani a lejátszót
+    tryToInitializePlayer();
 };
 
-/**
- * A "kapuőr" funkció, ami csak akkor fut le, ha MINDEN feltétel teljesül.
- */
 function tryToInitializePlayer() {
-    // Csak akkor megyünk tovább, ha a token ÉS az SDK is megvan
     if (accessToken && isSpotifySdkReady) {
         console.log("Minden készen áll, a lejátszó inicializálása indul...");
         initializeSpotifyPlayer();
     }
 }
 
-/**
- * A tényleges lejátszó-inicializáló kód.
- */
 function initializeSpotifyPlayer() {
     const appStatus = document.getElementById('appStatus');
     const startGameBtn = document.getElementById('startGameBtn');
@@ -51,20 +40,23 @@ function initializeSpotifyPlayer() {
 
     player.addListener('ready', ({ device_id }) => {
         deviceId = device_id;
-        console.log('Lejátszó sikeresen csatlakozott. Device ID:', deviceId);
+        console.log('Spotify lejátszó KÉSZ, Device ID:', deviceId);
         appStatus.textContent = 'Spotify csatlakoztatva! Készen áll a játékra.';
         if (isSongsDataLoaded) startGameBtn.disabled = false;
     });
 
     player.addListener('player_state_changed', state => {
         if (!state) { isPlaying = false; return; }
-
         const wasPlaying = isPlaying;
         isPlaying = !state.paused;
+        
+        const playBtn = document.getElementById('playMusicGameBtn');
+        const pauseBtn = document.getElementById('pauseMusicGameBtn');
+        const stopBtn = document.getElementById('stopMusicBtn');
 
-        document.getElementById('playMusicGameBtn').disabled = isPlaying;
-        document.getElementById('pauseMusicGameBtn').disabled = !isPlaying;
-        if(isPlaying) document.getElementById('stopMusicBtn').disabled = false;
+        playBtn.disabled = isPlaying;
+        pauseBtn.disabled = !isPlaying;
+        if(isPlaying) stopBtn.disabled = false;
         
         document.getElementById('playbackStatusMessage').textContent = isPlaying ? "Zene szól..." : "Zene szüneteltetve.";
 
@@ -72,7 +64,6 @@ function initializeSpotifyPlayer() {
         if (!isPlaying && wasPlaying) stopPlaybackTimer();
     });
 
-    // Hibakezelők
     player.addListener('authentication_error', ({ message }) => {
         console.error('Auth Error:', message);
         localStorage.removeItem('spotify_access_token');
@@ -92,7 +83,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const appStatus = document.getElementById('appStatus');
     
     // --- AUTHENTIKÁCIÓ ---
-    // Ez a rész lefut, és megpróbálja megszerezni az `accessToken`-t.
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
 
@@ -104,7 +94,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (data.access_token) {
                 accessToken = data.access_token;
                 localStorage.setItem('spotify_access_token', accessToken);
-                tryToInitializePlayer(); // Megvan a token, megpróbáljuk indítani
+                tryToInitializePlayer();
             }
         } catch (e) { console.error("Token csere hiba:", e); }
     }
@@ -117,15 +107,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         accessToken = localStorage.getItem('spotify_access_token');
         if (accessToken) {
             appStatus.textContent = 'Spotify token betöltve. Várakozás...';
-            tryToInitializePlayer(); // Megvan a token, megpróbáljuk indítani
+            tryToInitializePlayer();
         } else {
             appStatus.textContent = 'Spotify nincs csatlakoztatva.';
         }
     }
     
-    // Az összes többi kód változatlanul futhat, itt már nincs versenyhelyzet.
-    // ... (a többi kódodat ide másolhatod, vagy használhatod a lentit)
-
+    // Elemek lekérdezése...
     const startGameBtn = document.getElementById('startGameBtn');
     const mainMenuScreen = document.getElementById('mainMenuScreen');
     const phoneGameBtn = document.getElementById('phoneGameBtn');
@@ -159,6 +147,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const qrScanBtn = document.getElementById('qrScanBtn');
     const spotifyConnectBtn = document.getElementById('spotifyConnectBtn');
 
+    // Játék állapot
     const gameSettings = { listeningTime: '45', musicStyle: 'ALL', songCount: '50' };
     let currentSong = null, playbackInterval = null, currentScore = 0, bestScore = localStorage.getItem('robaMusicBestScore') || 0;
     let currentRound = 0, totalRounds = 0, playedSongs = [];
@@ -174,17 +163,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (e) { console.error("Hiba a dalok betöltésekor:", e); }
     })();
 
+    // Segédfüggvények
     function showScreen(id) { document.querySelectorAll('.game-container').forEach(s => s.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+
+    // #######################################################
+    // ### JAVÍTÁS: Szigorú URI ellenőrzés és hibakezelés ###
+    // #######################################################
     async function playSpotifyTrack(uri) {
+        // 1. ELLENŐRZÉS: Győződjünk meg róla, hogy az URI érvényes string.
+        if (!uri || typeof uri !== 'string' || !uri.startsWith('spotify:track:')) {
+            console.error("ÉRVÉNYTELEN VAGY HIÁNYZÓ URI:", uri, "A 'currentSong' objektum:", currentSong);
+            alert("Hiba: A kiválasztott dalhoz nem tartozik érvényes Spotify link. Ellenőrizd a `songs.json` fájlt!");
+            return; // Megállítjuk a hibás kérés elküldését.
+        }
         if (!deviceId) return;
+
+        console.log("Lejátszási parancs küldése a következő URI-val:", uri);
+
         try {
-            await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+            const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
                 body: JSON.stringify({ uris: [uri] }),
             });
-        } catch (e) { console.error("Lejátszási API hiba:", e); }
+
+            // 2. ELLENŐRZÉS: Nézzük meg, mit válaszolt a Spotify.
+            if (!response.ok) {
+                const errorBody = await response.json();
+                console.error("Spotify API hiba a lejátszáskor:", response.status, errorBody);
+                alert(`Hiba a zene lejátszásakor: ${errorBody.error.message}`);
+            }
+        } catch (e) { console.error("Lejátszási API hiba (fetch-en belül):", e); }
     }
+
     function startPlaybackTimer() {
         clearInterval(playbackInterval);
         let duration = gameSettings.listeningTime === 'full' ? 90 : parseInt(gameSettings.listeningTime);
@@ -231,7 +242,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     spotifyConnectBtn.addEventListener('click', async () => {
-        const v = dec2hex(Date.now()); 
+        const v = "verifier" + Date.now(); // Egyszerűsített verifier
         const challenge = await generatePkceChallenge(v);
         localStorage.setItem('code_verifier', v);
         const scopes = 'user-read-playback-state user-modify-playback-state streaming user-read-email user-read-private';
@@ -275,7 +286,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // PKCE segédfüggvények
-function dec2hex(dec) { return ('0' + dec.toString(16)).substr(-2); }
 async function generatePkceChallenge(v) {
     const encoder = new TextEncoder();
     const data = encoder.encode(v);
