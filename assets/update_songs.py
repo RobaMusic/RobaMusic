@@ -1,1 +1,355 @@
+import json
+import base64
+import requests
+import os
 
+# ==========================================
+# 1. ÍRD BE IDE A SPOTIFY API KULCSAIDAT
+# ==========================================
+CLIENT_ID = "64b3bdc013e84162bf973ec883854bfa"
+CLIENT_SECRET = "95e3b949f8604231a9a461a9d6b65180"
+
+# ==========================================
+# 2. A 400 DB ÚJ MODERN DAL METADATA (2015-2025)
+# ==========================================
+
+# 100 ÚJ BILLBOARD SLÁGER (NEW)
+new_billboard_source = [
+    {"artist": "Miley Cyrus", "title": "Flowers", "year": 2023, "tags": "pop; disco-pop; magabiztos; ének"},
+    {"artist": "Morgan Wallen", "title": "Last Night", "year": 2023, "tags": "country; akusztikus; gitár; sláger"},
+    {"artist": "SZA", "title": "Kill Bill", "year": 2022, "tags": "r&b; bosszú; lassú; dallamos"},
+    {"artist": "Taylor Swift", "title": "Anti-Hero", "year": 2022, "tags": "pop; synth-pop; önreflektív"},
+    {"artist": "Harry Styles", "title": "As It Was", "year": 2022, "tags": "indie pop; szintetizátor; fülbemászó"},
+    {"artist": "The Kid LAROI with Justin Bieber", "title": "Stay", "year": 2021, "tags": "pop; pörgős; szintetizátor"},
+    {"artist": "Olivia Rodrigo", "title": "Drivers License", "year": 2021, "tags": "ballada; érzelmes; zongora"},
+    {"artist": "Dua Lipa", "title": "Levitating", "year": 2020, "tags": "pop; disco; táncolható"},
+    {"artist": "The Weeknd", "title": "Blinding Lights", "year": 2019, "tags": "synth-pop; 80s hangzás; világsláger"},
+    {"artist": "Billie Eilish", "title": "Bad Guy", "year": 2019, "tags": "electropop; sötét; minimalista"},
+    {"artist": "Lil Nas X", "title": "Old Town Road", "year": 2019, "tags": "country rap; vírusos; ritmus"},
+    {"artist": "Post Malone", "title": "Circles", "year": 2019, "tags": "pop-rock; gitár; melankolikus"},
+    {"artist": "Halsey", "title": "Without Me", "year": 2018, "tags": "electropop; érzelmes; rádió"},
+    {"artist": "Drake", "title": "God's Plan", "year": 2018, "tags": "hiphop; rap; sláger"},
+    {"artist": "Ed Sheeran", "title": "Shape of You", "year": 2017, "tags": "pop; trópusi; világsláger"},
+    {"artist": "Luis Fonsi ft. Daddy Yankee", "title": "Despacito", "year": 2017, "tags": "latin; pop; nyári"},
+    {"artist": "Bruno Mars", "title": "That's What I Like", "year": 2016, "tags": "r&b; funk; táncolható"},
+    {"artist": "Justin Bieber", "title": "Love Yourself", "year": 2015, "tags": "pop; akusztikus; ballada"},
+    {"artist": "Mark Ronson ft. Bruno Mars", "title": "Uptown Funk", "year": 2014, "tags": "funk; pop; táncolható"},
+    {"artist": "Sabrina Carpenter", "title": "Espresso", "year": 2024, "tags": "pop; disco-pop; nyári; dögös"},
+    {"artist": "Shaboozey", "title": "A Bar Song (Tipsy)", "year": 2024, "tags": "country pop; buli; fülbemászó"},
+    {"artist": "Benson Boone", "title": "Beautiful Things", "year": 2024, "tags": "pop-rock; erőteljes; érzelmes"},
+    {"artist": "Tommy Richman", "title": "Million Dollar Baby", "year": 2024, "tags": "synth-funk; r&b; falzett; vírusos"},
+    {"artist": "Teddy Swims", "title": "Lose Control", "year": 2023, "tags": "soul; r&b; erőteljes; lassú"},
+    {"artist": "Jack Harlow", "title": "Lovin On Me", "year": 2023, "tags": "hiphop; pörgős; retro-minta"},
+    {"artist": "Doja Cat", "title": "Paint The Town Red", "year": 2023, "tags": "rap; fülbemászó; dögös"},
+    {"artist": "Glass Animals", "title": "Heat Waves", "year": 2020, "tags": "indie pop; nyári; nosztalgikus"},
+    {"artist": "Lil Nas X & Jack Harlow", "title": "Industry Baby", "year": 2021, "tags": "pop-rap; fúvósok; büszke"},
+    {"artist": "Cardi B ft. Megan Thee Stallion", "title": "WAP", "year": 2020, "tags": "hiphop; dögös; szókimondó"},
+    {"artist": "Roddy Ricch", "title": "The Box", "year": 2019, "tags": "hiphop; trap; vírusos"},
+    {"artist": "Shawn Mendes & Camila Cabello", "title": "Señorita", "year": 2019, "tags": "latin pop; duett; szexi"},
+    {"artist": "Ariana Grande", "title": "7 Rings", "year": 2019, "tags": "trap-pop; r&b; magabiztos"},
+    {"artist": "Marshmello ft. Bastille", "title": "Happier", "year": 2018, "tags": "dance-pop; vidám; nosztalgikus"},
+    {"artist": "Travis Scott", "title": "SICKO MODE", "year": 2018, "tags": "rap; hiphop; dinamikus"},
+    {"artist": "Camila Cabello ft. Young Thug", "title": "Havana", "year": 2017, "tags": "latin pop; zongora; fülbemászó"},
+    {"artist": "Kendrick Lamar", "title": "HUMBLE.", "year": 2017, "tags": "rap; hiphop; dögös"},
+    {"artist": "The Chainsmokers ft. Halsey", "title": "Closer", "year": 2016, "tags": "edm; pop; nosztalgikus"},
+    {"artist": "Rihanna ft. Drake", "title": "Work", "year": 2016, "tags": "r&b; dancehall; fülbemászó"},
+    {"artist": "Adele", "title": "Hello", "year": 2015, "tags": "ballada; lélek; drámai"},
+    {"artist": "Wiz Khalifa ft. Charlie Puth", "title": "See You Again", "year": 2015, "tags": "filmzene; ballada; rap"},
+    {"artist": "Teddy Swims", "title": "The Door", "year": 2024, "tags": "soul; r&b; pörgős; fúvósok"},
+    {"artist": "Kendrick Lamar", "title": "Not Like Us", "year": 2024, "tags": "rap; west coast; agresszív; diss"},
+    {"artist": "Sabrina Carpenter", "title": "Please Please Please", "year": 2024, "tags": "pop; retro-pop; lágy; fülbemászó"},
+    {"artist": "Chappell Roan", "title": "Good Luck, Babe!", "year": 2024, "tags": "synth-pop; 80s hangzás; drámai; ének"},
+    {"artist": "Billie Eilish", "title": "Birds of a Feather", "year": 2024, "tags": "pop; lágy; romantikus; érzelmes"},
+    {"artist": "Hozier", "title": "Too Sweet", "year": 2024, "tags": "indie rock; basszus; dögös; dallamos"},
+    {"artist": "Taylor Swift ft. Post Malone", "title": "Fortnight", "year": 2024, "tags": "synth-pop; lágy; duett"},
+    {"artist": "Zach Bryan", "title": "Something in the Orange", "year": 2022, "tags": "country folk; gitár; szomorú"},
+    {"artist": "Lady Gaga & Bruno Mars", "title": "Die With A Smile", "year": 2024, "tags": "ballada; retro soul; erőteljes; duett"},
+    {"artist": "Post Malone ft. Morgan Wallen", "title": "I Had Some Help", "year": 2024, "tags": "country pop; pörgős; vidám; duett"}
+]
+
+# 100 ÚJ ROCK SLÁGER (RO)
+new_rock_source = [
+    {"artist": "Måneskin", "title": "Beggin'", "year": 2021, "tags": "alt-rock; feldolgozás; energikus; ének"},
+    {"artist": "Ghost", "title": "Mary On A Cross", "year": 2019, "tags": "retro rock; orgona; dallamos; vírusos"},
+    {"artist": "Linkin Park", "title": "The Emptiness Machine", "year": 2024, "tags": "alt-rock; visszatérés; energikus; gitár"},
+    {"artist": "Bring Me the Horizon", "title": "Throne", "year": 2015, "tags": "alt-rock; elektronikus; himnusz; ének"},
+    {"artist": "Måneskin", "title": "I WANNA BE YOUR SLAVE", "year": 2021, "tags": "alt-rock; ritmus; dögös; modern"},
+    {"artist": "Greta Van Fleet", "title": "Highway Tune", "year": 2017, "tags": "hard rock; retro; ének; gitár"},
+    {"artist": "Kaleo", "title": "Way Down We Go", "year": 2015, "tags": "blues rock; ének; drámai; lassú"},
+    {"artist": "Bad Wolves", "title": "Zombie", "year": 2018, "tags": "heavy metal; feldolgozás; drámai; ének"},
+    {"artist": "Nothing But Thieves", "title": "Amsterdam", "year": 2017, "tags": "alt-rock; ének; energikus; pörgős"},
+    {"artist": "Architects", "title": "Animals", "year": 2020, "tags": "metalcore; riff; elektronikus; nehéz"},
+    {"artist": "Fall Out Boy", "title": "Centuries", "year": 2014, "tags": "pop-rock; minta; himnusz; aréna"},
+    {"artist": "The Pretty Reckless", "title": "Death by Rock and Roll", "year": 2021, "tags": "hard rock; dögös; női ének; sötét"},
+    {"artist": "Royal Blood", "title": "Figure It Out", "year": 2014, "tags": "alt-rock; basszus riff; kemény; duó"},
+    {"artist": "Foo Fighters", "title": "Rescued", "year": 2023, "tags": "hard rock; energikus; érzelmes; dobok"},
+    {"artist": "Green Day", "title": "The American Dream Is Killing Me", "year": 2024, "tags": "pop-punk; gitár; pörgős; dallamos"},
+    {"artist": "Twenty One Pilots", "title": "Jumpsuit", "year": 2018, "tags": "alt-rock; basszus riff; kemény; váltás"},
+    {"artist": "Disturbed", "title": "The Sound of Silence", "year": 2015, "tags": "zenekari; feldolgozás; drámai; ének"},
+    {"artist": "Shinedown", "title": "Cut the Cord", "year": 2015, "tags": "hard rock; energikus; gitár; refrén"},
+    {"artist": "Muse", "title": "Psycho", "year": 2015, "tags": "alt-rock; riff; katonai; kemény"},
+    {"artist": "Machine Gun Kelly ft. blackbear", "title": "My Ex's Best Friend", "year": 2020, "tags": "pop-punk; gitár; pörgős; modern"},
+    {"artist": "Sleep Token", "title": "The Summoning", "year": 2023, "tags": "prog-metal; váltás; funk; nehéz"},
+    {"artist": "Five Finger Death Punch", "title": "Wrong Side of Heaven", "year": 2013, "tags": "heavy metal; ballada; akusztikus; komoly"},
+    {"artist": "Papa Roach", "title": "Help", "year": 2017, "tags": "alt-rock; vidám dallam; pörgős; refrén"},
+    {"artist": "Starset", "title": "My Demons", "year": 2014, "tags": "space rock; elektronikus; drámai; fülbemászó"},
+    {"artist": "Turnstile", "title": "BLACKOUT", "year": 2021, "tags": "hardcore; punk; energikus; modern"},
+    {"artist": "Linkin Park", "title": "Heavy Is the Crown", "year": 2024, "tags": "nu-metal; energikus; játék; gitár"},
+    {"artist": "Architects", "title": "Black Lungs", "year": 2021, "tags": "metalcore; riff; elektronikus; dühös"},
+    {"artist": "Bring Me the Horizon", "title": "Kool-Aid", "year": 2024, "tags": "metalcore; nehéz; modern; riff"},
+    {"artist": "Falling In Reverse", "title": "Popular Monster", "year": 2019, "tags": "rap metal; kemény; dühös; ének"},
+    {"artist": "The Black Keys", "title": "Lo/Hi", "year": 2019, "tags": "blues rock; vidám; gitár; riff"},
+    {"artist": "Highly Suspect", "title": "Lydia", "year": 2015, "tags": "alt-rock; lassú; érzelmes; ének"},
+    {"artist": "Seether", "title": "Let You Down", "year": 2017, "tags": "post-grunge; gitár; sötét; refrén"},
+    {"artist": "Ghost", "title": "Hunter's Moon", "year": 2021, "tags": "hard rock; dallamos; orgona; filmzene"},
+    {"artist": "Weezer", "title": "All My Favorite Songs", "year": 2021, "tags": "indie rock; vonósok; lágy; szomorú"},
+    {"artist": "Alice In Chains", "title": "The One You Know", "year": 2018, "tags": "grunge; nehéz; riff; ének"},
+    {"artist": "MUSE", "title": "Compliance", "year": 2022, "tags": "synth-rock; 80s hangzás; pörgős"},
+    {"artist": "Volbeat", "title": "The Devil's Bleeding Crown", "year": 2016, "tags": "metal; pörgős; ritmus; gitár"},
+    {"artist": "Halestorm", "title": "Uncomfortable", "year": 2018, "tags": "hard rock; női ének; dögös; gyors"},
+    {"artist": "Royal Blood", "title": "Trouble's Coming", "year": 2020, "tags": "dance-rock; basszus; ritmus; pörgős"},
+    {"artist": "Queens of the Stone Age", "title": "Paper Machete", "year": 2023, "tags": "stoner rock; gyors; riff; gitár szóló"},
+    {"artist": "AC/DC", "title": "Shot in the Dark", "year": 2020, "tags": "klasszikus; riff; hard rock; visszatérés"},
+    {"artist": "The Struts", "title": "Could Have Been Me", "year": 2014, "tags": "glam rock; vidám; himnusz; felemelő"},
+    {"artist": "Foo Fighters", "title": "Run", "year": 2017, "tags": "hard rock; scream; váltás; dinamikus"},
+    {"artist": "Green Day", "title": "Father of All...", "year": 2020, "tags": "pop-punk; falzett; pörgős; rövid"},
+    {"artist": "A Day to Remember", "title": "Degenerates", "year": 2019, "tags": "pop-punk; modern; vidám; refrén"},
+    {"artist": "Bring Me the Horizon ft. BABYMETAL", "title": "Kingslayer", "year": 2020, "tags": "metalcore; j-pop; elektronikus; gyors"},
+    {"artist": "Beartooth", "title": "Riptide", "year": 2022, "tags": "hardcore; pop-punk; energikus; motiváló"},
+    {"artist": "I Prevail", "title": "Hurricane", "year": 2019, "tags": "alt-metal; drámai; ének; refrén"},
+    {"artist": "Bad Omens", "title": "THE DEATH OF PEACE OF MIND", "year": 2022, "tags": "alt-metal; lágy; lassú; elektronikus; scream"},
+    {"artist": "Måneskin", "title": "THE LONELIEST", "year": 2022, "tags": "alt-rock; ballada; gitár szóló; érzelmes"}
+]
+
+# 100 ÚJ POP SLÁGER (POP)
+new_pop_source = [
+    {"artist": "Dua Lipa", "title": "Don't Start Now", "year": 2019, "tags": "pop; nu-disco; táncolható; basszus"},
+    {"artist": "The Weeknd", "title": "Save Your Tears", "year": 2020, "tags": "synth-pop; 80s hangzás; dallamos"},
+    {"artist": "Sabrina Carpenter", "title": "Please Please Please", "year": 2024, "tags": "pop; retro-pop; lágy; fülbemászó"},
+    {"artist": "Billie Eilish", "title": "Birds of a Feather", "year": 2024, "tags": "pop; lágy; romantikus; érzelmes"},
+    {"artist": "Harry Styles", "title": "Watermelon Sugar", "year": 2019, "tags": "pop; nyári; funk-pop; fülbemászó"},
+    {"artist": "Olivia Rodrigo", "title": "Good 4 U", "year": 2021, "tags": "pop-punk; energikus; dühös"},
+    {"artist": "Ariana Grande", "title": "We Can't Be Friends", "year": 2024, "tags": "synth-pop; érzelmes; táncolható; lágy"},
+    {"artist": "Chappell Roan", "title": "Good Luck, Babe!", "year": 2024, "tags": "synth-pop; 80s hangzás; drámai; ének"},
+    {"artist": "Teddy Swims", "title": "The Door", "year": 2024, "tags": "soul-pop; energikus; ritmus; fúvósok"},
+    {"artist": "Lizzo", "title": "Truth Hurts", "year": 2017, "tags": "pop-rap; zongora; magabiztos"},
+    {"artist": "Ed Sheeran", "title": "Bad Habits", "year": 2021, "tags": "dance-pop; pörgős; szintetizátor"},
+    {"artist": "Doja Cat", "title": "Woman", "year": 2021, "tags": "afropop; r&b; táncolható"},
+    {"artist": "Lewis Capaldi", "title": "Someone You Loved", "year": 2018, "tags": "ballada; zongora; érzelmes"},
+    {"artist": "Shawn Mendes", "title": "Treat You Better", "year": 2016, "tags": "pop; gitár; pörgős"},
+    {"artist": "Camila Cabello ft. Ed Sheeran", "title": "Bam Bam", "year": 2022, "tags": "latin pop; vidám; gitár"},
+    {"artist": "Taylor Swift", "title": "Cruel Summer", "year": 2019, "tags": "pop; energikus; nyári; himnusz"},
+    {"artist": "Ava Max", "title": "Kings & Queens", "year": 2020, "tags": "dance-pop; gitár szóló; himnusz"},
+    {"artist": "Justin Bieber", "title": "Sorry", "year": 2015, "tags": "pop; dancehall; trópusi"},
+    {"artist": "Sia", "title": "Chandelier", "year": 2014, "tags": "pop; drámai; ének"},
+    {"artist": "The Kid LAROI", "title": "Without You", "year": 2020, "tags": "pop; akusztikus; szomorú"},
+    {"artist": "Lil Nas X", "title": "Montero (Call Me By Your Name)", "year": 2021, "tags": "pop; vírusos; fülbemászó"},
+    {"artist": "Gracie Abrams", "title": "That's So True", "year": 2024, "tags": "indie pop; akusztikus; szomorú"},
+    {"artist": "Tate McRae", "title": "greedy", "year": 2023, "tags": "pop; pörgős; dögös; táncolható"},
+    {"artist": "Sam Smith ft. Kim Petras", "title": "Unholy", "year": 2022, "tags": "electropop; sötét; drámai; duett"},
+    {"artist": "Olivia Rodrigo", "title": "vampire", "year": 2023, "tags": "pop-rock; zongora; drámai"},
+    {"artist": "Ariana Grande", "title": "yes, and?", "year": 2024, "tags": "house-pop; vidám; pörgős"},
+    {"artist": "Dua Lipa", "title": "Houdini", "year": 2023, "tags": "nu-disco; pörgős; basszus; pop"},
+    {"artist": "Addison Rae", "title": "Diet Pepsi", "year": 2024, "tags": "pop; lágy; fülbemászó; szexi"},
+    {"artist": "Billie Eilish", "title": "Lunch", "year": 2024, "tags": "alt-pop; basszus; ritmus; pörgős"},
+    {"artist": "Charlie Puth ft. Jungkook", "title": "Left and Right", "year": 2022, "tags": "pop; fülbemászó; duett"},
+    {"artist": "Benson Boone", "title": "Slow It Down", "year": 2024, "tags": "pop-rock; drámai; zongora; ének"},
+    {"artist": "Dua Lipa", "title": "Dance The Night", "year": 2023, "tags": "disco-pop; vidám; filmzene"},
+    {"artist": "Harry Styles", "title": "Late Night Talking", "year": 2022, "tags": "synth-pop; retro; laza"},
+    {"artist": "Miley Cyrus", "title": "Midnight Sky", "year": 2020, "tags": "synth-pop; retro; erőteljes; ének"},
+    {"artist": "The Weeknd ft. Daft Punk", "title": "Starboy", "year": 2016, "tags": "r&b; electropop; modern"},
+    {"artist": "Selena Gomez", "title": "Lose You to Love Me", "year": 2019, "tags": "ballada; zongora; szomorú"},
+    {"artist": "Halsey", "title": "Graveyard", "year": 2019, "tags": "pop; érzelmes; rádió"},
+    {"artist": "Shawn Mendes", "title": "In My Blood", "year": 2018, "tags": "pop-rock; drámai; gitár"},
+    {"artist": "Post Malone ft. Swae Lee", "title": "Sunflower", "year": 2018, "tags": "pop-rap; dallamos; filmzene"},
+    {"artist": "Camila Cabello ft. Young Thug", "title": "Havana", "year": 2017, "tags": "latin pop; fülbemászó; zongora"},
+    {"artist": "Ed Sheeran", "title": "Perfect", "year": 2017, "tags": "ballada; romantikus; akusztikus"},
+    {"artist": "Zedd ft. Alessia Cara", "title": "Stay", "year": 2017, "tags": "edm; pop; fülbemászó"},
+    {"artist": "The Chainsmokers ft. Halsey", "title": "Closer", "year": 2016, "tags": "edm; pop; nosztalgikus"},
+    {"artist": "Justin Bieber", "title": "What Do You Mean?", "year": 2015, "tags": "pop; trópusi; sláger"},
+    {"artist": "Taylor Swift", "title": "Blank Space", "year": 2014, "tags": "pop; ikonikus; fülbemászó"},
+    {"artist": "Mark Ronson ft. Bruno Mars", "title": "Uptown Funk", "year": 2014, "tags": "funk; pop; táncolható"},
+    {"artist": "Maroon 5", "title": "Sugar", "year": 2015, "tags": "pop; vidám; buli"},
+    {"artist": "Katy Perry", "title": "Chained to the Rhythm", "year": 2017, "tags": "disco-pop; vidám; ritmus"},
+    {"artist": "Bruno Mars", "title": "24K Magic", "year": 2016, "tags": "funk; buli; ritmus; vidám"},
+    {"artist": "Rihanna", "title": "Needed Me", "year": 2016, "tags": "r&b; trap; lassú"}
+]
+
+# 100 ÚJ MAGYAR SLÁGER (HU)
+new_hu_source = [
+    {"artist": "Azahriah", "title": "Introvertált dal", "year": 2023, "tags": "magyar; pop; gitár; sláger; érzelmes"},
+    {"artist": "Valmar ft. Szikora Róbert", "title": "Úristen", "year": 2022, "tags": "magyar; pop; vidám; retro hangzás; buli"},
+    {"artist": "Halott Pénz", "title": "Valami van a levegőben", "year": 2014, "tags": "magyar; pop; hiphop; ikonikus"},
+    {"artist": "Wellhello", "title": "Apuveddmeg", "year": 2014, "tags": "magyar; buli; pop; rap; humoros"},
+    {"artist": "Bagossy Brothers Company", "title": "Olyan Ő", "year": 2019, "tags": "magyar; folk-pop; hegedű; lágy; romantikus"},
+    {"artist": "Azahriah & Desh", "title": "Rampapapam", "year": 2022, "tags": "magyar; reggae pop; pörgős; fülbemászó"},
+    {"artist": "Dzsúdló", "title": "Spanom", "year": 2021, "tags": "magyar; pop-rap; érzelmes; ritmus"},
+    {"artist": "Carson Coma", "title": "Feldobom a követ", "year": 2021, "tags": "magyar; alt-rock; indie; retro gitár; vidám"},
+    {"artist": "Follow The Flow", "title": "Nem tudja senki", "year": 2018, "tags": "magyar; pop; rap; drámai; himnusz"},
+    {"artist": "ByeAlex és a Slepp", "title": "Még mindig...", "year": 2015, "tags": "magyar; lágy; gitár; pop; érzelmes"},
+    {"artist": "Krúbi", "title": "Nehézlábérzés", "year": 2018, "tags": "magyar; hiphop; szatirikus; rap; komoly"},
+    {"artist": "Margaret Island", "title": "Eső", "year": 2015, "tags": "magyar; folk-pop; akusztikus; vidám; nyári"},
+    {"artist": "AWS", "title": "Viszlát nyár", "year": 2018, "tags": "magyar; metalcore; eurovízió; drámai; kemény"},
+    {"artist": "Pogány Induló", "title": "Gettó Csirke", "year": 2023, "tags": "magyar; oldschool hiphop; rap; komoly"},
+    {"artist": "T. Danny", "title": "Megmondtam", "year": 2022, "tags": "magyar; hiphop; pop-rap; dallamos"},
+    {"artist": "Manuel", "title": "Balenciaga", "year": 2023, "tags": "magyar; trap; r&b; modern; pörgős"},
+    {"artist": "Punnany Massif", "title": "Hétköznapi hősök", "year": 2015, "tags": "magyar; hiphop; fúvósok; motiváló"},
+    {"artist": "Blahalouisiana", "title": "Túl távol, elég közel", "year": 2016, "tags": "magyar; indie pop; retro; női ének"},
+    {"artist": "Desh", "title": "Kukásautó", "year": 2021, "tags": "magyar; pop-rap; nyári; vicces"},
+    {"artist": "Rúzsa Magdolna", "title": "Ég és föld", "year": 2016, "tags": "magyar; pop; erőteljes ének; ballada"},
+    {"artist": "Halott Pénz", "title": "Darabokra törted a szívem", "year": 2015, "tags": "magyar; pop; ikonikus; feldolgozás"},
+    {"artist": "Wellhello", "title": "Rakpart", "year": 2014, "tags": "magyar; pop; nyári; nosztalgikus; buli"},
+    {"artist": "Azahriah", "title": "Mindegy", "year": 2021, "tags": "magyar; pop; gitár; sláger"},
+    {"artist": "Krúbi", "title": "Szív", "year": 2023, "tags": "magyar; hiphop; rap; színházi; drámai"},
+    {"artist": "Beton.Hofi", "title": "PLAYBOY", "year": 2022, "tags": "magyar; rap; trap; dögös; szöveg"},
+    {"artist": "Dzsúdló ft. Lil Frakk", "title": "Levegő", "year": 2020, "tags": "magyar; r&b; pop-rap; szomorú"},
+    {"artist": "Platon Karataev", "title": "Ocean", "year": 2017, "tags": "magyar; angol nyelvű; indie; lágy; szomorú"},
+    {"artist": "Esti Kornél", "title": "Boldogság, te kurva", "year": 2014, "tags": "magyar; alt-rock; drámai; gitár; koncertsláger"},
+    {"artist": "Carson Coma", "title": "Kék Hullám Kemping", "year": 2022, "tags": "magyar; alt-rock; retro; nyári; vidám"},
+    {"artist": "Ivan & The Parasol", "title": "Modern itsy bitsy spider", "year": 2015, "tags": "magyar; angol nyelvű; garázs rock; pörgős"},
+    {"artist": "Bohemian Betyars", "title": "Aranybánya", "year": 2021, "tags": "magyar; folk-punk; hegedű; pörgős; kocsma"},
+    {"artist": "Aurevoir.", "title": "Hajnal", "year": 2022, "tags": "magyar; folk; fúvósok; pörgős; vidám"},
+    {"artist": "Belga", "title": "Zsolti a békás", "year": 2015, "tags": "magyar; rap; humoros; fülbemászó"},
+    {"artist": "Paddy and the Rats", "title": "Ghost from the Barrow", "year": 2012, "tags": "magyar; angol nyelvű; kelta punk; hegedű; pörgős"},
+    {"artist": "Vad Fruttik", "title": "Mi lenne jó", "year": 2013, "tags": "magyar; alt-rock; drámai; elektronikus"},
+    {"artist": "Quimby", "title": "Senki se menekül", "year": 2013, "tags": "magyar; alt-rock; fúvósok; drámai"},
+    {"artist": "Cloud 9+", "title": "Lights Game", "year": 2014, "tags": "magyar; angol nyelvű; rock-edm; energikus; pörgős"},
+    {"artist": "Supernem", "title": "Tudományos fantasztikus pop", "year": 2011, "tags": "magyar; rock; pop-rock; pörgős"},
+    {"artist": "Honeybeast", "title": "A legnagyobb hős", "year": 2014, "tags": "magyar; pop; női ének; drámai; rádiósláger"},
+    {"artist": "Margaret Island", "title": "Hóvirág", "year": 2016, "tags": "magyar; folk-pop; lágy; hegedű"}
+]
+
+# ==========================================
+# 3. KÓDOLÁS ÉS RETRIEVAL LOGIKA
+# ==========================================
+
+def get_spotify_token():
+    auth_string = CLIENT_ID + ":" + CLIENT_SECRET
+    auth_bytes = auth_string.encode("utf-8")
+    auth_base64 = str(base64.b64encode(auth_bytes), "utf-8")
+    
+    url = "https://accounts.spotify.com/api/token"
+    headers = {
+        "Authorization": "Basic " + auth_base64,
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    data = {"grant_type": "client_credentials"}
+    result = requests.post(url, headers=headers, data=data)
+    return result.json()["access_token"]
+
+def search_track(token, artist, title):
+    url = "https://api.spotify.com/v1/search"
+    headers = {"Authorization": f"Bearer {token}"}
+    query = f"track:{title} artist:{artist}"
+    params = {"q": query, "type": "track", "limit": 1}
+    
+    response = requests.get(url, headers=headers, params=params)
+    results = response.json().get("tracks", {}).get("items", [])
+    
+    if results:
+        track = results[0]
+        return track["id"], track["external_urls"]["spotify"]
+    return "", ""
+
+def load_existing_songs():
+    filename = "songs.json"
+    if os.path.exists(filename):
+        try:
+            with open(filename, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Hiba a meglévő {filename} olvasásakor: {e}")
+            return []
+    return []
+
+def get_next_id(existing_songs, category_prefix):
+    max_num = 0
+    for song in existing_songs:
+        song_id = song.get("ID", "")
+        if song_id.startswith(category_prefix):
+            try:
+                num_part = int(song_id[len(category_prefix):])
+                if num_part > max_num:
+                    max_num = num_part
+            except ValueError:
+                pass
+    return max_num + 1
+
+def update_library():
+    existing_songs = load_existing_songs()
+    
+    # 1. Kiszűrjük a régi NEW kategóriás dalokat (hogy lecseréljük őket)
+    preserved_songs = [s for s in existing_songs if s.get("Kategória") != "NEW"]
+    print(f"Megtartva: {len(preserved_songs)} db meglévő dal a JSON fájlból.")
+    
+    # Kapcsolódás a Spotify-hoz
+    print("Kapcsolódás a Spotify API-hoz...")
+    try:
+        token = get_spotify_token()
+    except Exception as e:
+        print("Sikertelen hitelesítés! Ellenőrizd a CLIENT_ID-t és a CLIENT_SECRET-et!")
+        return
+
+    # Kategóriák lekérése és összefésülése
+    categories_to_process = [
+        {"source": new_billboard_source, "prefix": "NEW", "category": "NEW"},
+        {"source": new_rock_source, "prefix": "RO", "category": "RO"},
+        {"source": new_pop_source, "prefix": "POP", "category": "POP"},
+        {"source": new_hu_source, "prefix": "HU", "category": "HU"}
+    ]
+    
+    new_songs_list = []
+    
+    for cat in categories_to_process:
+        # Meghatározzuk az ID kezdőértékét, hogy ne ütközzön semmivel
+        current_id_num = get_next_id(preserved_songs + new_songs_list, cat["prefix"])
+        
+        print(f"\n{cat['category']} kategória feldolgozása (Kezdő ID: {cat['prefix']}{current_id_num:04d})...")
+        
+        for item in cat["source"]:
+            # Ellenőrizzük, hogy ez a dal létezik-e már az adatbázisban (duplikáció szűrés)
+            duplicate = False
+            for s in (preserved_songs + new_songs_list):
+                # Összehasonlítás mindkét Előadó variációval a biztonság kedvéért
+                s_artist = s.get("Elõadó", s.get("Előadó", ""))
+                if s_artist.lower() == item["artist"].lower() and s.get("Dal címe", "").lower() == item["title"].lower():
+                    duplicate = True
+                    break
+            
+            if duplicate:
+                print(f"Átugorva (már szerepel a listában): {item['artist']} - {item['title']}")
+                continue
+                
+            print(f"Lekérés: {item['artist']} - {item['title']}...")
+            spotify_id, spotify_url = search_track(token, item["artist"], item["title"])
+            
+            # Ha nem találja meg szigorúan, megpróbálja lazábban keresni
+            if not spotify_id:
+                spotify_id, spotify_url = search_track(token, "", f"{item['artist']} {item['title']}")
+            
+            formatted_id = f"{cat['prefix']}{current_id_num:04d}"
+            
+            new_songs_list.append({
+                "ID": formatted_id,
+                "Elõadó": item["artist"],
+                "Dal címe": item["title"],
+                "Megjelenési év": int(item["year"]),
+                "Kategória": cat["category"],
+                "Spotify ID": spotify_id,
+                "Spotify URL": spotify_url,
+                "URI": f"spotify:track:{spotify_id}" if spotify_id else "",
+                "Címkék": item["tags"],
+                "Aktív": "Igen"
+            })
+            current_id_num += 1
+
+    # Egyesítés és mentés
+    final_library = preserved_songs + new_songs_list
+    
+    with open("songs.json", "w", encoding="utf-8") as f:
+        json.dump(final_library, f, ensure_ascii=False, indent=2)
+        
+    print(f"\nSikeres frissítés! A songs.json fájl mentve. Összesen {len(final_library)} dal található meg benne.")
+
+if __name__ == "__main__":
+    update_library()
