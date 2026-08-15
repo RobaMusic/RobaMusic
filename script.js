@@ -176,7 +176,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }, body: JSON.stringify({ uris: [uri] }), });
             if (!response.ok) { 
                 const errorBody = await response.json(); 
-                // MOST MÁR TÉNYLEG JAVÍTVA: Kint van a $ jel, így kiírja a hiba valódi okát!
                 alert(`Hiba a zene lejátszásakor: ${errorBody.error.message}`); 
             }
         } catch (e) { console.error("Lejátszási API hiba:", e); }
@@ -215,7 +214,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const challenge = await generatePkceChallenge(verifier);
         localStorage.setItem('code_verifier', verifier);
         const scopes = 'user-read-playback-state user-modify-playback-state streaming user-read-email user-read-private';
-        window.location.href = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${scopes}&code_challenge_method=S256&code_challenge=${challenge}&show_dialog=true`;
+        // JAVÍTVA: Az encodeURIComponent() most már kódolja a szóközöket és a REDIRECT_URI-t is, így az összes jogosultság sikeresen átmegy!
+        window.location.href = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${encodeURIComponent(scopes)}&code_challenge_method=S256&code_challenge=${challenge}&show_dialog=true`;
     });
 
     playMusicGameBtn.addEventListener('click', () => {
@@ -236,7 +236,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     stopMusicBtn.addEventListener('click', async () => {
         if (player) await player.pause();
         revealedTitleText.textContent = currentSong['Dal címe'];
-        // KETTŐS ELLENŐRZÉS: Támogatja az "Elõadó" és "Előadó" formátumot is a songs.json-ben!
         revealedArtistText.textContent = currentSong.Elõadó || currentSong.Előadó; 
         revealedYearText.textContent = currentSong['Megjelenési év'];
         answerRevealPanel.classList.remove('hidden');
