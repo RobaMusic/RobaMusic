@@ -13,7 +13,7 @@ const SPOTIFY_CLIENT_ID = '64b3bdc013e84162bf973ec883854bfa';
 const REDIRECT_URI = 'https://RobaMusic.github.io/RobaMusic/';
 
 
-// PKCE KÓDOK (EZ MÁR A JÓ VERZIÓ)
+// PKCE KÓDOK (A JÓ VERZIÓ)
 function dec2hex(dec) { return ('0' + dec.toString(16)).substr(-2); }
 function generatePkceVerifier(length) { var array = new Uint32Array(length / 2); window.crypto.getRandomValues(array); return Array.from(array, dec2hex).join(''); }
 function sha256(plain) { const encoder = new TextEncoder(); const data = encoder.encode(plain); return window.crypto.subtle.digest('SHA-256', data); }
