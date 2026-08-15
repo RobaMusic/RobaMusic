@@ -1,26 +1,37 @@
-// SCRIPT.JS (VÉGLEGES, HELYES AUTHENTIKÁCIÓVAL)
+// SCRIPT.JS (A TE MŰKÖDŐ AUTH-KÓDOD + A STABIL LEJÁTSZÓ-KEZELÉS)
 
-// Globális változók
-let accessToken = null, isSpotifySdkReady = false, player = null, deviceId = null, songsData = [], isSongsDataLoaded = false, isPlaying = false;
+// Globális "kapcsolók" az indításhoz
+let accessToken = null;
+let isSpotifySdkReady = false;
+
+// Globális játék-állapotok
+let player = null, deviceId = null, songsData = [], isSongsDataLoaded = false, isPlaying = false;
 const SPOTIFY_CLIENT_ID = '64b3bdc013e84162bf973ec883854bfa';
 const REDIRECT_URI = 'https://RobaMusic.github.io/RobaMusic/';
 
 // ####################################################################
-// ### JAVÍTÁS: A HELYES, BIZTONSÁGOS PKCE KÓD GENERÁLÁS VISSZAÁLLÍTÁSA ###
+// ### JAVÍTÁS: A TE EREDETI, JÓL MŰKÖDŐ PKCE KÓDOD VISSZAÁLLÍTÁSA   ###
 // ####################################################################
-function generatePkceVerifier(length) {
-    let text = '';
-    let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < length; i++) {
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
+function dec2hex(dec) {
+    return ('0' + dec.toString(16)).substr(-2);
 }
-async function generatePkceChallenge(verifier) {
-    const data = new TextEncoder().encode(verifier);
-    const digest = await window.crypto.subtle.digest('SHA-256', data);
-    return btoa(String.fromCharCode.apply(null, new Uint8Array(digest)))
+function generatePkceVerifier(length) {
+    var array = new Uint32Array(length / 2);
+    window.crypto.getRandomValues(array);
+    return Array.from(array, dec2hex).join('');
+}
+function sha256(plain) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(plain);
+    return window.crypto.subtle.digest('SHA-256', data);
+}
+function base64urlencode(a) {
+    return btoa(String.fromCharCode.apply(null, new Uint8Array(a)))
         .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+async function generatePkceChallenge(v) {
+    const hashed = await sha256(v);
+    return base64urlencode(hashed);
 }
 
 /**
@@ -104,7 +115,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const params = new URLSearchParams({ client_id: SPOTIFY_CLIENT_ID, grant_type: 'authorization_code', code, redirect_uri: REDIRECT_URI, code_verifier: verifier });
         try {
             const r = await fetch('https://accounts.spotify.com/api/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params });
-            if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+            if (!r.ok) {
+                const errorData = await r.json();
+                throw new Error(`HTTP error! status: ${r.status}, message: ${errorData.error_description}`);
+            }
             const data = await r.json();
             if (data.access_token) {
                 accessToken = data.access_token;
@@ -243,7 +257,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     spotifyConnectBtn.addEventListener('click', async () => {
-        const verifier = generatePkceVerifier(128); // HELYES, BIZTONSÁGOS GENERÁLÁS
+        const verifier = generatePkceVerifier(128); // A TE EREDETI, JÓ KÓDOD
         const challenge = await generatePkceChallenge(verifier);
         localStorage.setItem('code_verifier', verifier);
         const scopes = 'user-read-playback-state user-modify-playback-state streaming user-read-email user-read-private';
