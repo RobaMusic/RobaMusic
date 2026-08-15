@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!deviceId) return;
         try {
             const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }, body: JSON.stringify({ uris: [uri] }), });
-            if (!response.ok) { const errorBody = await response.json(); alert(`Hiba a zene lejátszásakor: ${errorBody.error.message}`); }
+            if (!response.ok) { const errorBody = await response.json(); alert(`Hiba a zene lejátszásakor: {errorBody.error.message}`); }
         } catch (e) { console.error("Lejátszási API hiba:", e); }
     }
          
@@ -232,7 +232,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     stopMusicBtn.addEventListener('click', async () => {
         if (player) await player.pause();
         revealedTitleText.textContent = currentSong['Dal címe'];
-        revealedArtistText.textContent = currentSong.Elõadó; // JAVÍTVA HULLÁMOS Õ BETŰRE!
+        // KETTŐS ELLENŐRZÉS: Támogatja az "Elõadó" és "Előadó" formátumot is a songs.json-ben!
+        revealedArtistText.textContent = currentSong.Elõadó || currentSong.Előadó; 
         revealedYearText.textContent = currentSong['Megjelenési év'];
         answerRevealPanel.classList.remove('hidden');
         playMusicGameBtn.disabled = true; pauseMusicGameBtn.disabled = true; stopMusicBtn.disabled = true;
