@@ -1,4 +1,4 @@
-// SCRIPT.JS (A TE MŰKÖDŐ AUTH-KÓDOD + A STABIL LEJÁTSZÓ-KEZELÉS)
+// SCRIPT.JS (VÉGLEGES, HATÓKÖR JAVÍTÁSSAL)
 
 // Globális "kapcsolók" az indításhoz
 let accessToken = null;
@@ -6,33 +6,21 @@ let isSpotifySdkReady = false;
 
 // Globális játék-állapotok
 let player = null, deviceId = null, songsData = [], isSongsDataLoaded = false, isPlaying = false;
+let playbackInterval = null;
+const gameSettings = { listeningTime: '45', musicStyle: 'ALL', songCount: '50' };
+
 const SPOTIFY_CLIENT_ID = '64b3bdc013e84162bf973ec883854bfa';
 const REDIRECT_URI = 'https://RobaMusic.github.io/RobaMusic/';
 
-// ####################################################################
-// ### JAVÍTÁS: A TE EREDETI, JÓL MŰKÖDŐ PKCE KÓDOD VISSZAÁLLÍTÁSA   ###
-// ####################################################################
-function dec2hex(dec) {
-    return ('0' + dec.toString(16)).substr(-2);
-}
-function generatePkceVerifier(length) {
-    var array = new Uint32Array(length / 2);
-    window.crypto.getRandomValues(array);
-    return Array.from(array, dec2hex).join('');
-}
-function sha256(plain) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(plain);
-    return window.crypto.subtle.digest('SHA-256', data);
-}
-function base64urlencode(a) {
-    return btoa(String.fromCharCode.apply(null, new Uint8Array(a)))
-        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-async function generatePkceChallenge(v) {
-    const hashed = await sha256(v);
-    return base64urlencode(hashed);
-}
+
+// ###############################################################
+// ### JAVÍTÁS: A TE EREDETI, JÓL MŰKÖDŐ PKCE KÓDOD VISSZAÁLLÍTÁSA ###
+// ###############################################################
+function dec2hex(dec) { return ('0' + dec.toString(16)).substr(-2); }
+function generatePkceVerifier(length) { var array = new Uint32Array(length / 2); window.crypto.getRandomValues(array); return Array.from(array, dec2hex).join(''); }
+function sha256(plain) { const encoder = new TextEncoder(); const data = encoder.encode(plain); return window.crypto.subtle.digest('SHA-256', data); }
+function base64urlencode(a) { return btoa(String.fromCharCode.apply(null, new Uint8Array(a))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+async function generatePkceChallenge(v) { const hashed = await sha256(v); return base64urlencode(hashed); }
 
 /**
  * Ezt a funkciót a Spotify szkriptje fogja meghívni, amint betöltődött.
@@ -52,6 +40,31 @@ function tryToInitializePlayer() {
         initializeSpotifyPlayer();
     }
 }
+
+// ########################################################
+// ### JAVÍTÁS: AZ IDŐZÍTŐ FUNKCIÓK KIHELYEZÉSE A GLOBÁLIS TÉRBE ###
+// ########################################################
+function startPlaybackTimer() {
+    clearInterval(playbackInterval);
+    const timeRemainingText = document.getElementById('timeRemainingText');
+    const remainingTimeSlider = document.getElementById('remainingTimeSlider');
+    const stopMusicBtn = document.getElementById('stopMusicBtn');
+
+    let duration = gameSettings.listeningTime === 'full' ? 90 : parseInt(gameSettings.listeningTime);
+    let timeLeft = duration;
+    remainingTimeSlider.max = duration;
+    const update = () => {
+        timeRemainingText.textContent = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`;
+        remainingTimeSlider.value = timeLeft;
+    };
+    update();
+    playbackInterval = setInterval(() => {
+        timeLeft--; update();
+        if (timeLeft <= 0) { clearInterval(playbackInterval); if(isPlaying) stopMusicBtn.click(); }
+    }, 1000);
+}
+function stopPlaybackTimer() { clearInterval(playbackInterval); }
+
 
 /**
  * A tényleges lejátszó-inicializáló kód.
@@ -152,8 +165,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const playMusicGameBtn = document.getElementById('playMusicGameBtn');
     const pauseMusicGameBtn = document.getElementById('pauseMusicGameBtn');
     const playerDeviceStatus = document.getElementById('playerDeviceStatus');
-    const remainingTimeSlider = document.getElementById('remainingTimeSlider');
-    const timeRemainingText = document.getElementById('timeRemainingText');
     const stopMusicBtn = document.getElementById('stopMusicBtn');
     const answerRevealPanel = document.getElementById('answerRevealPanel');
     const revealedArtistText = document.getElementById('revealedArtistText');
@@ -176,8 +187,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const spotifyConnectBtn = document.getElementById('spotifyConnectBtn');
 
     // Játék állapot
-    const gameSettings = { listeningTime: '45', musicStyle: 'ALL', songCount: '50' };
-    let currentSong = null, playbackInterval = null, currentScore = 0, bestScore = localStorage.getItem('robaMusicBestScore') || 0;
+    let currentSong = null, currentScore = 0, bestScore = localStorage.getItem('robaMusicBestScore') || 0;
     let currentRound = 0, totalRounds = 0, playedSongs = [];
     bestScoreDisplay.textContent = bestScore;
 
@@ -211,22 +221,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } catch (e) { console.error("Lejátszási API hiba:", e); }
     }
-    function startPlaybackTimer() {
-        clearInterval(playbackInterval);
-        let duration = gameSettings.listeningTime === 'full' ? 90 : parseInt(gameSettings.listeningTime);
-        let timeLeft = duration;
-        remainingTimeSlider.max = duration;
-        const update = () => {
-            timeRemainingText.textContent = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`;
-            remainingTimeSlider.value = timeLeft;
-        };
-        update();
-        playbackInterval = setInterval(() => {
-            timeLeft--; update();
-            if (timeLeft <= 0) { clearInterval(playbackInterval); if(isPlaying) stopMusicBtn.click(); }
-        }, 1000);
-    }
-    function stopPlaybackTimer() { clearInterval(playbackInterval); }
     
     function prepareAndStartNewGame() {
         let songs = songsData.filter(s => s.Aktív === 'Igen' && (gameSettings.musicStyle === 'ALL' || s.Kategória === gameSettings.musicStyle));
@@ -257,7 +251,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     spotifyConnectBtn.addEventListener('click', async () => {
-        const verifier = generatePkceVerifier(128); // A TE EREDETI, JÓ KÓDOD
+        const verifier = generatePkceVerifier(128);
         const challenge = await generatePkceChallenge(verifier);
         localStorage.setItem('code_verifier', verifier);
         const scopes = 'user-read-playback-state user-modify-playback-state streaming user-read-email user-read-private';
