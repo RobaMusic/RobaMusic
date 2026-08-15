@@ -6,8 +6,8 @@ import os
 # ==========================================
 # 1. ÍRD BE IDE A SPOTIFY API KULCSAIDAT
 # ==========================================
-CLIENT_ID = 64b3bdc013e84162bf973ec883854bfa
-CLIENT_SECRET = 95e3b949f8604231a9a461a9d6b65180
+CLIENT_ID = "64b3bdc013e84162bf973ec883854bfa"
+CLIENT_SECRET = "95e3b949f8604231a9a461a9d6b65180"
 
 # ==========================================
 # 2. A 400 DB ÚJ MODERN DAL METADATA (2015-2025)
