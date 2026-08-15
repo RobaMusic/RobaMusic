@@ -60,7 +60,7 @@
             <h3 class="setting-category">Zenestílus kiválasztása</h3>
             <button class="setting-option-button selected" data-setting="musicStyle" data-value="ALL">ÖSSZES KATEGÓRIA</button>
             <button class="setting-option-button" data-setting="musicStyle" data-value="POP">POP</button>
-            <button class="setting-option-button" data-setting="musicStyle" data-value="ROCK">ROCK</button>
+            <button class="setting-option-button" data-setting="musicStyle" data-value="RO">ROCK</button> <!-- JAVÍTVA RO-RA! -->
             <button class="setting-option-button" data-setting="musicStyle" data-value="HU">MAGYAR ZENE</button>
             <button class="setting-option-button" data-setting="musicStyle" data-value="MOV">FILMZENE</button>
             <button class="setting-option-button" data-setting="musicStyle" data-value="XMAS">KARÁCSONYI</button>
@@ -98,10 +98,9 @@
             <img src="./assets/pause_icon.png" alt="Pause Icon"> Zene szüneteltetése
         </button>
         
-        <!-- Ez a placeholder div a lejátszó "eszköz" statuszát mutatja, az iframe-et már nem használjuk -->
+        <!-- Ez a placeholder div a lejátszó "eszköz" statuszát mutatja -->
         <div id="playerDeviceStatus" class="player-device-status">Spotify lejátszó betöltése...</div>
         <p class="spotify-note" id="playbackStatusMessage">Kattintson a lejátszás gombra a zene indításához.</p>
-
 
         <!-- Játék vezérlők -->
         <div class="game-controls">
@@ -134,7 +133,6 @@
             <button class="action-button" id="recordScoreAndNextBtn">Pontszám rögzítése és következő dal</button>
             <button class="back-to-main-menu-button" id="recordScoreAndFinishBtn">Pontszám rögzítése és Játék vége</button>
         </div>
-
 
         <button class="back-to-main-menu-button" id="backToMainMenuFromGame">Visszatérés a Főmenübe</button>
     </div>
@@ -175,9 +173,7 @@
     </div>
     <!-- END RESULTS SCREEN -->
 
-    <script src="https://sdk.scdn.co/spotify-player.js"></script> <!-- Spotify Web Playback SDK -->
-<!-- A verziószám (?v=1.0) arra kényszeríti a böngészőt, hogy újra letöltse a fájlt -->
-<script src="script.js?v=1.5"></script>
     <script src="https://sdk.scdn.co/spotify-player.js"></script>
+    <script src="script.js?v=1.5"></script>
 </body>
 </html>
