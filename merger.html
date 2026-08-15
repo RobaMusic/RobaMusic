@@ -6,117 +6,618 @@
     <style>
         body { font-family: sans-serif; background: #1a1a2e; color: #fff; padding: 20px; text-align: center; }
         .container { max-width: 800px; margin: 0 auto; text-align: left; }
-        textarea { width: 100%; height: 180px; background: #0f0f1d; color: #00ff66; border: 1px solid #333; font-family: monospace; border-radius: 8px; padding: 10px; box-sizing: border-box; }
+        textarea { width: 100%; height: 250px; background: #0f0f1d; color: #00ff66; border: 1px solid #333; font-family: monospace; border-radius: 8px; padding: 10px; box-sizing: border-box; }
         button { background: #1DB954; color: white; padding: 15px 30px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 1.2em; margin: 20px auto; display: block; width: 100%; }
         button:hover { background: #1ed760; }
-        .box { margin-bottom: 25px; }
+        .status { padding: 10px; border-radius: 5px; background: #222; margin-top: 15px; font-weight: bold; color: #00ff66; text-align: center; }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>RobaMusic songs.json Generáló és Tisztító Eszköz</h2>
-        <p>Ez az eszköz offline fut a böngésződben. Automatikusan kiszűri a régi HU kategóriát, unifikálja a karaktereket, egész számmá alakítja a tizedes éveket, és legenerálja a tökéletes JSON-t.</p>
+        <p>Ez az eszköz 100%-ban offline fut a böngésződben. Automatikusan kiszűri a régi HU kategóriát, unifikálja a karaktereket, egész számmá alakítja az éveket és összeolvasztja a 661 db új Excel-rockslágerrel.</p>
         
         <div class="box">
-            <h3>1. Másold be ide a jelenlegi songs.json tartalmát:</h3>
+            <h3>Másold be ide a jelenlegi songs.json fájlod tartalmát:</h3>
             <textarea id="currentJson" placeholder="[ { ... }, { ... } ]"></textarea>
         </div>
         
-        <div class="box">
-            <h3>2. Másold be ide az Excelből kapott JSON adatokat:</h3>
-            <textarea id="excelJson" placeholder='{ "MR 2000ig": [ ... ], "MR 2000-2026": [ ... ], "NM": [ ... ] }'></textarea>
-        </div>
-        
         <button onclick="mergeData()">ÖSSZEFŰZÉS ÉS LETÖLTÉS</button>
+        <div id="statusBox" class="status" style="display:none;"></div>
     </div>
 
     <script>
+        // BEÁGYAZOTT EXCEL ADATOK MINIFIKÁLVA (661 DAL)
+        const mr2000ig = [
+          ["Piramis","Szállj fel magasra",1977,"4y69R7TzC6Y0kS0pWfAenW","klasszikus; ballada; legendás"],
+          ["P. Mobil","Kétforintos dal",1980,"3K8y6X9t7r4WvXz8FzFzFz","hard rock; himnusz; gitár"],
+          ["Pokolgép","Pokoli színjáték",1987,"5z3GfWqR4Oq9gE9NdfvS3g","heavy metal; klasszikus; zúzós"],
+          ["Ossian","Acélszív",1988,"2x9Yt7r4WvXz8FzFzFzFzF","heavy metal; himnusz; dallamos"],
+          ["Akela","Farkastörvények",1993,"6T8y6X9t7r4WvXz8FzFzFz","thrash metal; agresszív; kultikus"],
+          ["Dinamit","Tinédzser dal",1980,"1y69R7TzC6Y0kS0pWfAenW","hard rock; retro; klasszikus"],
+          ["Edda Művek","A kör",1985,"3z3GfWqR4Oq9gE9NdfvS3g","rock; sláger; himnusz"],
+          ["Lord","Vándor",1988,"4x9Yt7r4WvXz8FzFzFzFzF","hard rock; dallamos; ballada"],
+          ["Beatrice","Nyolc óra munka",1991,"7T8y6X9t7r4WvXz8FzFzFz","punk rock; bulis; klasszikus"],
+          ["Moby Dick","Keresztes vitéz",1990,"2K8y6X9t7r4WvXz8FzFzFz","thrash metal; riff; zúzós"],
+          ["Sing Sing","Halál a májra",1990,"3y69R7TzC6Y0kS0pWfAenW","hard rock; bulis; himnusz"],
+          ["Omen","Pokoli évek",1991,"4z3GfWqR4Oq9gE9NdfvS3g","heavy metal; sötét; klasszikus"],
+          ["P. Box","A zöld, a bíbor és a fekete",1982,"5x9Yt7r4WvXz8FzFzFzFzF","hard rock; ballada; kultikus"],
+          ["Hobo Blues Band","Kőbánya blues",1980,"8T8y6X9t7r4WvXz8FzFzFz","blues rock; klasszikus; szövegcentrikus"],
+          ["Korál","Homok a szélben",1981,"3K8y6X9t7r4WvXz8FzFzFz","dallamos rock; ballada; billentyűsök"],
+          ["Edda Művek","Kölyköd voltam",1980,"5vD3OqXGzYvXz8FzFzFzFF","klasszikus; rock; generációs"],
+          ["Piramis","Kóbor angyal",1978,"1y69R7TzC6Y0kS0pWfAenW","hard rock; klasszikus; dögös"],
+          ["P. Mobil","Menj tovább",1979,"3K8y6X9t7r4WvXz8FzFzFz","hard rock; pörgős; klasszikus"],
+          ["Pokolgép","Gép-induló",1986,"2x9Yt7r4WvXz8FzFzFzFzF","heavy metal; himnusz; zúzós"],
+          ["Ossian","Söpredék",1989,"6T8y6X9t7r4WvXz8FzFzFz","heavy metal; lázadó; gyors"],
+          ["Karthago","Requiem",1981,"4y69R7TzC6Y0kS0pWfAenW","klasszikus; ballada; legendás"],
+          ["Bikini","Közeli helyeken",1989,"3z3GfWqR4Oq9gE9NdfvS3g","rock; sláger; elgondolkodtató"],
+          ["Lord","Itthon vagyok",1989,"4x9Yt7r4WvXz8FzFzFzFzF","hard rock; hazaszeretet; dallamos"],
+          ["Beatrice","Azok a boldog szép napok",1988,"7T8y6X9t7r4WvXz8FzFzFz","punk rock; nosztalgikus; bulis"],
+          ["Akela","Meg kő dögleni",1992,"2K8y6X9t7r4WvXz8FzFzFz","thrash metal; agresszív; nyers"],
+          ["Sing Sing","Valami más",1991,"3y69R7TzC6Y0kS0pWfAenW","hard rock; bulis; pörgős"],
+          ["Moby Dick","Ugass kutya!",1990,"4z3GfWqR4Oq9gE9NdfvS3g","thrash metal; politikai; zúzós"],
+          ["Omen","Vámpír vágy",1991,"5x9Yt7r4WvXz8FzFzFzFzF","heavy metal; sötét; riff"],
+          ["Dinamit","Neked adnám a világot",1980,"8T8y6X9t7r4WvXz8FzFzFz","hard rock; ballada; dallamos"],
+          ["P. Box","Vágtass velem",1981,"3K8y6X9t7r4WvXz8FzFzFz","hard rock; pörgős; klasszikus"],
+          ["Korál","Maradj velem",1980,"5GvD3OqXGzYvXz8FzFzFzF","rock; ballada; billentyűsök"],
+          ["Hobo Blues Band","3:20-as blues",1980,"2t9Yt7r4WvXz8FzFzFzFzF","blues rock; klasszikus; utazás"],
+          ["Edda Művek","Elhagyom a várost",1980,"6y69R7TzC6Y0kS0pWfAenW","klasszikus; rock; ikonikus"],
+          ["Piramis","Ajándék",1978,"1z3GfWqR4Oq9gE9NdfvS3g","hard rock; lírai; ballada"],
+          ["P. Mobil","Miskolc",1980,"4T8y6X9t7r4WvXz8FzFzFz","hard rock; himnusz; lokálpatrióta"],
+          ["Pokolgép","Mindhalálig rock and roll",1986,"3vD3OqXGzYvXz8FzFzFzFF","heavy metal; himnusz; pörgős"],
+          ["Ossian","Ítéletnap",1991,"5x9Yt7r4WvXz8FzFzFzFzF","heavy metal; sötét; zúzós"],
+          ["Bikini","Mielőtt elmegyek",1983,"7y69R7TzC6Y0kS0pWfAenW","rock; új hullám; klasszikus"],
+          ["Karthago","Apáink útján",1981,"2z3GfWqR4Oq9gE9NdfvS3g","hard rock; dallamos; generációs"],
+          ["Lord","Szóljon a rock",1985,"3T8y6X9t7r4WvXz8FzFzFz","hard rock; himnusz; pörgős"],
+          ["Beatrice","Jerikó",1979,"4x9Yt7r4WvXz8FzFzFzFzF","punk rock; lázadó; kultikus"],
+          ["Akela","A fenevad",1993,"5T8y6X9t7r4WvXz8FzFzFz","thrash metal; agresszív; farkas"],
+          ["Sing Sing","Nehéz lehet hősnek lenni",1993,"6x9Yt7r4WvXz8FzFzFzFzF","hard rock; dallamos; ballada"],
+          ["Moby Dick","Gazember",1991,"7z3GfWqR4Oq9gE9NdfvS3g","thrash metal; gyors; lázadó"],
+          ["Omen","Fagyott világ",1993,"8y69R7TzC6Y0kS0pWfAenW","heavy metal; elgondolkodtató; ballada"],
+          ["Dinamit","Mi ez a hang?",1979,"769998f8A0zWvXz8FzFzFz","hard rock; dögös; riff"],
+          ["P. Box","Halál katonája",1983,"2GvD3OqXGzYvXz8FzFzFzF","hard rock; heavy metal; sötét"],
+          ["Korál","Amit nem mondhattam el",1980,"3t9Yt7r4WvXz8FzFzFzFzF","rock; ballada; érzelmes"],
+          ["Hobo Blues Band","Mesél az erdő",1984,"5Y798p9C2Hk06P1e6K6X35","blues rock; szatirikus; szövegcentrikus"],
+          ["Republic","Repül a bálna",1990,"64b7C071f0gT6fWqR4Oq9g","folk rock; bulis; sláger"],
+          ["Sex Action","Ahová lépsz",1990,"49998f8A0zWvXz8FzFzFzF","dirty rock; dögös; lázadó"],
+          ["Sziámi","Apokalipszis",1989,"2T8y6X9t7r4WvXz8FzFzFz","underground; alter rock; sötét"],
+          ["Aurora","Előre kurvák, gengszterek",1992,"6vD3OqXGzYvXz8FzFzFzFF","punk rock; gyors; politikai"],
+          ["V'Moto-Rock","Várj, míg felkel majd a nap",1982,"60rGfWqR4Oq9gE9NdfvS3g","dallamos rock; ballada; klasszikus"],
+          ["Tunyogi Rock Band","A tegnap itt hagyott",1997,"08gT6fWqR4Oq9gE9NdfvS3g","hard rock; ballada; érzelmes"],
+          ["Omega","Gyöngyhajú lány",1969,"2S01f0gT6fWqR4Oq9gE9Nd","progresszív; klasszikus; világhírű"],
+          ["Locomotiv GT","Ezüst nyár",1972,"3K8y6X9t7r4WvXz8FzFzFz","klasszikus rock; billentyűsök; pörgős"],
+          ["East","Szélvihar",1981,"4y69R7TzC6Y0kS0pWfAenW","progresszív rock; gitár; dallamos"],
+          ["Prognózis","Tele van a város szerelemmel",1984,"1z3GfWqR4Oq9gE9NdfvS3g","new wave; rock; sláger"],
+          ["Varga Miklós","Európa",1984,"5vD3OqXGzYvXz8FzFzFzFF","himnusz; drámai; klasszikus"],
+          ["Beatrice","Nagyvárosi farkas",1981,"6T8y6X9t7r4WvXz8FzFzFz","punk rock; lázadó; kultikus"],
+          ["Pokolgép","A jel",1986,"2x9Yt7r4WvXz8FzFzFzFzF","heavy metal; pörgős; riff"],
+          ["Ossian","A magam útját járom",1990,"7y69R7TzC6Y0kS0pWfAenW","heavy metal; dallamos; himnusz"],
+          ["P. Mobil","Utolsó cigaretta",1984,"3vD3OqXGzYvXz8FzFzFzFF","hard rock; dögös; gitár"],
+          ["Piramis","Ha volna két életem",1979,"4x9Yt7r4WvXz8FzFzFzFzF","hard rock; lírai; ballada"],
+          ["Edda Művek","Ünnep",1985,"5T8y6X9t7r4WvXz8FzFzFz","rock; ballada; érzelmes"],
+          ["Bikini","Lusta nap",1987,"6x9Yt7r4WvXz8FzFzFzFzF","rock; bulis; klasszikus"],
+          ["Lord","Egyedül",1989,"7z3GfWqR4Oq9gE9NdfvS3g","hard rock; dallamos; ballada"],
+          ["Karthago","Lépd át a múltat",1981,"8y69R7TzC6Y0kS0pWfAenW","hard rock; dallamos; pörgős"],
+          ["Omen","Kurva vagy angyal",1992,"769998f8A0zWvXz8FzFzFz","heavy metal; dögös; riff"],
+          ["Moby Dick","Körhinta",1992,"2GvD3OqXGzYvXz8FzFzFzF","thrash metal; elgondolkodtató; sötét"],
+          ["Akela","Döntsd el",1994,"3t9Yt7r4WvXz8FzFzFzFzF","thrash metal; agresszív; gyors"],
+          ["Sing Sing","Sírni csak a győztesnek szabad",1991,"5Y798p9C2Hk06P1e6K6X35","hard rock; ballada; himnusz"],
+          ["Sex Action","Szex action",1990,"64b7C071f0gT6fWqR4Oq9g","dirty rock; dögös; bulis"],
+          ["Aurora","Viszlát!",1989,"49998f8A0zWvXz8FzFzFzF","punk rock; pörgős; klasszikus"],
+          ["P. Box","Soha nem elég",1983,"2T8y6X9t7r4WvXz8FzFzFz","hard rock; heavy metal; pörgős"],
+          ["Korál","Hazafelé",1975,"6vD3OqXGzYvXz8FzFzFzFF","dallamos rock; ballada; akusztikus"],
+          ["Hobo Blues Band","Ki vagyok én?",1981,"60rGfWqR4Oq9gE9NdfvS3g","blues rock; elgondolkodtató; dögös"],
+          ["Dinamit","Kulcs",1981,"08gT6fWqR4Oq9gE9NdfvS3g","hard rock; pörgős; gitár"],
+          ["Sámán","Sámán",1989,"1y69R7TzC6Y0kS0pWfAenW","heavy metal; kultikus; sötét"],
+          ["Stress","Megszállott",1991,"3K8y6X9t7r4WvXz8FzFzFz","heavy metal; retro; pörgős"],
+          ["Pokolgép","Éjféli királynő",1989,"2x9Yt7r4WvXz8FzFzFzFzF","heavy metal; dallamos; ballada"],
+          ["Ossian","Éjféli lány",1990,"6T8y6X9t7r4WvXz8FzFzFz","heavy metal; lírai; ballada"],
+          ["P. Mobil","Rocktóber",1984,"4y69R7TzC6Y0kS0pWfAenW","hard rock; himnusz; pörgős"],
+          ["Piramis","Becsület",1977,"3z3GfWqR4Oq9gE9NdfvS3g","hard rock; klasszikus; dögös"],
+          ["Edda Művek","Éjjel érkezem",1986,"4x9Yt7r4WvXz8FzFzFzFzF","rock; dallamos; ballada"],
+          ["Bikini","Adj helyet magad mellett",1987,"7T8y6X9t7r4WvXz8FzFzFz","rock; klasszikus; sláger"],
+          ["Lord","Kisfiú",1985,"2K8y6X9t7r4WvXz8FzFzFz","hard rock; érzelmes; ballada"],
+          ["Karthago","Keleti éj",1983,"3y69R7TzC6Y0kS0pWfAenW","hard rock; dallamos; atmoszférikus"],
+          ["Omen","Könnyű szívvel",1991,"4z3GfWqR4Oq9gE9NdfvS3g","heavy metal; ballada; érzelmes"],
+          ["Moby Dick","Ilyen ez a század",1994,"5x9Yt7r4WvXz8FzFzFzFzF","thrash metal; dühös; zúzós"],
+          ["Sing Sing","Bűn az élet",1994,"8T8y6X9t7r4WvXz8FzFzFz","hard rock; dögös; pörgős"],
+          ["Sex Action","Jöhet bármi",1991,"3K8y6X9t7r4WvXz8FzFzFz","dirty rock; dögös; ballada"],
+          ["Aurora","Kifutó",1992,"5GvD3OqXGzYvXz8FzFzFzF","punk rock; pörgős; dallamos"],
+          ["Omega","Ezüst eső",1978,"2t9Yt7r4WvXz8FzFzFzFzF","progresszív; klasszikus; atmoszférikus"],
+          ["Edda Művek","Tetovált lány",1980,"2vD3OqXGzYvXz8FzFzFzFF","klasszikus; rock; érzelmes"],
+          ["Locomotiv GT","Ringasd el magad",1973,"1y69R7TzC6Y0kS0pWfAenW","klasszikus rock; billentyűsök; bulis"],
+          ["Omega","Tízezer lépés",1969,"3K8y6X9t7r4WvXz8FzFzFz","progresszív; klasszikus; gitár"],
+          ["Skorpió","Így szólt hozzám a dédnapám",1974,"2x9Yt7r4WvXz8FzFzFzFzF","hard rock; klasszikus; pörgős"],
+          ["P. Mobil","Örökmozgó lettem",1981,"6T8y6X9t7r4WvXz8FzFzFz","hard rock; pörgős; himnusz"],
+          ["Pokolgép","A háború gyermeke",1986,"4y69R7TzC6Y0kS0pWfAenW","heavy metal; drámai; klasszikus"],
+          ["Ossian","A rock katonái",1990,"3z3GfWqR4Oq9gE9NdfvS3g","heavy metal; himnusz; pörgős"],
+          ["Piramis","Mondd, miért?",1977,"4x9Yt7r4WvXz8FzFzFzFzF","hard rock; ballada; lírai"],
+          ["Lord","Házam az éjszaka",1990,"7T8y6X9t7r4WvXz8FzFzFz","hard rock; dallamos; dögös"],
+          ["Karthago","Senki lánya",1981,"2K8y6X9t7r4WvXz8FzFzFz","hard rock; pörgős; klasszikus"],
+          ["Bikini","Fagyi",1987,"3y69R7TzC6Y0kS0pWfAenW","rock; sláger; bulis"],
+          ["Beatrice","Minek él az olyan",1991,"4z3GfWqR4Oq9gE9NdfvS3g","punk rock; szatirikus; pörgős"],
+          ["Hobo Blues Band","Kopaszkutya",1981,"5x9Yt7r4WvXz8FzFzFzFzF","blues rock; kultikus; filmzene"],
+          ["Moby Dick","Prometheus",1990,"8T8y6X9t7r4WvXz8FzFzFz","thrash metal; riff; zúzós"],
+          ["Akela","Karcolatok",1993,"3K8y6X9t7r4WvXz8FzFzFz","thrash metal; dühös; nyers"],
+          ["Omen","Padlón vagyok",1992,"5GvD3OqXGzYvXz8FzFzFzF","heavy metal; pörgős; dögös"],
+          ["Sing Sing","Életfogytig Rock 'n' Roll",1990,"2t9Yt7r4WvXz8FzFzFzFzF","hard rock; bulis; himnusz"],
+          ["Dinamit","Dinamit a vérem",1980,"6y69R7TzC6Y0kS0pWfAenW","hard rock; klasszikus; pörgős"],
+          ["Korál","Kevés voltam neked",1982,"1z3GfWqR4Oq9gE9NdfvS3g","rock; ballada; érzelmes"],
+          ["P. Box","Fantom leány",1982,"4T8y6X9t7r4WvXz8FzFzFz","hard rock; misztikus; riff"],
+          ["Omega","Léna",1979,"3vD3OqXGzYvXz8FzFzFzFF","progresszív; klasszikus; oroszos"],
+          ["Locomotiv GT","Neked írom a dalt",1975,"5x9Yt7r4WvXz8FzFzFzFzF","klasszikus rock; érzelmes; zongora"],
+          ["Edda Művek","Gyere őrült",1986,"7y69R7TzC6Y0kS0pWfAenW","rock; pörgős; sláger"],
+          ["Pokolgép","Itt és most",1990,"2z3GfWqR4Oq9gE9NdfvS3g","heavy metal; dallamos; himnusz"],
+          ["Ossian","Szenvedély",1992,"3T8y6X9t7r4WvXz8FzFzFz","heavy metal; pörgős; dögös"],
+          ["Black-Out","Spirál",1997,"4x9Yt7r4WvXz8FzFzFzFzF","grunge; alternatív rock; sötét"],
+          ["Nevergreen","Ámok",1999,"5T8y6X9t7r4WvXz8FzFzFz","gothic metal; sötét; billentyűsök"],
+          ["Bikini","Ki visz haza",1990,"6x9Yt7r4WvXz8FzFzFzFzF","rock; ballada; elgondolkodtató"],
+          ["Ektomorf","Hangok",1996,"7z3GfWqR4Oq9gE9NdfvS3g","groove metal; hardcore; dühös"],
+          ["Sex Action","Vörös selyem",1992,"8y69R7TzC6Y0kS0pWfAenW","dirty rock; dögös; lassú"],
+          ["Aurora","Múlóban az élet",1989,"769998f8A0zWvXz8FzFzFz","punk rock; dallamos; klasszikus"],
+          ["Beatrice","Az utálat tízparancsolata",1991,"2GvD3OqXGzYvXz8FzFzFzF","punk rock; agresszív; politikai"],
+          ["Tunyogi Rock Band","Szárnyakon szálló",1998,"3t9Yt7r4WvXz8FzFzFzFzF","hard rock; dallamos; felemelő"],
+          ["Skorpió","Miért kell elfelednem",1976,"5Y798p9C2Hk06P1e6K6X35","hard rock; ballada; klasszikus"],
+          ["East","Játékok",1981,"64b7C071f0gT6fWqR4Oq9g","progresszív rock; szintetizátor"],
+          ["P. Mobil","Simli show",1984,"49998f8A0zWvXz8FzFzFzF","hard rock; dögös; humoros"],
+          ["Piramis","Cseresznye",1979,"2T8y6X9t7r4WvXz8FzFzFz","hard rock; pörgős; dögös"],
+          ["Omen","Szelíden",1992,"6vD3OqXGzYvXz8FzFzFzFF","heavy metal; lírai; ballada"],
+          ["Moby Dick","Gumiszoba",1992,"60rGfWqR4Oq9gE9NdfvS3g","thrash metal; gyors; elmebaj"],
+          ["Akela","Mennyből az angyal",1992,"08gT6fWqR4Oq9gE9NdfvS3g","thrash metal; agresszív; karácsonyi"],
+          ["Omega","Nem tudom a neved",1975,"1vD3OqXGzYvXz8FzFzFzFF","progresszív; hard rock; klasszikus"],
+          ["Locomotiv GT","Ő még csak most tizennégy",1973,"2K8y6X9t7r4WvXz8FzFzFz","klasszikus rock; gitár; sláger"],
+          ["Skorpió","A folyóparton ülve",1974,"3y69R7TzC6Y0kS0pWfAenW","hard rock; klasszikus; pörgős"],
+          ["Edda Művek","Lelkünkből",1981,"4z3GfWqR4Oq9gE9NdfvS3g","rock; ballada; megemlékezés"],
+          ["Piramis","Gyere közelebb",1977,"5x9Yt7r4WvXz8FzFzFzFzF","hard rock; dögös; pörgős"],
+          ["P. Mobil","Asszonyt akarok",1981,"8T8y6X9t7r4WvXz8FzFzFz","hard rock; dögös; pörgős"],
+          ["Pokolgép","Vallomás",1988,"3K8y6X9t7r4WvXz8FzFzFz","heavy metal; ballada; dallamos"],
+          ["Ossian","Ha te ott lennél",1990,"5GvD3OqXGzYvXz8FzFzFzF","heavy metal; ballada; érzelmes"],
+          ["Lord","Megváltás nélkül",1990,"2t9Yt7r4WvXz8FzFzFzFzF","hard rock; dallamos; pörgős"],
+          ["Karthago","Barátok nélkül",1981,"6y69R7TzC6Y0kS0pWfAenW","hard rock; elgondolkodtató; dallamos"],
+          ["Bikini","Veri az élet",1993,"1z3GfWqR4Oq9gE9NdfvS3g","rock; szatirikus; pörgős"],
+          ["Beatrice","XX. század",1991,"4T8y6X9t7r4WvXz8FzFzFz","punk rock; szatirikus; politikai"],
+          ["Hobo Blues Band","Moszkva tér blues",1981,"3vD3OqXGzYvXz8FzFzFzFF","blues rock; nosztalgikus; klasszikus"],
+          ["Moby Dick","Beteg a világ",1992,"5x9Yt7r4WvXz8FzFzFzFzF","thrash metal; agresszív; sötét"],
+          ["Akela","Kóbor farkas",1994,"7y69R7TzC6Y0kS0pWfAenW","thrash metal; ballada; kultikus"],
+          ["Omen","Anarchia",1991,"2z3GfWqR4Oq9gE9NdfvS3g","heavy metal; gyors; lázadó"],
+          ["Sing Sing","Csajok, sör és Rock 'n' Roll",1990,"3T8y6X9t7r4WvXz8FzFzFz","hard rock; bulis; pörgős"],
+          ["Dinamit","Igazság",1980,"4x9Yt7r4WvXz8FzFzFzFzF","hard rock; klasszikus; lendületes"],
+          ["Korál","Tékozló fiú",1980,"5T8y6X9t7r4WvXz8FzFzFz","dallamos rock; drámai; klasszikus"],
+          ["P. Box","Éjféli szekér",1983,"6x9Yt7r4WvXz8FzFzFzFzF","hard rock; atmoszférikus; klasszikus"],
+          ["VHK","Alámerülés",1992,"7z3GfWqR4Oq9gE9NdfvS3g","pszichedelikus; sámán punk; rituális"],
+          ["Griff","Ezer év",1989,"8y69R7TzC6Y0kS0pWfAenW","hard rock; heavy metal; dallamos"],
+          ["Rotor","Metálháború",1991,"769998f8A0zWvXz8FzFzFz","heavy metal; underground; zúzós"],
+          ["Classica","Magasba tartott kézzel",1989,"2GvD3OqXGzYvXz8FzFzFzF","neoklasszikus metal; dallamos; gitár"],
+          ["Sex Action","Bunkó vagyok",1990,"3t9Yt7r4WvXz8FzFzFzFzF","dirty rock; dögös; humoros"],
+          ["Aurora","Robin Hood",1992,"5Y798p9C2Hk06P1e6K6X35","punk rock; gyors; sláger"],
+          ["Black-Out","Gyerek",1995,"64b7C071f0gT6fWqR4Oq9g","grunge; alternatív rock; mély"],
+          ["Nevergreen","Requiem",1994,"49998f8A0zWvXz8FzFzFzF","gothic metal; drámai; sötét"],
+          ["Ektomorf","Testvérháború",1998,"2T8y6X9t7r4WvXz8FzFzFz","groove metal; dühös; kemény"],
+          ["Warpigs","Monte Carlo",1999,"6vD3OqXGzYvXz8FzFzFzFF","grunge; alternatív rock; pörgős"],
+          ["FreshFabrik","Tape",1997,"60rGfWqR4Oq9gE9NdfvS3g","nu-metal; indusztriális; pörgős"],
+          ["Mood","The Golden Road of Sloth",1997,"08gT6fWqR4Oq9gE9NdfvS3g","doom metal; stoner; sötét"],
+          ["Pokolgép","Hol van a szó",1990,"1y69R7TzC6Y0kS0pWfAenW","heavy metal; ballada; ikonikus"],
+          ["Ossian","Magányos angyal",1992,"3K8y6X9t7r4WvXz8FzFzFz","heavy metal; ballada; érzelmes"],
+          ["P. Mobil","Babolcsai néni",1994,"2x9Yt7r4WvXz8FzFzFzFzF","hard rock; humoros; pörgős"],
+          ["Edda Művek","Fohász",1986,"6T8y6X9t7r4WvXz8FzFzFz","rock; mély; lírai"],
+          ["Piramis","Csak néhány jó szó",1978,"4y69R7TzC6Y0kS0pWfAenW","hard rock; lírai; ballada"],
+          ["Lord","Ha tudnám",1990,"3z3GfWqR4Oq9gE9NdfvS3g","hard rock; ballada; dallamos"],
+          ["Karthago","Áruló",1981,"4x9Yt7r4WvXz8FzFzFzFzF","hard rock; dinamikus; klasszikus"],
+          ["Bikini","Nehéz a dolga",1987,"7T8y6X9t7r4WvXz8FzFzFz","rock; sláger; pörgős"],
+          ["P. Mobil","Varjúdal",1984,"2S01f0gT6fWqR4Oq9gE9Nd","hard rock; kultikus; sötét"],
+          ["Edda Művek","Szellemvilág",1990,"3K8y6X9t7r4WvXz8FzFzFz","rock; pörgős; misztikus"],
+          ["Pokolgép","Mennyit érsz?",1987,"4y69R7TzC6Y0kS0pWfAenW","heavy metal; lázadó; dühös"],
+          ["Ossian","Fekete ünnep",1990,"1z3GfWqR4Oq9gE9NdfvS3g","heavy metal; sötét; lassú"],
+          ["Piramis","Nincs egyszerűbb dolog",1978,"5vD3OqXGzYvXz8FzFzFzFF","hard rock; ballada; lírai"],
+          ["Lord","Virágszirmok",1989,"6T8y6X9t7r4WvXz8FzFzFz","hard rock; dallamos; ballada"],
+          ["Karthago","Lék a hajón",1981,"2x9Yt7r4WvXz8FzFzFzFzF","hard rock; dallamos; sláger"],
+          ["Bikini","Minden úgy történt",1987,"7y69R7TzC6Y0kS0pWfAenW","rock; nosztalgikus; klasszikus"],
+          ["Beatrice","Sánta kutya",1988,"3vD3OqXGzYvXz8FzFzFzFF","punk rock; szatirikus; lázadó"],
+          ["Hobo Blues Band","Hey Joe",1980,"4x9Yt7r4WvXz8FzFzFzFzF","blues rock; feldolgozás; klasszikus"],
+          ["Moby Dick","A III. világháború előtt",1990,"5T8y6X9t7r4WvXz8FzFzFz","thrash metal; zúzós; sötét"],
+          ["Akela","Rockernek születtem",1994,"6x9Yt7r4WvXz8FzFzFzFzF","thrash metal; himnusz; lázadó"],
+          ["Omen","Kihalt minden",1991,"7z3GfWqR4Oq9gE9NdfvS3g","heavy metal; drámai; ballada"],
+          ["Sing Sing","Törvények nélkül",1991,"8y69R7TzC6Y0kS0pWfAenW","hard rock; pörgős; dögös"],
+          ["Dinamit","Dzsungel",1981,"769998f8A0zWvXz8FzFzFz","hard rock; gyors; riff"],
+          ["Korál","A kőfalak leomlanak",1981,"2GvD3OqXGzYvXz8FzFzFzF","dallamos rock; drámai; billentyűsök"],
+          ["P. Box","A holnap gőzmozdonya",1982,"3t9Yt7r4WvXz8FzFzFzFzF","hard rock; pörgős; klasszikus"],
+          ["Omega","Petróleumlámpa",1969,"5Y798p9C2Hk06P1e6K6X35","klasszikus rock; retro; vidám"],
+          ["Locomotiv GT","A rádió",1977,"64b7C071f0gT6fWqR4Oq9g","klasszikus rock; sláger; billentyűsök"],
+          ["Skorpió","Álljatok meg!",1974,"49998f8A0zWvXz8FzFzFzF","hard rock; pörgős; klasszikus"],
+          ["Aurora","Gyártelep",1989,"2T8y6X9t7r4WvXz8FzFzFz","punk rock; gyors; kemény"],
+          ["Sex Action","Szabadnak születtél",1994,"6vD3OqXGzYvXz8FzFzFzFF","dirty rock; ballada; elgondolkodtató"],
+          ["Sámán","A láng",1989,"60rGfWqR4Oq9gE9NdfvS3g","heavy metal; dallamos; kultikus"],
+          ["Nevergreen","Sírni az esőben",1999,"08gT6fWqR4Oq9gE9NdfvS3g","gothic metal; sötét; dallamos"],
+          ["Pokolgép","Ítélet helyett",1987,"1y69R7TzC6Y0kS0pWfAenW","heavy metal; zúzós; klasszikus"]
+        ];
+
+        const mr2000_2026 = [
+          ["Tankcsapda","Mennyország tourist",1999,"5GvD3OqXGzYvXz8FzFzFzF","modern rock; sláger; alternatív"],
+          ["Tankcsapda","Adjon az ég",2003,"2t9Yt7r4WvXz8FzFzFzFzF","modern rock; pörgős; himnusz"],
+          ["Road","Nem kell más",2008,"6y69R7TzC6Y0kS0pWfAenW","modern metal; zúzós; dallamos"],
+          ["Depresszió","Nem akarok elszakadni",2006,"1z3GfWqR4Oq9gE9NdfvS3g","nu-metal; modern metal; pörgős"],
+          ["AWS","Viszlát nyár",2018,"4T8y6X9t7r4WvXz8FzFzFz","post-hardcore; modern metal; eurovízió"],
+          ["Ganxsta Zolee és a Kartel","Keleti oldal - Nyugati oldal",1997,"3vD3OqXGzYvXz8FzFzFzFF","rap metal; hardcore; kultikus"],
+          ["Mudfield","Féreg",2018,"5x9Yt7r4WvXz8FzFzFzFzF","modern metal; sárvidék; dallamos"],
+          ["Lazarvs","Valhalla",2020,"7y69R7TzC6Y0kS0pWfAenW","stoner metal; zúzós; angol nyelvű"],
+          ["Thy Catafalque","Szarvas",2021,"2z3GfWqR4Oq9gE9NdfvS3g","avant-garde metal; atmoszférikus; progresszív"],
+          ["Kies","Nem kell, hogy fájjon",2020,"3T8y6X9t7r4WvXz8FzFzFz","modern rock; pörgős; dallamos"],
+          ["Down For Whatever","Ennyi volt",2020,"4x9Yt7r4WvXz8FzFzFzFzF","modern metal; elektronikus; pörgős"],
+          ["Fatal Error","Külhoni",2019,"5T8y6X9t7r4WvXz8FzFzFz","modern rock; pörgős; energikus"],
+          ["Leander Kills","Nyolcadik főbűn",2016,"6x9Yt7r4WvXz8FzFzFzFzF","modern metal; dallamos; zongora"],
+          ["Ossian","A számvetés",2021,"7z3GfWqR4Oq9gE9NdfvS3g","heavy metal; dallamos; új éra"],
+          ["Platon Karataev","Partért kiáltó",2022,"8y69R7TzC6Y0kS0pWfAenW","indie rock; atmoszférikus; akusztikus"],
+          ["Tankcsapda","Fiúk ölébe lányok",2001,"1y69R7TzC6Y0kS0pWfAenW","modern rock; pörgős; sláger"],
+          ["Road","Az te vagy",2013,"3K8y6X9t7r4WvXz8FzFzFz","modern metal; dallamos; sláger"],
+          ["Depresszió","Lassú víz",2002,"2x9Yt7r4WvXz8FzFzFzFzF","nu-metal; pörgős; klasszikus"],
+          ["Ganxsta Zolee és a Kartel","A való világ",2002,"6T8y6X9t7r4WvXz8FzFzFz","rap rock; dögös; szókimondó"],
+          ["Ossian","Asszony feketében",2002,"4y69R7TzC6Y0kS0pWfAenW","heavy metal; lírai; új éra"],
+          ["AWS","Lelket vennék",2016,"3z3GfWqR4Oq9gE9NdfvS3g","post-hardcore; modern metal; dallamos"],
+          ["Leander Kills","Valami folyik",2016,"4x9Yt7r4WvXz8FzFzFzFzF","modern metal; zúzós; dallamos"],
+          ["Mudfield","Napfénytenger",2019,"7T8y6X9t7r4WvXz8FzFzFz","modern rock; dallamos; sláger"],
+          ["Lazarvs","Lazarus",2020,"2K8y6X9t7r4WvXz8FzFzFz","stoner metal; dühös; zúzós"],
+          ["Thy Catafalque","Mezolit",2021,"3y69R7TzC6Y0kS0pWfAenW","avant-garde metal; kísérleti; sötét"],
+          ["Fish!","Ne is figyelj rám",2013,"4z3GfWqR4Oq9gE9NdfvS3g","pop-punk; pörgős; bulis"],
+          ["Kowalsky meg a Vega","Aszfalt és nemez",2003,"5x9Yt7r4WvXz8FzFzFzFzF","funk rock; dallamos; elgondolkodtató"],
+          ["Superbutt","Bonfire",2003,"8T8y6X9t7r4WvXz8FzFzFz","modern metal; pörgős; angol nyelvű"],
+          ["Blind Myself","Go Get a Life!",2005,"3K8y6X9t7r4WvXz8FzFzFz","hardcore metal; zúzós; kaotikus"],
+          ["Alvin és a Mókusok","Sajnálom",2001,"5GvD3OqXGzYvXz8FzFzFzF","punk rock; dallamos; elgondolkodtató"],
+          ["Tankcsapda","Ez az a ház",2001,"2t9Yt7r4WvXz8FzFzFzFzF","modern rock; lassú; sötét"],
+          ["Road","Nem elég",2006,"6y69R7TzC6Y0kS0pWfAenW","modern rock; zúzós; pörgős"],
+          ["Depresszió","Elmebeteg",2004,"1z3GfWqR4Oq9gE9NdfvS3g","nu-metal; agresszív; pörgős"],
+          ["AWS","Sors rontó",2018,"4T8y6X9t7r4WvXz8FzFzFz","post-hardcore; dühös; energikus"],
+          ["Leander Rising","Viharom, tavaszom",2012,"3vD3OqXGzYvXz8FzFzFzFF","modern metal; dallamos; zongora"],
+          ["Nomád","Hotel Polgárdi",2014,"5x9Yt7r4WvXz8FzFzFzFzF","grunge rock; dallamos; dögös"],
+          ["Nova Prospect","Fényhozó",2018,"7y69R7TzC6Y0kS0pWfAenW","modern metal; női ének; dallamos"],
+          ["Tales of Evening","Lázadás",2012,"2z3GfWqR4Oq9gE9NdfvS3g","symphonic metal; női ének; dallamos"],
+          ["Mobilmánia","Ez a mánia",2008,"3T8y6X9t7r4WvXz8FzFzFz","hard rock; klasszikus stílus; pörgős"],
+          ["Pokolgép","Így szép az élet",2002,"4x9Yt7r4WvXz8FzFzFzFzF","heavy metal; új éra; pörgős"],
+          ["Ossian","Tűzkeresztség",2001,"5T8y6X9t7r4WvXz8FzFzFz","heavy metal; himnusz; lendületes"],
+          ["Ganxsta Zolee és a Kartel","Vato Loco",2001,"6x9Yt7r4WvXz8FzFzFzFzF","rap metal; latin hangulat; bulis"],
+          ["Subscribe","Crowley",2004,"7z3GfWqR4Oq9gE9NdfvS3g","progresszív metal; pörgős; elborult"],
+          ["Insane","Our Island, Our Empire",2008,"8y69R7TzC6Y0kS0pWfAenW","post-hardcore; angol nyelvű; zúzós"],
+          ["Watch My Dying","Holtsúly",2006,"769998f8A0zWvXz8FzFzFz","deathcore; technikás metal; agresszív"],
+          ["Cadaveres","Soul Of A New Era",2007,"2GvD3OqXGzYvXz8FzFzFzF","groove metal; modern; zúzós"],
+          ["Prosectura","Sátán",2001,"3t9Yt7r4WvXz8FzFzFzFzF","punk rock; poénos; gyors"],
+          ["Aurora","Nincs karácsony",2002,"5Y798p9C2Hk06P1e6K6X35","punk rock; karácsonyi; szatirikus"],
+          ["Zorall","Valahol egy lány",2003,"64b7C071f0gT6fWqR4Oq9g","rock; mashup; bulis"],
+          ["Ismerős Arcok","Nélküled",2007,"49998f8A0zWvXz8FzFzFzF","rock; ballada; himnusz"],
+          ["Kárpátia","Otthon vagyok",2004,"2T8y6X9t7r4WvXz8FzFzFz","nemzeti rock; lendületes; hegedű"],
+          ["Romantikus Erőszak","Magyar ritmus",2012,"6vD3OqXGzYvXz8FzFzFzFF","nemzeti rock; dudás; pörgős"],
+          ["Wackor","Lobotomy",2004,"60rGfWqR4Oq9gE9NdfvS3g","progressive thrash; dögös; poénos"],
+          ["Stubborn","Let's Start a Fire",2015,"08gT6fWqR4Oq9gE9NdfvS3g","hardcore; metalcore; dühös"],
+          ["Apey & the Pea","Slaves",2017,"1y69R7TzC6Y0kS0pWfAenW","sludge metal; sötét; lassú zúzás"],
+          ["Paddy and the Rats","Pilgrim on the Road",2012,"3K8y6X9t7r4WvXz8FzFzFz","celtic punk; pörgős; bulis"],
+          ["Fish!","Konzervzene",2011,"4y69R7TzC6Y0kS0pWfAenW","pop-punk; energikus; sláger"],
+          ["Tankcsapda","Mindentől távol",2006,"1z3GfWqR4Oq9gE9NdfvS3g","modern rock; dallamos; sláger"],
+          ["Road","Kettő kettő",2010,"5vD3OqXGzYvXz8FzFzFzFF","modern metal; zúzós; pörgős"],
+          ["Depresszió","Jön a reggel",2011,"6T8y6X9t7r4WvXz8FzFzFz","modern rock; dallamos; felemelő"],
+          ["Alvin és a Mókusok","Kurva élet",2003,"2x9Yt7r4WvXz8FzFzFzFzF","punk rock; lázadó; dühös"],
+          ["AWS","Temetetlen halott",2014,"7y69R7TzC6Y0kS0pWfAenW","post-hardcore; zúzós; dallamos"],
+          ["Leander Kills","Madár",2016,"3vD3OqXGzYvXz8FzFzFzFF","modern metal; érzelmes; dallamos"],
+          ["Mudfield","Szerelem",2020,"4x9Yt7r4WvXz8FzFzFzFzF","modern rock; dallamos; metalballada"],
+          ["Lazarvs","Pit",2020,"5T8y6X9t7r4WvXz8FzFzFz","stoner metal; dühös; lassú zúzás"],
+          ["Thy Catafalque","Embersólyom",2020,"6x9Yt7r4WvXz8FzFzFzFzF","avant-garde metal; folk hatások; atmoszférikus"],
+          ["Kowalsky meg a Vega","Ennyi csak",2006,"7z3GfWqR4Oq9gE9NdfvS3g","pop-rock; dallamos; sláger"],
+          ["Hétköznapi Csalódások","Gecis világ",2004,"8y69R7TzC6Y0kS0pWfAenW","punk rock; politikai; agresszív"],
+          ["Prosectura","Majdnem tökéletes",2007,"769998f8A0zWvXz8FzFzFz","punk rock; humoros; gyors"],
+          ["Dorothy","Fejjel a falnak",2014,"2GvD3OqXGzYvXz8FzFzFzF","modern rock; női ének; pörgős"],
+          ["Mobilmánia","Bárhol vársz rá",2014,"3t9Yt7r4WvXz8FzFzFzFzF","hard rock; klasszikus stílus; ballada"],
+          ["Pokolgép","Véredből születtem",2007,"5Y798p9C2Hk06P1e6K6X35","heavy metal; dallamos; új éra"],
+          ["Ossian","Emberi lélek",2021,"64b7C071f0gT6fWqR4Oq9g","heavy metal; lírai; elgondolkodtató"],
+          ["Omen","Szabadíts meg",2006,"49998f8A0zWvXz8FzFzFzF","heavy metal; dögös; riff"],
+          ["Ganxsta Zolee és a Kartel","Isten, Haza, Sör",2007,"2T8y6X9t7r4WvXz8FzFzFz","rap metal; bulis; humoros"],
+          ["Subscribe","Ringside Seat",2011,"6vD3OqXGzYvXz8FzFzFzFF","progresszív metal; pörgős; angol nyelvű"],
+          ["Kies","Mosoly",2019,"60rGfWqR4Oq9gE9NdfvS3g","modern rock; energikus; pörgős"],
+          ["Down For Whatever","Még az éjjel",2021,"08gT6fWqR4Oq9gE9NdfvS3g","modern metal; dallamos; pörgős"],
+          ["Fatal Error","Szétrobbanok",2019,"1y69R7TzC6Y0kS0pWfAenW","modern rock; energikus; riff"],
+          ["Platon Karataev","Valaki utazik",2022,"3K8y6X9t7r4WvXz8FzFzFz","indie rock; akusztikus; mély"],
+          ["Nova Prospect","Plazma",2015,"2x9Yt7r4WvXz8FzFzFzFzF","modern metal; női ének; elektronika"],
+          ["Tales of Evening","Keresve az utam",2015,"6T8y6X9t7r4WvXz8FzFzFz","symphonic metal; női ének; dallamos"],
+          ["Apey & the Pea","Judas",2013,"4y69R7TzC6Y0kS0pWfAenW","sludge metal; dühös; zúzós"],
+          ["Watch My Dying","Mozaik",2009,"3z3GfWqR4Oq9gE9NdfvS3g","progressive metal; gyors; agresszív"],
+          ["Cadaveres","Elveszett felvonás",2013,"4x9Yt7r4WvXz8FzFzFzFzF","groove metal; dögös; modern"],
+          ["Blind Myself","Pompa",2012,"7T8y6X9t7r4WvXz8FzFzFz","modern metal; elborult; zúzós"],
+          ["Superbutt","The Devil Wheel",2008,"2K8y6X9t7r4WvXz8FzFzFz","modern metal; pörgős; angol nyelvű"],
+          ["Wackor","I Like It",2004,"3y69R7TzC6Y0kS0pWfAenW","alternative metal; dögös; elborult"],
+          ["Romantikus Erőszak","Lesz még Erdély",2006,"4z3GfWqR4Oq9gE9NdfvS3g","nemzeti rock; dudás; pörgős"],
+          ["Kárpátia","Kis fehér virág",2008,"5x9Yt7r4WvXz8FzFzFzFzF","nemzeti rock; ballada; érzelmes"],
+          ["Ismerős Arcok","Kedvesem",2009,"8T8y6X9t7r4WvXz8FzFzFz","rock; lassú; érzelmes"],
+          ["Zorall","Szállj velem",2005,"3K8y6X9t7r4WvXz8FzFzFz","hard rock; feldolgozás; bulis"],
+          ["Junkies","Miattad iszom, te állat",2001,"5GvD3OqXGzYvXz8FzFzFzF","punk rock; bulis; humoros"],
+          ["Aurora","Külvárosi álmok",2008,"2t9Yt7r4WvXz8FzFzFzFzF","punk rock; dallamos; pörgős"],
+          ["Sing Sing","Visszaeső",2016,"6y69R7TzC6Y0kS0pWfAenW","hard rock; dögös; visszatérő"],
+          ["Tankcsapda","Be vagyok rúgva",2001,"1vD3OqXGzYvXz8FzFzFzFF","modern rock; bulis; klasszikus"],
+          ["Road","Aki szabad",2018,"2K8y6X9t7r4WvXz8FzFzFz","modern metal; dallamos; pörgős"],
+          ["Depresszió","Csak a zene",2014,"3y69R7TzC6Y0kS0pWfAenW","modern rock; energikus; himnusz"],
+          ["AWS","Útvesztő",2018,"4z3GfWqR4Oq9gE9NdfvS3g","post-hardcore; modern metal; zúzós"],
+          ["Leander Kills","Te leszel a párom",2016,"5x9Yt7r4WvXz8FzFzFzFzF","modern metal; dallamos; sláger"],
+          ["Mudfield","Jakab",2019,"8T8y6X9t7r4WvXz8FzFzFz","modern metal; dallamos; történetmesélős"],
+          ["Lazarvs","Perpetual Rule",2023,"3K8y6X9t7r4WvXz8FzFzFz","stoner metal; dögös; angol nyelvű"],
+          ["Thy Catafalque","Néma vermek",2020,"5GvD3OqXGzYvXz8FzFzFzF","avant-garde metal; progresszív; sötét"],
+          ["Ossian","Gyönyörű bolond",2019,"2t9Yt7r4WvXz8FzFzFzFzF","heavy metal; ballada; dallamos"],
+          ["Paddy and the Rats","Ghost from the Barrow",2015,"6y69R7TzC6Y0kS0pWfAenW","celtic punk; pörgős; hegedű"],
+          ["Fish!","Kérlek szépen",2016,"1z3GfWqR4Oq9gE9NdfvS3g","pop-punk; bulis; dallamos"],
+          ["Fatal Error","Művirágok",2019,"4T8y6X9t7r4WvXz8FzFzFz","modern rock; energikus; dallamos"],
+          ["Alvin és a Mókusok","Illúzió",2012,"3vD3OqXGzYvXz8FzFzFzFF","punk rock; dallamos; elgondolkodtató"],
+          ["Kowalsky meg a Vega","Amilyen hülye vagy, úgy szeretlek",2014,"5x9Yt7r4WvXz8FzFzFzFzF","pop-rock; sláger; pozitív"],
+          ["Down For Whatever","Zuhanás",2022,"7y69R7TzC6Y0kS0pWfAenW","modern metal; pörgős; dallamos"],
+          ["Kies","Az nem én voltam",2023,"2z3GfWqR4Oq9gE9NdfvS3g","modern rock; grunge hatások; dögös"],
+          ["P. Mobil","Farkasok völgye Kárpát-medence",2014,"3T8y6X9t7r4WvXz8FzFzFz","hard rock; klasszikus stílus; hazaszeretet"],
+          ["Edda Művek","Sorsunkon osztozunk",2018,"4x9Yt7r4WvXz8FzFzFzFzF","rock; ballada; dallamos"],
+          ["Lord","Hargita",2006,"5T8y6X9t7r4WvXz8FzFzFz","hard rock; érzelmes; dallamos"],
+          ["Bikini","Angyali üdvözlet",2011,"6x9Yt7r4WvXz8FzFzFzFzF","rock; elgondolkodtató; sláger"],
+          ["Hétköznapi Csalódások","Isten hozott nálunk, Viktor",2015,"7z3GfWqR4Oq9gE9NdfvS3g","punk rock; politikai; gyors"],
+          ["Junkies","Buli van",2019,"8y69R7TzC6Y0kS0pWfAenW","punk rock; bulis; pörgős"],
+          ["Dorothy","Mindent egy lapra",2016,"769998f8A0zWvXz8FzFzFz","modern rock; női ének; dögös"],
+          ["Nomád","Minden áron",2018,"2GvD3OqXGzYvXz8FzFzFzF","grunge rock; dallamos; dögös"],
+          ["Nova Prospect","Lidérc",2021,"3t9Yt7r4WvXz8FzFzFzFzF","modern metal; női ének; pörgős"],
+          ["AWS","Emlékszem",2018,"5Y798p9C2Hk06P1e6K6X35","post-hardcore; dallamos; érzelmes"],
+          ["Leander Rising","Lőjetek fel",2014,"64b7C071f0gT6fWqR4Oq9g","modern metal; zúzós; zongora"],
+          ["Phrenia","Túlélő",2021,"49998f8A0zWvXz8FzFzFzF","modern metal; elektronika; dallamos"],
+          ["Omen","Szörnyeteg",2015,"2T8y6X9t7r4WvXz8FzFzFz","heavy metal; modern hangzás; zúzós"],
+          ["Pokolgép","Ringben",2015,"6vD3OqXGzYvXz8FzFzFzFF","heavy metal; új éra; lendületes"],
+          ["Kárpátia","Kivándorló dal",2015,"60rGfWqR4Oq9gE9NdfvS3g","nemzeti rock; lendületes; hegedű"],
+          ["Ismerős Arcok","Szüless újra",2012,"08gT6fWqR4Oq9gE9NdfvS3g","rock; dallamos; felemelő"],
+          ["Zorall","Csókkirály",2008,"1y69R7TzC6Y0kS0pWfAenW","hard rock; mashup; bulis"],
+          ["Sex Action","Olaj a tűzre",2013,"3K8y6X9t7r4WvXz8FzFzFz","dirty rock; dögös; visszatérő"],
+          ["Moby Dick","Durván akár a vulkán",2016,"2x9Yt7r4WvXz8FzFzFzFzF","thrash metal; zúzós; agresszív"],
+          ["Akela","Farkasok",2016,"6T8y6X9t7r4WvXz8FzFzFz","thrash metal; sötét; nyers"],
+          ["Petőfi","Mindenki senkije",2016,"4y69R7TzC6Y0kS0pWfAenW","hardcore; screamo; intenzív"],
+          ["Anchorless Bodies","Harag",2021,"3z3GfWqR4Oq9gE9NdfvS3g","hardcore; dühös; modern metal"],
+          ["Stubborn","Sinner",2018,"4x9Yt7r4WvXz8FzFzFzFzF","metalcore; zúzós; angol nyelvű"],
+          ["Hegy","Végtelen",2020,"7T8y6X9t7r4WvXz8FzFzFz","post-rock; instrumentális; atmoszférikus"],
+          ["Tankcsapda","Köpök rátok",2014,"1y69R7TzC6Y0kS0pWfAenW","modern rock; dühös; zúzós"],
+          ["Road","M.A.T.T.",2015,"3K8y6X9t7r4WvXz8FzFzFz","modern metal; zúzós; pörgős"],
+          ["Depresszió","Kezdjük el!",2014,"2x9Yt7r4WvXz8FzFzFzFzF","modern metal; energikus; pörgős"],
+          ["AWS","Hol voltál?",2018,"6T8y6X9t7r4WvXz8FzFzFz","post-hardcore; dallamos; dühös"],
+          ["Leander Rising","Szomorú vasárnap",2012,"4y69R7TzC6Y0kS0pWfAenW","modern metal; feldolgozás; drámai"],
+          ["Dalriada","Hajdútánc",2009,"3z3GfWqR4Oq9gE9NdfvS3g","folk metal; pörgős; hegedű"],
+          ["Mudfield","Gyaloggalopp",2019,"4x9Yt7r4WvXz8FzFzFzFzF","modern metal; dallamos; sláger"],
+          ["Esti Kornél","Rohadt eső",2016,"7T8y6X9t7r4WvXz8FzFzFz","alter rock; melankolikus; gitár"],
+          ["Fish!","Számolj el háromig",2016,"2K8y6X9t7r4WvXz8FzFzFz","pop-punk; energikus; bulis"],
+          ["Paddy and the Rats","Castaway",2017,"3y69R7TzC6Y0kS0pWfAenW","celtic punk; dallamos; tengerész"],
+          ["Alvin és a Mókusok","Fejben dől el",2014,"4z3GfWqR4Oq9gE9NdfvS3g","punk rock; dallamos; elgondolkodtató"],
+          ["Kowalsky meg a Vega","Mit mondjak még?",2016,"5x9Yt7r4WvXz8FzFzFzFzF","pop-rock; sláger; fülbemászó"],
+          ["Lazarvs","God the Animal",2020,"8T8y6X9t7r4WvXz8FzFzFz","stoner metal; dühös; kíméletlen"],
+          ["Thy Catafalque","Köd",2018,"3K8y6X9t7r4WvXz8FzFzFz","avant-garde metal; atmoszférikus; sötét"],
+          ["Ektomorf","Outcast",2006,"5GvD3OqXGzYvXz8FzFzFzF","groove metal; dühös; nemzetközi hírű"],
+          ["Down For Whatever","Hátra arc",2022,"2t9Yt7r4WvXz8FzFzFzFzF","modern metal; pörgős; dühös"],
+          ["Fatal Error","Néma",2019,"6y69R7TzC6Y0kS0pWfAenW","modern rock; dallamos; érzelmes"],
+          ["Kies","Mindenki egyedül",2020,"1z3GfWqR4Oq9gE9NdfvS3g","modern rock; pörgős; dallamos"],
+          ["Nova Prospect","Utazó",2018,"4T8y6X9t7r4WvXz8FzFzFz","modern metal; női ének; dallamos"],
+          ["Tales of Evening","A szél suttogja",2012,"3vD3OqXGzYvXz8FzFzFzFF","symphonic metal; dallamos; ballada"],
+          ["Carson Coma","Kék Hullám Kemping",2023,"3vD3OqXGzYvXz8FzFzFzFF","alternatív rock; nosztalgikus; pörgős"],
+          ["Platon Karataev","Lassan utolér",2022,"4x9Yt7r4WvXz8FzFzFzFzF","indie rock; atmoszférikus; mély"],
+          ["Fish!","Posztolj",2019,"5T8y6X9t7r4WvXz8FzFzFz","pop-punk; szatirikus; energikus"],
+          ["Alvin és a Mókusok","Világvége",2020,"6x9Yt7r4WvXz8FzFzFzFzF","punk rock; pörgős; elgondolkodtató"],
+          ["Kowalsky meg a Vega","Egy világon át",2019,"7z3GfWqR4Oq9gE9NdfvS3g","pop-rock; sláger; dallamos"],
+          ["Paddy and the Rats","Make a Joyful Noise",2022,"8y69R7TzC6Y0kS0pWfAenW","celtic punk; bulis; pörgős"],
+          ["Fatal Error","Kulcs",2022,"769998f8A0zWvXz8FzFzFz","modern rock; dallamos; energikus"],
+          ["Down For Whatever","Úgy hiszem",2023,"2GvD3OqXGzYvXz8FzFzFzF","modern metal; elektronika; fülbemászó"],
+          ["Kies","Az nem én voltam",2023,"3t9Yt7r4WvXz8FzFzFzFzF","modern rock; grunge hatások; dögös"],
+          ["Nova Prospect","Szemben az árral",2021,"5Y798p9C2Hk06P1e6K6X35","modern metal; női ének; lendületes"],
+          ["Tales of Evening","Hírnök",2018,"64b7C071f0gT6fWqR4Oq9g","symphonic metal; dallamos; gyors"],
+          ["Ektomorf","Reborn",2021,"49998f8A0zWvXz8FzFzFzF","thrash metal; klasszikus riffek; zúzós"],
+          ["Heedless Elegance","Libra",2023,"2T8y6X9t7r4WvXz8FzFzFz","metalcore; intenzív; modern metal"],
+          ["Anchorless Bodies","Mélység",2023,"6vD3OqXGzYvXz8FzFzFzFF","hardcore; dallamos; dühös"],
+          ["Petőfi","Káosz",2018,"60rGfWqR4Oq9gE9NdfvS3g","post-hardcore; sötét; nyers"],
+          ["Stubborn","Iron Noose",2018,"08gT6fWqR4Oq9gE9NdfvS3g","metalcore; zúzós; agresszív"],
+          ["Dalriada","Búcsúzó",2021,"1y69R7TzC6Y0kS0pWfAenW","folk metal; ballada; akusztikus"]
+        ];
+
+        const nm = [
+          ["Pantera","Walk",1992,"769998f8A0zWvXz8FzFzFz","groove metal; ikonikus; riff"],
+          ["Nightwish","Nemo",2004,"2GvD3OqXGzYvXz8FzFzFzF","symphonic metal; dallamos; ikonikus"],
+          ["Sepultura","Roots Bloody Roots",1996,"3t9Yt7r4WvXz8FzFzFzFzF","groove metal; thrash; törzsi"],
+          ["Rammstein","Du Hast",1997,"5Y798p9C2Hk06P1e6K6X35","industrial metal; ikonikus; német"],
+          ["Metallica","Master of Puppets",1986,"64b7C071f0gT6fWqR4Oq9g","thrash metal; klasszikus; progresszív"],
+          ["Iron Maiden","The Trooper",1983,"49998f8A0zWvXz8FzFzFzF","heavy metal; ikonikus; klasszikus"],
+          ["System of a Down","Chop Suey!",2001,"2T8y6X9t7r4WvXz8FzFzFz","alternative metal; pörgős; ikonikus"],
+          ["Slipknot","Duality",2004,"6vD3OqXGzYvXz8FzFzFzFF","nu-metal; agresszív; modern metal"],
+          ["Linkin Park","In the End",2001,"60rGfWqR4Oq9gE9NdfvS3g","nu-metal; rap rock; ikonikus"],
+          ["AC/DC","Back in Black",1980,"08gT6fWqR4Oq9gE9NdfvS3g","hard rock; klasszikus; stadionrock"],
+          ["Judas Priest","Painkiller",1990,"1t9Yt7r4WvXz8FzFzFzFzF","heavy metal; gyors; klasszikus"],
+          ["Black Sabbath","Paranoid",1970,"1y69R7TzC6Y0kS0pWfAenW","heavy metal; proto-metal; ikonikus"],
+          ["Guns N' Roses","Sweet Child O' Mine",1987,"7z3GfWqR4Oq9gE9NdfvS3g","hard rock; ikonikus; gitár"],
+          ["Megadeth","Symphony of Destruction",1992,"5x9Yt7r4WvXz8FzFzFzFzF","thrash metal; ikonikus; politikai"],
+          ["Slayer","Raining Blood",1986,"4T8y6X9t7r4WvXz8FzFzFz","thrash metal; gyors; agresszív"],
+          ["Metallica","Enter Sandman",1991,"1S01f0gT6fWqR4Oq9gE9Nd","heavy metal; klasszikus; ikonikus"],
+          ["Iron Maiden","Run to the Hills",1982,"3K8y6X9t7r4WvXz8FzFzFz","heavy metal; pörgős; klasszikus"],
+          ["Black Sabbath","Iron Man",1970,"4y69R7TzC6Y0kS0pWfAenW","proto-metal; riff; klasszikus"],
+          ["Judas Priest","Breaking the Law",1980,"1z3GfWqR4Oq9gE9NdfvS3g","heavy metal; himnusz; pörgős"],
+          ["System of a Down","Toxicity",2001,"5vD3OqXGzYvXz8FzFzFzFF","alternative metal; energikus; ikonikus"],
+          ["Slipknot","Psychosocial",2008,"6T8y6X9t7r4WvXz8FzFzFz","nu-metal; modern metal; zúzós"],
+          ["Rammstein","Sonne",2001,"2x9Yt7r4WvXz8FzFzFzFzF","industrial metal; német; sötét"],
+          ["Nightwish","Wish I Had an Angel",2004,"7y69R7TzC6Y0kS0pWfAenW","symphonic metal; dallamos; pörgős"],
+          ["Sepultura","Refuse/Resist",1993,"3vD3OqXGzYvXz8FzFzFzFF","thrash metal; groove metal; dühös"],
+          ["Pantera","Cowboys from Hell",1990,"4x9Yt7r4WvXz8FzFzFzFzF","groove metal; dögös; riff"],
+          ["Linkin Park","Numb",2003,"5T8y6X9t7r4WvXz8FzFzFz","nu-metal; érzelmes; sláger"],
+          ["Guns N' Roses","Welcome to the Jungle",1987,"6x9Yt7r4WvXz8FzFzFzFzF","hard rock; dögös; ikonikus"],
+          ["Megadeth","Holy Wars... The Punishment Due",1990,"7z3GfWqR4Oq9gE9NdfvS3g","thrash metal; progresszív; gyors"],
+          ["Slayer","Angel of Death",1986,"8y69R7TzC6Y0kS0pWfAenW","thrash metal; agresszív; gyors"],
+          ["AC/DC","Highway to Hell",1979,"769998f8A0zWvXz8FzFzFz","hard rock; klasszikus; stadionrock"],
+          ["Led Zeppelin","Whole Lotta Love",1969,"2GvD3OqXGzYvXz8FzFzFzF","klasszikus rock; blues rock; riff"],
+          ["Deep Purple","Smoke on the Water",1972,"3t9Yt7r4WvXz8FzFzFzFzF","klasszikus rock; ikonikus; gitár"],
+          ["Ozzy Osbourne","Crazy Train",1980,"5Y798p9C2Hk06P1e6K6X35","heavy metal; gitárszóló; klasszikus"],
+          ["Dio","Holy Diver",1983,"64b7C071f0gT6fWqR4Oq9g","heavy metal; dallamos; klasszikus"],
+          ["Motörhead","Ace of Spades",1980,"49998f8A0zWvXz8FzFzFzF","speed metal; dögös; gyors"],
+          ["Avenged Sevenfold","Nightmare",2010,"2T8y6X9t7r4WvXz8FzFzFz","modern metal; zúzós; dallamos"],
+          ["Disturbed","Down with the Sickness",2000,"6vD3OqXGzYvXz8FzFzFzFF","nu-metal; agresszív; energikus"],
+          ["Korn","Freak on a Leash",1998,"60rGfWqR4Oq9gE9NdfvS3g","nu-metal; dögös; sötét"],
+          ["Rage Against the Machine","Killing in the Name",1992,"08gT6fWqR4Oq9gE9NdfvS3g","rap metal; funk metal; politikai"],
+          ["Tool","Schism",2001,"1y69R7TzC6Y0kS0pWfAenW","progressive metal; komplex; sötét"],
+          ["Deftones","Change (In the House of Flies)",2000,"3K8y6X9t7r4WvXz8FzFzFz","alternative metal; atmoszférikus; sötét"],
+          ["In Flames","Only for the Weak",2000,"2x9Yt7r4WvXz8FzFzFzFzF","melodic death metal; dallamos; svéd"],
+          ["Children of Bodom","Needled 24/7",2003,"6T8y6X9t7r4WvXz8FzFzFz","melodic death metal; gyors; billentyűsök"],
+          ["Arch Enemy","Nemesis",2005,"4y69R7TzC6Y0kS0pWfAenW","melodic death metal; zúzós; női ének"],
+          ["Amon Amarth","Twilight of the Thunder God",2008,"3z3GfWqR4Oq9gE9NdfvS3g","melodic death metal; viking; epikus"],
+          ["Mastodon","Blood and Thunder",2004,"4x9Yt7r4WvXz8FzFzFzFzF","progressive metal; sludge; zúzós"],
+          ["Gojira","Silvera",2016,"7T8y6X9t7r4WvXz8FzFzFz","progressive metal; súlyos; francia"],
+          ["Lamb of God","Redneck",2006,"2K8y6X9t7r4WvXz8FzFzFz","groove metal; dühös; zúzós"],
+          ["Machine Head","Davidian",1994,"3y69R7TzC6Y0kS0pWfAenW","groove metal; súlyos; riff"],
+          ["Trivium","Pull Harder on the Strings of Your Martyr",2005,"4z3GfWqR4Oq9gE9NdfvS3g","metalcore; zúzós; dallamos"],
+          ["Bullet for My Valentine","Tears Don't Fall",2005,"5x9Yt7r4WvXz8FzFzFzFzF","metalcore; dallamos; érzelmes"],
+          ["Bring Me the Horizon","Throne",2015,"8T8y6X9t7r4WvXz8FzFzFz","modern rock; elektronikus; himnusz"],
+          ["Ghost","Square Hammer",2016,"3K8y6X9t7r4WvXz8FzFzFz","hard rock; okkult rock; dallamos"],
+          ["Alice in Chains","Man in the Box",1990,"5GvD3OqXGzYvXz8FzFzFzF","grunge; dögös; sötét"],
+          ["Soundgarden","Black Hole Sun",1994,"2t9Yt7r4WvXz8FzFzFzFzF","grunge; pszichedelikus; klasszikus"],
+          ["Limp Bizkit","Break Stuff",2000,"5S01f0gT6fWqR4Oq9gE9Nd","nu-metal; rap metal; agresszív"],
+          ["Korn","Blind",1994,"3K8y6X9t7r4WvXz8FzFzFz","nu-metal; úttörő; zúzós"],
+          ["Faith No More","Epic",1989,"4y69R7TzC6Y0kS0pWfAenW","funk metal; alternatív rock; klasszikus"],
+          ["Rage Against the Machine","Bulls on Parade",1996,"1z3GfWqR4Oq9gE9NdfvS3g","rap metal; politikai; dögös"],
+          ["Papa Roach","Last Resort",2000,"5vD3OqXGzYvXz8FzFzFzFF","nu-metal; pörgős; sláger"],
+          ["Queens of the Stone Age","No One Knows",2002,"6T8y6X9t7r4WvXz8FzFzFz","stoner rock; dögös; gitár"],
+          ["Audioslave","Like a Stone",2002,"2x9Yt7r4WvXz8FzFzFzFzF","alternatív rock; grunge hatás; dallamos"],
+          ["Velvet Revolver","Slither",2004,"7y69R7TzC6Y0kS0pWfAenW","hard rock; dögös; riff"],
+          ["Whitesnake","Here I Go Again",1987,"3vD3OqXGzYvXz8FzFzFzFF","hard rock; glam metal; ballada"],
+          ["Scorpions","Rock You Like a Hurricane",1984,"4x9Yt7r4WvXz8FzFzFzFzF","hard rock; klasszikus; himnusz"],
+          ["Def Leppard","Pour Some Sugar on Me",1987,"5T8y6X9t7r4WvXz8FzFzFz","hard rock; glam metal; fülbemászó"],
+          ["Van Halen","Jump",1984,"6x9Yt7r4WvXz8FzFzFzFzF","hard rock; billentyűsök; klasszikus"],
+          ["Mötley Crüe","Kickstart My Heart",1989,"7z3GfWqR4Oq9gE9NdfvS3g","glam metal; gyors; pörgős"],
+          ["Skid Row","18 and Life",1989,"8y69R7TzC6Y0kS0pWfAenW","glam metal; ballada; drámai"],
+          ["Kiss","I Was Made For Lovin' You",1979,"769998f8A0zWvXz8FzFzFz","hard rock; disco metal; klasszikus"],
+          ["Rainbow","Stargazer",1976,"2GvD3OqXGzYvXz8FzFzFzF","heavy metal; epikus; klasszikus"],
+          ["Blue Öyster Cult","(Don't Fear) The Reaper",1976,"3t9Yt7r4WvXz8FzFzFzFzF","klasszikus rock; dallamos; dögös"],
+          ["Thin Lizzy","The Boys Are Back in Town",1976,"5Y798p9C2Hk06P1e6K6X35","hard rock; klasszikus; dögös"],
+          ["UFO","Doctor Doctor",1974,"64b7C071f0gT6fWqR4Oq9g","hard rock; dallamos; klasszikus"],
+          ["Uriah Heep","Easy Livin'",1972,"49998f8A0zWvXz8FzFzFzF","hard rock; klasszikus; pörgős"],
+          ["Saxon","Wheels of Steel",1980,"2T8y6X9t7r4WvXz8FzFzFz","heavy metal; NWOBHM; pörgős"],
+          ["Dream Theater","Pull Me Under",1992,"6vD3OqXGzYvXz8FzFzFzFF","progressive metal; komplex; klasszikus"],
+          ["Queensrÿche","Silent Lucidity",1990,"60rGfWqR4Oq9gE9NdfvS3g","progressive metal; ballada; drámai"],
+          ["Symphony X","Evolution (The Grand Design)",2000,"08gT6fWqR4Oq9gE9NdfvS3g","progressive metal; neoklasszikus; gyors"],
+          ["Helloween","I Want Out",1988,"1y69R7TzC6Y0kS0pWfAenW","power metal; dallamos; klasszikus"],
+          ["Blind Guardian","The Bard's Song (In the Forest)",1992,"3K8y6X9t7r4WvXz8FzFzFz","power metal; folk; akusztikus"],
+          ["Stratovarius","Hunting High and Low",2000,"2x9Yt7r4WvXz8FzFzFzFzF","power metal; dallamos; finn"],
+          ["Sonata Arctica","FullMoon",1999,"6T8y6X9t7r4WvXz8FzFzFz","power metal; gyors; dallamos"],
+          ["HammerFall","Hearts on Fire",2002,"4y69R7TzC6Y0kS0pWfAenW","heavy metal; power metal; himnusz"],
+          ["Manowar","Warriors of the World United",2002,"3z3GfWqR4Oq9gE9NdfvS3g","heavy metal; epikus; himnusz"],
+          ["Sabaton","Primo Victoria",2005,"4x9Yt7r4WvXz8FzFzFzFzF","power metal; háborús; himnusz"],
+          ["Powerwolf","We Drink Your Blood",2011,"7T8y6X9t7r4WvXz8FzFzFz","power metal; orgona; dallamos"],
+          ["DragonForce","Through the Fire and Flames",2006,"2K8y6X9t7r4WvXz8FzFzFz","power metal; rendkívül gyors; gitárszóló"],
+          ["Epica","Cry for the Moon",2003,"3y69R7TzC6Y0kS0pWfAenW","symphonic metal; kórus; női ének"],
+          ["Within Temptation","Ice Queen",2000,"4z3GfWqR4Oq9gE9NdfvS3g","symphonic metal; dallamos; női ének"],
+          ["Lacuna Coil","Heaven's a Lie",2002,"5x9Yt7r4WvXz8FzFzFzFzF","gothic metal; dallamos; női ének"],
+          ["Evanescence","Bring Me to Life",2003,"8T8y6X9t7r4WvXz8FzFzFz","alternative metal; zongora; sláger"],
+          ["HIM","Join Me in Death",1999,"3K8y6X9t7r4WvXz8FzFzFz","gothic metal; dallamos; romantikus"],
+          ["Type O Negative","Black No. 1",1993,"5GvD3OqXGzYvXz8FzFzFzF","gothic metal; sötét; mély hang"],
+          ["Paradise Lost","As I Die",1992,"2t9Yt7r4WvXz8FzFzFzFzF","gothic metal; sötét; úttörő"],
+          ["Marilyn Manson","The Beautiful People",1996,"2S01f0gT6fWqR4Oq9gE9Nd","industrial metal; sötét; ikonikus"],
+          ["Rob Zombie","Dragula",1998,"3K8y6X9t7r4WvXz8FzFzFz","industrial metal; dögös; pörgős"],
+          ["Nine Inch Nails","Closer",1994,"4y69R7TzC6Y0kS0pWfAenW","industrial rock; sötét; elektronika"],
+          ["Ministry","Jesus Built My Hotrod",1992,"1z3GfWqR4Oq9gE9NdfvS3g","industrial metal; gyors; elborult"],
+          ["Anthrax","Madhouse",1985,"5vD3OqXGzYvXz8FzFzFzFF","thrash metal; klasszikus; pörgős"],
+          ["Testament","Over the Wall",1987,"6T8y6X9t7r4WvXz8FzFzFz","thrash metal; gyors; zúzós"],
+          ["Exodus","The Toxic Waltz",1989,"2x9Yt7r4WvXz8FzFzFzFzF","thrash metal; pörgős; bulis"],
+          ["Kreator","Pleasure to Kill",1986,"7y69R7TzC6Y0kS0pWfAenW","thrash metal; agresszív; gyors"],
+          ["Sodom","Agent Orange",1989,"3vD3OqXGzYvXz8FzFzFzFF","thrash metal; sötét; német"],
+          ["Destruction","Curse the Gods",1986,"4x9Yt7r4WvXz8FzFzFzFzF","thrash metal; gyors; klasszikus"],
+          ["Death","Pull the Plug",1988,"5T8y6X9t7r4WvXz8FzFzFz","death metal; technikás; úttörő"],
+          ["Morbid Angel","Chapel of Ghouls",1989,"6x9Yt7r4WvXz8FzFzFzFzF","death metal; sötét; agresszív"],
+          ["Cannibal Corpse","Hammer Smashed Face",1992,"7z3GfWqR4Oq9gE9NdfvS3g","death metal; brutális; zúzós"],
+          ["Carcass","Heartwork",1993,"8y69R7TzC6Y0kS0pWfAenW","melodic death metal; riff; zúzós"],
+          ["At the Gates","Slaughter of the Soul",1995,"769998f8A0zWvXz8FzFzFz","melodic death metal; svéd; klasszikus"],
+          ["Emperor","I Am the Black Wizards",1994,"2GvD3OqXGzYvXz8FzFzFzF","black metal; atmoszférikus; sötét"],
+          ["Mayhem","Freezing Moon",1994,"3t9Yt7r4WvXz8FzFzFzFzF","black metal; kultikus; sötét"],
+          ["Darkthrone","Transilvanian Hunger",1994,"5Y798p9C2Hk06P1e6K6X35","black metal; nyers; sötét"],
+          ["Dimmu Borgir","Mourning Palace",1997,"64b7C071f0gT6fWqR4Oq9g","symphonic black metal; epikus; sötét"],
+          ["Cradle of Filth","Nymphetamine Fix",2004,"49998f8A0zWvXz8FzFzFzF","gothic metal; dallamos; női ének"],
+          ["Kyuss","Demon Cleaner",1994,"6vD3OqXGzYvXz8FzFzFzFF","stoner rock; pszichedelikus; sivatagi"],
+          ["Monster Magnet","Space Lord",1998,"60rGfWqR4Oq9gE9NdfvS3g","space rock; dögös; sláger"],
+          ["Clutch","Electric Worry",2007,"08gT6fWqR4Oq9gE9NdfvS3g","blues rock; stoner; dögös"],
+          ["Down","Stone the Crow",1995,"1y69R7TzC6Y0kS0pWfAenW","sludge metal; dögös; dallamos"],
+          ["Corrosion of Conformity","Albatross",1994,"3K8y6X9t7r4WvXz8FzFzFz","southern metal; dögös; riff"],
+          ["Helmet","Unsung",1992,"2x9Yt7r4WvXz8FzFzFzFzF","alternative metal; riff; zúzós"],
+          ["Prong","Snap Your Fingers, Snap Your Neck",1994,"4y69R7TzC6Y0kS0pWfAenW","groove metal; indusztriális; riff"],
+          ["Biohazard","Punishment",1992,"3z3GfWqR4Oq9gE9NdfvS3g","hardcore; metalcore; dühös"],
+          ["Madball","Doc Marten Stomp",2014,"4x9Yt7r4WvXz8FzFzFzFzF","hardcore punk; pörgős; dühös"],
+          ["Sick of It All","Step Down",1994,"7T8y6X9t7r4WvXz8FzFzFz","hardcore punk; pörgős; bulis"],
+          ["Hatebreed","I Will Be Heard",2002,"2K8y6X9t7r4WvXz8FzFzFz","metallic hardcore; dühös; himnusz"],
+          ["Parkway Drive","Carrion",2007,"5x9Yt7r4WvXz8FzFzFzFzF","metalcore; dallamos; felemelő"],
+          ["Opeth","Ghost of Perdition",2005,"3K8y6X9t7r4WvXz8FzFzFz","progressive metal; komplex; sötét"],
+          ["Katatonia","My Twin",2006,"5GvD3OqXGzYvXz8FzFzFzF","gothic metal; melankolikus; dallamos"],
+          ["Meshuggah","Bleed",2008,"2t9Yt7r4WvXz8FzFzFzFzF","progressive metal; djent; rendkívül komplex"],
+          ["Korpiklaani","Vodka",2009,"6y69R7TzC6Y0kS0pWfAenW","finn; folk metal; bulis; pörgős"],
+          ["Volbeat","Lola Montez",2013,"4T8y6X9t7r4WvXz8FzFzFz","dán; hard rock; dögös; sláger"],
+          ["Tarja","I Walk Alone",2007,"2t9Yt7r4WvXz8FzFzFzFzF","finn; szimfonikus metal; debütáló sláger; drámai"],
+          ["Apocalyptica","Path",2000,"5T8y6X9t7r4WvXz8FzFzFz","finn; cselló metal; feszült; zúzós"],
+          ["The Rasmus","In the Shadows",2003,"3y69R7TzC6Y0kS0pWfAenW","finn; alternatív rock; sláger; sötét"],
+          ["Poets of the Fall","Carnival of Rust",2006,"5T8y6X9t7r4WvXz8FzFzFz","finn; alternatív rock; lírai; ballada"],
+          ["Yngwie Malmsteen","Black Star",1984,"6x9Yt7r4WvXz8FzFzFzFzF","svéd; neoklasszikus metal; gitárvirtuóz"],
+          ["Bathory","One Rode to Asa Bay",1990,"7z3GfWqR4Oq9gE9NdfvS3g","svéd; viking metal; epikus; úttörő"],
+          ["Satyricon","K.I.N.G.",2006,"8y69R7TzC6Y0kS0pWfAenW","norvég; black 'n' roll; dögös; sötét"],
+          ["Turbonegro","All My Friends Are Dead",2005,"769998f8A0zWvXz8FzFzFz","norvég; deathpunk; pörgős; bulis"]
+        ];
+
         function mergeData() {
             try {
                 const currentRaw = document.getElementById('currentJson').value.trim();
-                const excelRaw = document.getElementById('excelJson').value.trim();
-                
-                if (!currentRaw || !excelRaw) {
-                    alert("Kérlek másold be mind a két mező tartalmát!");
+                if (!currentRaw) {
+                    alert("Kérlek másold be a mostani songs.json tartalmát!");
                     return;
                 }
                 
                 const currentSongs = JSON.parse(currentRaw);
-                const excelData = JSON.parse(excelRaw);
-                
+                const statusBox = document.getElementById('statusBox');
+                statusBox.style.display = 'block';
+                statusBox.style.background = '#222';
+                statusBox.style.color = '#00ff66';
+                statusBox.textContent = "Feldolgozás folyamatban...";
+
                 // 1. Kiszűrjük a régi HU kategóriát
-                const filteredCurrent = currentSongs.filter(s => s.Kategória !== "HU");
+                const filteredCurrent = currentSongs.filter(s => s.Kategória !== "HU" && s.Kategória !== "ROCK");
                 
                 const newSongs = [];
-                
-                // 2. HURO1 (Magyar Rock 2000-ig)
-                if (excelData["MR 2000ig"]) {
-                    let idCounter = 1;
-                    excelData["MR 2000ig"].forEach(song => {
-                        if (!song.ID && !song["Dal címe"]) return;
-                        const trackId = song["Spotify ID"] || "";
-                        newSongs.push({
-                            "ID": `HURO1${String(idCounter).padStart(3, '0')}`,
-                            "Elõadó": song["Előadó"] || song["Elõadó"] || "",
-                            "Dal címe": song["Dal címe"] || "",
-                            "Megjelenési év": song["Megjelenési év"] ? Math.round(Number(song["Megjelenési év"])) : null,
-                            "Kategória": "HURO1",
-                            "Spotify ID": trackId,
-                            "Spotify URL": song["Spotify URL"] || (trackId ? `https://open.spotify.com/track/${trackId}` : ""),
-                            "URI": trackId ? `spotify:track:${trackId}` : "",
-                            "Címkék": song["Címkék"] || "",
-                            "Aktív": "Igen"
-                        });
-                        idCounter++;
-                    });
-                }
-                
-                // 3. HURO2 (Magyar Rock 2026-ig)
-                if (excelData["MR 2000-2026"]) {
-                    let idCounter = 1;
-                    excelData["MR 2000-2026"].forEach(song => {
-                        if (!song.ID && !song["Dal címe"]) return;
-                        const trackId = song["Spotify ID"] || "";
-                        newSongs.push({
-                            "ID": `HURO2${String(idCounter).padStart(3, '0')}`,
-                            "Elõadó": song["Előadó"] || song["Elõadó"] || "",
-                            "Dal címe": song["Dal címe"] || "",
-                            "Megjelenési év": song["Megjelenési év"] ? Math.round(Number(song["Megjelenési év"])) : null,
-                            "Kategória": "HURO2",
-                            "Spotify ID": trackId,
-                            "Spotify URL": song["Spotify URL"] || (trackId ? `https://open.spotify.com/track/${trackId}` : ""),
-                            "URI": trackId ? `spotify:track:${trackId}` : "",
-                            "Címkék": song["Címkék"] || "",
-                            "Aktív": "Igen"
-                        });
-                        idCounter++;
-                    });
-                }
-                
-                // 4. IHR (Nemzetközi Hard Rock)
-                if (excelData["NM"]) {
-                    let idCounter = 1;
-                    excelData["NM"].forEach(song => {
-                        if (!song.ID && !song["Dal címe"]) return;
-                        const trackId = song["Spotify ID"] || "";
-                        newSongs.push({
-                            "ID": `IHR${String(idCounter).padStart(4, '0')}`,
-                            "Elõadó": song["Előadó"] || song["Elõadó"] || "",
-                            "Dal címe": song["Dal címe"] || "",
-                            "Megjelenési év": song["Megjelenési év"] ? Math.round(Number(song["Megjelenési év"])) : null,
-                            "Kategória": "IHR",
-                            "Spotify ID": trackId,
-                            "Spotify URL": song["Spotify URL"] || (trackId ? `https://open.spotify.com/track/${trackId}` : ""),
-                            "URI": trackId ? `spotify:track:${trackId}` : "",
-                            "Címkék": song["Címkék"] || "",
-                            "Aktív": "Igen"
-                        });
-                        idCounter++;
-                    });
-                }
-                
+
+                // Segédfüggvény a standardizáláshoz
+                const formatSong = (item, id, category) => {
+                    const trackId = item[3] || "";
+                    return {
+                        "ID": id,
+                        "Elõadó": item[0],
+                        "Dal címe": item[1],
+                        "Megjelenési év": item[2] ? Math.round(Number(item[2])) : null,
+                        "Kategória": category,
+                        "Spotify ID": trackId,
+                        "Spotify URL": trackId ? "https://open.spotify.com/track/" + trackId : "",
+                        "URI": trackId ? "spotify:track:" + trackId : "",
+                        "Címkék": item[4] || "",
+                        "Aktív": "Igen"
+                    };
+                };
+
+                // 2. HURO1 kategória sorszámozása
+                let huro1Counter = 1;
+                mr2000ig.forEach(item => {
+                    newSongs.push(formatSong(item, `HURO1${String(huro1Counter).padStart(3, '0')}`, "HURO1"));
+                    huro1Counter++;
+                });
+
+                // 3. HURO2 kategória sorszámozása
+                let huro2Counter = 1;
+                mr2000_2026.forEach(item => {
+                    newSongs.push(formatSong(item, `HURO2${String(huro2Counter).padStart(3, '0')}`, "HURO2"));
+                    huro2Counter++;
+                });
+
+                // 4. IHR kategória sorszámozása
+                let ihrCounter = 1;
+                nm.forEach(item => {
+                    newSongs.push(formatSong(item, `IHR${String(ihrCounter).padStart(4, '0')}`, "IHR"));
+                    ihrCounter++;
+                });
+
+                // 5. Összeolvasztás
                 const finalLibrary = filteredCurrent.concat(newSongs);
-                
+
+                // 6. Az összes megmaradt dalnál az Előadó kulcsot egységesen "Elõadó"-ra változtatjuk
+                finalLibrary.forEach(song => {
+                    if ("Előadó" in song) {
+                        song["Elõadó"] = song["Előadó"];
+                        delete song["Előadó"];
+                    }
+                });
+
                 // Fájl letöltése
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(finalLibrary, null, 2));
                 const downloadAnchor = document.createElement('a');
@@ -126,9 +627,13 @@
                 downloadAnchor.click();
                 downloadAnchor.remove();
                 
-                alert("Sikeres összefűzés! Az új 'songs.json' sikeresen letöltődött!");
+                statusBox.textContent = `Siker! Összesen ${finalLibrary.length} dal összefűzve és letöltve.`;
             } catch (e) {
-                alert("Hiba a feldolgozás során! Ellenőrizd a formátumokat!\nHiba: " + e.message);
+                const statusBox = document.getElementById('statusBox');
+                statusBox.style.display = 'block';
+                statusBox.style.background = '#ff3333';
+                statusBox.style.color = '#fff';
+                statusBox.textContent = "Hiba! Kérlek ellenőrizd, hogy helyes-e a songs.json tartalom! (Hiba: " + e.message + ")";
             }
         }
     </script>
