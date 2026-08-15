@@ -1,6 +1,6 @@
-// SCRIPT.JS (VÉGLEGES, ANDROID/iOS "NÉMA HANG" JAVÍTÁSSAL)
+// SCRIPT.JS (VÉGLEGES, JAVÍTOTT)
 
-let accessToken = null, isSpotifySdkReady = false, isAudioUnlocked = false; // Új kapcsoló a hang feloldásához
+let accessToken = null, isSpotifySdkReady = false, isAudioUnlocked = false; 
 let player = null, deviceId = null, songsData = [], isSongsDataLoaded = false, isPlaying = false;
 let playbackInterval = null;
 const gameSettings = { listeningTime: '45', musicStyle: 'ALL', songCount: '50' };
@@ -9,10 +9,23 @@ const REDIRECT_URI = 'https://RobaMusic.github.io/RobaMusic/';
 
 // PKCE KÓDOK
 function dec2hex(dec) { return ('0' + dec.toString(16)).substr(-2); }
-function generatePkceVerifier(length) { var array = new Uint32Array(length / 2); window.crypto.getRandomValues(array); return Array.from(array, dec2hex).join(''); }
-function sha256(plain) { const encoder = new TextEncoder(); const data = encoder.encode(plain); return window.crypto.subtle.digest('SHA-256', data); }
-function base64urlencode(a) { return btoa(String.fromCharCode.apply(null, new Uint8Array(a))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
-async function generatePkceChallenge(v) { const hashed = await sha256(v); return base64urlencode(hashed); }
+function generatePkceVerifier(length) {
+    var array = new Uint32Array(length / 2);
+    window.crypto.getRandomValues(array);
+    return Array.from(array, dec2hex).join('');
+}
+function sha256(plain) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(plain);
+    return window.crypto.subtle.digest('SHA-256', data);
+}
+function base64urlencode(a) {
+    return btoa(String.fromCharCode.apply(null, new Uint8Array(a))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+async function generatePkceChallenge(v) {
+    const hashed = await sha256(v);
+    return base64urlencode(hashed);
+}
 
 window.onSpotifyWebPlaybackSDKReady = () => {
     console.log("Spotify SDK betöltődött és készen áll.");
@@ -50,7 +63,7 @@ function stopPlaybackTimer() { clearInterval(playbackInterval); }
 function initializeSpotifyPlayer() {
     const appStatus = document.getElementById('appStatus');
     const startGameBtn = document.getElementById('startGameBtn');
-    
+         
     player = new window.Spotify.Player({ name: 'RobaMusic Game Player', getOAuthToken: cb => { cb(accessToken); }, volume: 0.5 });
     player.addListener('ready', ({ device_id }) => {
         deviceId = device_id;
@@ -107,7 +120,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             appStatus.textContent = 'Spotify nincs csatlakoztatva.';
         }
     }
-    
+         
     // Elemek
     const startGameBtn = document.getElementById('startGameBtn');
     const phoneGameBtn = document.getElementById('phoneGameBtn');
@@ -164,7 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!response.ok) { const errorBody = await response.json(); alert(`Hiba a zene lejátszásakor: ${errorBody.error.message}`); }
         } catch (e) { console.error("Lejátszási API hiba:", e); }
     }
-    
+         
     function prepareAndStartNewGame() {
         let songs = songsData.filter(s => s.Aktív === 'Igen' && (gameSettings.musicStyle === 'ALL' || s.Kategória === gameSettings.musicStyle));
         totalRounds = gameSettings.songCount === 'all' ? songs.length : Math.min(parseInt(gameSettings.songCount), songs.length);
@@ -219,7 +232,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     stopMusicBtn.addEventListener('click', async () => {
         if (player) await player.pause();
         revealedTitleText.textContent = currentSong['Dal címe'];
-        revealedArtistText.textContent = currentSong.Előadó;
+        revealedArtistText.textContent = currentSong.Elõadó; // JAVÍTVA HULLÁMOS Õ BETŰRE!
         revealedYearText.textContent = currentSong['Megjelenési év'];
         answerRevealPanel.classList.remove('hidden');
         playMusicGameBtn.disabled = true; pauseMusicGameBtn.disabled = true; stopMusicBtn.disabled = true;
