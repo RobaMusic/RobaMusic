@@ -1,4 +1,4 @@
-// SCRIPT.JS (VÉGLEGES, HATÓKÖR JAVÍTÁSSAL)
+// SCRIPT.JS (VÉGLEGES, MINDEN HIBÁT JAVÍTÓ VERZIÓ)
 
 // Globális "kapcsolók" az indításhoz
 let accessToken = null;
@@ -13,9 +13,7 @@ const SPOTIFY_CLIENT_ID = '64b3bdc013e84162bf973ec883854bfa';
 const REDIRECT_URI = 'https://RobaMusic.github.io/RobaMusic/';
 
 
-// ###############################################################
-// ### JAVÍTÁS: A TE EREDETI, JÓL MŰKÖDŐ PKCE KÓDOD VISSZAÁLLÍTÁSA ###
-// ###############################################################
+// PKCE KÓDOK (EZ MÁR A JÓ VERZIÓ)
 function dec2hex(dec) { return ('0' + dec.toString(16)).substr(-2); }
 function generatePkceVerifier(length) { var array = new Uint32Array(length / 2); window.crypto.getRandomValues(array); return Array.from(array, dec2hex).join(''); }
 function sha256(plain) { const encoder = new TextEncoder(); const data = encoder.encode(plain); return window.crypto.subtle.digest('SHA-256', data); }
@@ -23,7 +21,7 @@ function base64urlencode(a) { return btoa(String.fromCharCode.apply(null, new Ui
 async function generatePkceChallenge(v) { const hashed = await sha256(v); return base64urlencode(hashed); }
 
 /**
- * Ezt a funkciót a Spotify szkriptje fogja meghívni, amint betöltődött.
+ * Ezt a funkciót a Spotify szkriptje fogja meghívni.
  */
 window.onSpotifyWebPlaybackSDKReady = () => {
     console.log("Spotify SDK betöltődött és készen áll.");
@@ -41,16 +39,15 @@ function tryToInitializePlayer() {
     }
 }
 
-// ########################################################
-// ### JAVÍTÁS: AZ IDŐZÍTŐ FUNKCIÓK KIHELYEZÉSE A GLOBÁLIS TÉRBE ###
-// ########################################################
+// AZ IDŐZÍTŐ FUNKCIÓK A GLOBÁLIS TÉRBEN VANNAK, HOGY A LEJÁTSZÓ ELÉRJE ŐKET
 function startPlaybackTimer() {
     clearInterval(playbackInterval);
     const timeRemainingText = document.getElementById('timeRemainingText');
     const remainingTimeSlider = document.getElementById('remainingTimeSlider');
     const stopMusicBtn = document.getElementById('stopMusicBtn');
 
-    let duration = gameSettings.listeningTime === 'full' ? 90 : parseInt(gameSettings.listeningTime);
+    // JAVÍTÁS: A "Teljes dal" opció most már 240 másodpercet (4 percet) jelent.
+    let duration = gameSettings.listeningTime === 'full' ? 240 : parseInt(gameSettings.listeningTime);
     let timeLeft = duration;
     remainingTimeSlider.max = duration;
     const update = () => {
