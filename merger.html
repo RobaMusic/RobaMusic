@@ -1,1 +1,136 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>RobaMusic Adatbázis Összefűző</title>
+    <style>
+        body { font-family: sans-serif; background: #1a1a2e; color: #fff; padding: 20px; text-align: center; }
+        .container { max-width: 800px; margin: 0 auto; text-align: left; }
+        textarea { width: 100%; height: 180px; background: #0f0f1d; color: #00ff66; border: 1px solid #333; font-family: monospace; border-radius: 8px; padding: 10px; box-sizing: border-box; }
+        button { background: #1DB954; color: white; padding: 15px 30px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 1.2em; margin: 20px auto; display: block; width: 100%; }
+        button:hover { background: #1ed760; }
+        .box { margin-bottom: 25px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>RobaMusic songs.json Generáló és Tisztító Eszköz</h2>
+        <p>Ez az eszköz offline fut a böngésződben. Automatikusan kiszűri a régi HU kategóriát, unifikálja a karaktereket, egész számmá alakítja a tizedes éveket, és legenerálja a tökéletes JSON-t.</p>
+        
+        <div class="box">
+            <h3>1. Másold be ide a jelenlegi songs.json tartalmát:</h3>
+            <textarea id="currentJson" placeholder="[ { ... }, { ... } ]"></textarea>
+        </div>
+        
+        <div class="box">
+            <h3>2. Másold be ide az Excelből kapott JSON adatokat:</h3>
+            <textarea id="excelJson" placeholder='{ "MR 2000ig": [ ... ], "MR 2000-2026": [ ... ], "NM": [ ... ] }'></textarea>
+        </div>
+        
+        <button onclick="mergeData()">ÖSSZEFŰZÉS ÉS LETÖLTÉS</button>
+    </div>
 
+    <script>
+        function mergeData() {
+            try {
+                const currentRaw = document.getElementById('currentJson').value.trim();
+                const excelRaw = document.getElementById('excelJson').value.trim();
+                
+                if (!currentRaw || !excelRaw) {
+                    alert("Kérlek másold be mind a két mező tartalmát!");
+                    return;
+                }
+                
+                const currentSongs = JSON.parse(currentRaw);
+                const excelData = JSON.parse(excelRaw);
+                
+                // 1. Kiszűrjük a régi HU kategóriát
+                const filteredCurrent = currentSongs.filter(s => s.Kategória !== "HU");
+                
+                const newSongs = [];
+                
+                // 2. HURO1 (Magyar Rock 2000-ig)
+                if (excelData["MR 2000ig"]) {
+                    let idCounter = 1;
+                    excelData["MR 2000ig"].forEach(song => {
+                        if (!song.ID && !song["Dal címe"]) return;
+                        const trackId = song["Spotify ID"] || "";
+                        newSongs.push({
+                            "ID": `HURO1${String(idCounter).padStart(3, '0')}`,
+                            "Elõadó": song["Előadó"] || song["Elõadó"] || "",
+                            "Dal címe": song["Dal címe"] || "",
+                            "Megjelenési év": song["Megjelenési év"] ? Math.round(Number(song["Megjelenési év"])) : null,
+                            "Kategória": "HURO1",
+                            "Spotify ID": trackId,
+                            "Spotify URL": song["Spotify URL"] || (trackId ? `https://open.spotify.com/track/${trackId}` : ""),
+                            "URI": trackId ? `spotify:track:${trackId}` : "",
+                            "Címkék": song["Címkék"] || "",
+                            "Aktív": "Igen"
+                        });
+                        idCounter++;
+                    });
+                }
+                
+                // 3. HURO2 (Magyar Rock 2026-ig)
+                if (excelData["MR 2000-2026"]) {
+                    let idCounter = 1;
+                    excelData["MR 2000-2026"].forEach(song => {
+                        if (!song.ID && !song["Dal címe"]) return;
+                        const trackId = song["Spotify ID"] || "";
+                        newSongs.push({
+                            "ID": `HURO2${String(idCounter).padStart(3, '0')}`,
+                            "Elõadó": song["Előadó"] || song["Elõadó"] || "",
+                            "Dal címe": song["Dal címe"] || "",
+                            "Megjelenési év": song["Megjelenési év"] ? Math.round(Number(song["Megjelenési év"])) : null,
+                            "Kategória": "HURO2",
+                            "Spotify ID": trackId,
+                            "Spotify URL": song["Spotify URL"] || (trackId ? `https://open.spotify.com/track/${trackId}` : ""),
+                            "URI": trackId ? `spotify:track:${trackId}` : "",
+                            "Címkék": song["Címkék"] || "",
+                            "Aktív": "Igen"
+                        });
+                        idCounter++;
+                    });
+                }
+                
+                // 4. IHR (Nemzetközi Hard Rock)
+                if (excelData["NM"]) {
+                    let idCounter = 1;
+                    excelData["NM"].forEach(song => {
+                        if (!song.ID && !song["Dal címe"]) return;
+                        const trackId = song["Spotify ID"] || "";
+                        newSongs.push({
+                            "ID": `IHR${String(idCounter).padStart(4, '0')}`,
+                            "Elõadó": song["Előadó"] || song["Elõadó"] || "",
+                            "Dal címe": song["Dal címe"] || "",
+                            "Megjelenési év": song["Megjelenési év"] ? Math.round(Number(song["Megjelenési év"])) : null,
+                            "Kategória": "IHR",
+                            "Spotify ID": trackId,
+                            "Spotify URL": song["Spotify URL"] || (trackId ? `https://open.spotify.com/track/${trackId}` : ""),
+                            "URI": trackId ? `spotify:track:${trackId}` : "",
+                            "Címkék": song["Címkék"] || "",
+                            "Aktív": "Igen"
+                        });
+                        idCounter++;
+                    });
+                }
+                
+                const finalLibrary = filteredCurrent.concat(newSongs);
+                
+                // Fájl letöltése
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(finalLibrary, null, 2));
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("download", "songs.json");
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+                
+                alert("Sikeres összefűzés! Az új 'songs.json' sikeresen letöltődött!");
+            } catch (e) {
+                alert("Hiba a feldolgozás során! Ellenőrizd a formátumokat!\nHiba: " + e.message);
+            }
+        }
+    </script>
+</body>
+</html>
