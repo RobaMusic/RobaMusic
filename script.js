@@ -1,19 +1,13 @@
-// SCRIPT.JS (VÉGLEGES, HIÁNYTALAN, MŰKÖDŐ VERZIÓ)
+// SCRIPT.JS (VÉGLEGES, ANDROID/iOS "NÉMA HANG" JAVÍTÁSSAL)
 
-// Globális "kapcsolók" az indításhoz
-let accessToken = null;
-let isSpotifySdkReady = false;
-
-// Globális játék-állapotok
+let accessToken = null, isSpotifySdkReady = false, isAudioUnlocked = false; // Új kapcsoló a hang feloldásához
 let player = null, deviceId = null, songsData = [], isSongsDataLoaded = false, isPlaying = false;
 let playbackInterval = null;
 const gameSettings = { listeningTime: '45', musicStyle: 'ALL', songCount: '50' };
-
 const SPOTIFY_CLIENT_ID = '64b3bdc013e84162bf973ec883854bfa';
 const REDIRECT_URI = 'https://RobaMusic.github.io/RobaMusic/';
 
-
-// PKCE KÓDOK (A JÓ VERZIÓ)
+// PKCE KÓDOK
 function dec2hex(dec) { return ('0' + dec.toString(16)).substr(-2); }
 function generatePkceVerifier(length) { var array = new Uint32Array(length / 2); window.crypto.getRandomValues(array); return Array.from(array, dec2hex).join(''); }
 function sha256(plain) { const encoder = new TextEncoder(); const data = encoder.encode(plain); return window.crypto.subtle.digest('SHA-256', data); }
@@ -207,7 +201,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${scopes}&code_challenge_method=S256&code_challenge=${challenge}&show_dialog=true`;
     });
 
-    playMusicGameBtn.addEventListener('click', () => { if (currentSong) playSpotifyTrack(currentSong.URI); });
+    playMusicGameBtn.addEventListener('click', () => {
+        // VÉGLEGES JAVÍTÁS MOBILRA: "Néma Hang" trükk a hang kontextus feloldásához
+        if (!isAudioUnlocked) {
+            const silentAudio = new Audio("data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBvZiB0aGUgSmF2b1hMQURlBgAAAAAAA3Y0SmF2b1hMQURlAAAAAAAAAQUAAAAAAGM4AAAAAAAAAAE3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/8wYgQAYjQEAyv/37//5q3/44AAAAA//8wYhBABiNAQEK//3//+at/+OAAAAA//8wYhAABiNAQAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA");
+            silentAudio.play().catch(() => {});
+            isAudioUnlocked = true;
+            console.log('Mobile audio context UNLOCKED.');
+        }
+
+        if (currentSong) {
+            playSpotifyTrack(currentSong.URI);
+        }
+    });
+
     pauseMusicGameBtn.addEventListener('click', async () => { if (player) await player.pause(); });
     stopMusicBtn.addEventListener('click', async () => {
         if (player) await player.pause();
