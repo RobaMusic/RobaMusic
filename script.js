@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }, body: JSON.stringify({ uris: [uri] }), });
             if (!response.ok) { 
                 const errorBody = await response.json(); 
-                // JAVÍTVA: kitettem a hiányzó dollárjelet ($), így már ki fogja írni a pontos hibát!
+                // MOST MÁR TÉNYLEG JAVÍTVA: Kint van a $ jel, így kiírja a hiba valódi okát!
                 alert(`Hiba a zene lejátszásakor: ${errorBody.error.message}`); 
             }
         } catch (e) { console.error("Lejátszási API hiba:", e); }
