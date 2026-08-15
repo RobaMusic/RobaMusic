@@ -232,15 +232,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${scopes}&code_challenge_method=S256&code_challenge=${challenge}&show_dialog=true`;
     });
 
-    playMusicGameBtn.addEventListener('click', () => {
-        // JAVÍTÁS: iOS "kickstart" a lejátszáshoz
-        if (player) {
-            player.resume().catch(() => { /* Szándékosan figyelmen kívül hagyott hiba */ });
-        }
-        if (currentSong) {
-            playSpotifyTrack(currentSong.URI);
-        }
-    });
+   // Ezt a változót tedd a script legelejére, a többi globális változóhoz
+let isIosAudioUnlocked = false;
+
+// ...
+
+// A DOMContentLoaded belsejében pedig módosítsd az eseménykezelőt erre:
+playMusicGameBtn.addEventListener('click', () => {
+    // VÉGLEGES JAVÍTÁS: iOS "Néma Hang" trükk a hang kontextus feloldásához
+    if (!isIosAudioUnlocked) {
+        const silentAudio = document.createElement('audio');
+        // Egy nagyon rövid, néma hang base64 kódolásban
+        silentAudio.setAttribute('src', "data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBvZiB0aGUgSmF2b1hMQURlBgAAAAAAA3Y0SmF2b1hMQURlAAAAAAAAAQUAAAAAAGM4AAAAAAAAAAE3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/8wYgQAYjQEAyv/37//5q3/44AAAAA//8wYhBABiNAQEK//3//+at/+OAAAAA//8wYhAABiNAQAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA");
+        silentAudio.style.display = 'none';
+        document.body.appendChild(silentAudio);
+
+        // A legfontosabb parancs: a lejátszás elindítása
+        silentAudio.play().catch(() => {});
+        isIosAudioUnlocked = true;
+        console.log('iOS audio context UNLOCKED.');
+    }
+
+    // A korábbi kickstart is maradhat, nem árt
+    if (player) {
+        player.resume().catch(() => {});
+    }
+
+    // És csak ezután indítjuk a tényleges zenét
+    if (currentSong) {
+        playSpotifyTrack(currentSong.URI);
+    }
+});
 
     pauseMusicGameBtn.addEventListener('click', async () => { if (player) await player.pause(); });
     stopMusicBtn.addEventListener('click', async () => {
