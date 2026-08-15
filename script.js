@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         
         // Először átadjuk a lejátszást a mi device ID-nkre.
-        // Ez a hívás elengedhetetlen, hogy a mi Play/Pause gombjaink működjenek.
+        // Ezt a hívást elengedhetetlen, hogy a mi Play/Pause gombjaink működjenek.
         try {
             const transferResponse = await fetch(`https://api.spotify.com/v1/me/player`, {
                 method: 'PUT',
@@ -301,17 +301,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             if (!transferResponse.ok) {
                 const errorBody = await transferResponse.json();
-                throw new Error(`Failed to transfer playback: ${transferResponse.status} - ${JSON.stringify(errorBody)}`);
+                // Ha a transfer failed, az nem feltétlenül kritikus, a play hívás lehet, hogy megpróbálja kijavítani
+                console.warn(`Failed to transfer playback: ${transferResponse.status} - ${JSON.stringify(errorBody)}. Attempting to play specified track.`);
+            } else {
+                console.log("Transferred playback to RobaMusic device.");
             }
-            console.log("Transferred playback to RobaMusic device.");
         } catch (error) {
              console.error("Hiba a lejátszó aktiválásakor:", error);
              playbackStatusMessage.textContent = `Hiba a lejátszó aktiválásakor: ${error.message}. Próbálja újra.`;
-             return; 
+             // Nem térünk vissza, hátha a play hívás megoldja
         }
 
         try {
-            // A lejátszás Web API hívása, most a dal URI-val együtt
             await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
                 method: 'PUT',
                 headers: {
@@ -332,7 +333,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function pauseSpotifyTrack() {
-        if (!player || !deviceId || !accessToken || !isPlaying) {
+        if (!player || !deviceId || !accessToken) { // isPlaying-et kivettem a feltételből
             return;
         }
         try {
@@ -550,21 +551,73 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         if (player && deviceId && accessToken) {
-            await playSpotifyTrack(`spotify:track:${currentSong['Spotify ID']}`);
+            // Átadjuk a lejátszást a RobaMusic lejátszóra
+            try {
+                const transferResponse = await fetch(`https://api.spotify.com/v1/me/player`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: JSON.stringify({
+                        device_ids: [deviceId],
+                        play: false // Az elsődleges lejátszó beállításakor ne induljon el automtikus lejátszás
+                    }),
+                });
+                if (!transferResponse.ok) {
+                    const errorBody = await transferResponse.json();
+                    console.error(`Failed to transfer playback: ${transferResponse.status} - ${JSON.stringify(errorBody)}`);
+                    playbackStatusMessage.textContent = `Hiba a lejátszó aktiválásakor: ${errorBody.error.message}. Próbálja újra.`;
+                    // NE térjünk vissza, próbáljuk meg lejátszani a dalt a player.play()-vel
+                } else {
+                    console.log("Transferred playback to RobaMusic device.");
+                }
+            } catch (error) {
+                 console.error("Hiba a lejátszó aktiválásakor:", error);
+                 playbackStatusMessage.textContent = `Hiba a lejátszó aktiválásakor: ${error.message}. Próbálja újra.`;
+                 // Nem térünk vissza, hátha a lejátszás mégis sikerül
+            }
+
+            // Majd elindítjuk az adott dalt
+            try {
+                // ITT HASZNÁLjuk a player.togglePlay() vagy player.play() metódust!
+                // A player.load() metódus nem létezik, direktben a Web API Play endpointját hívjuk.
+                // DE a player.play() sem létezik az SDK Player objektumán!
+                // A Web API endpointot kell meghívni:
+
+                await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: JSON.stringify({
+                        uris: [`spotify:track:${currentSong['Spotify ID']}`],
+                        position_ms: 0 // Kezdjük az elejéről
+                    }),
+                });
+                startPlaybackTimer(); // Időzítő indítása
+                console.log("Lejátszás elindult a kiválasztott dallal.");
+            } catch (error) {
+                console.error("Hiba a zene lejátszásakor:", error);
+                playbackStatusMessage.textContent = `Lejátszási hiba: ${error.message}.`;
+            }
+
         } else {
             playbackStatusMessage.textContent = "Hiba: Spotify lejátszó nem kész. Kérjük, csatlakozzon újra a kezdőképernyőn.";
         }
     });
 
     pauseMusicGameBtn.addEventListener('click', async () => {
-        if (isPlaying) {
-            await pauseSpotifyTrack();
+        if (player && isPlaying) {
+            await player.pause(); // Szüneteltetjük a lejátszást
+            stopPlaybackTimer();
         }
     });
 
     stopMusicBtn.addEventListener('click', async () => {
         if (player && isPlaying) {
-            await player.pause();
+            await player.pause(); // Leállítjuk a lejátszást
         }
         stopPlaybackTimer();
 
