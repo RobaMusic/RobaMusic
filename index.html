@@ -13,7 +13,6 @@
         <div class="logo">
             <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
         </div>
-        <!-- VISSZA A VALÓDI SPOTIFY CSATLAKOZÁS GOMBRA -->
         <button class="spotify-connect-button" id="spotifyConnectBtn">
             <img src="./assets/spotify_icon.png" alt="Spotify Icon"> SPOTIFY CSATLAKOZTATÁSA
         </button>
@@ -61,10 +60,13 @@
             <button class="setting-option-button selected" data-setting="musicStyle" data-value="ALL">ÖSSZES KATEGÓRIA</button>
             <button class="setting-option-button" data-setting="musicStyle" data-value="POP">POP</button>
             <button class="setting-option-button" data-setting="musicStyle" data-value="NEW">BILLBOARD</button>
-            <button class="setting-option-button" data-setting="musicStyle" data-value="RO">ROCK</button>
-            <button class="setting-option-button" data-setting="musicStyle" data-value="HURO1">MAGYAR ROCK 2000-IG</button>
-            <button class="setting-option-button" data-setting="musicStyle" data-value="HURO2">MAGYAR ROCK 2026-IG</button>
-            <button class="setting-option-button" data-setting="musicStyle" data-value="IHR">NEMZETKÖZI HARD ROCK</button>
+            <button class="setting-option-button" data-setting="musicStyle" data-value="ROCK">ROCK</button>
+            
+            <!-- ### JAVÍTÁS ITT: A data-value értékek összhangba hozva a songs.json-nal ### -->
+            <button class="setting-option-button" data-setting="musicStyle" data-value="HU_ROCK_PRE_2000">MAGYAR ROCK (2000-IG)</button>
+            <button class="setting-option-button" data-setting="musicStyle" data-value="HU_ROCK_POST_2000">MAGYAR ROCK (2001-TŐL)</button>
+            <button class="setting-option-button" data-setting="musicStyle" data-value="INT_HARD_ROCK">NEMZETKÖZI HARD ROCK</button>
+            
             <button class="setting-option-button" data-setting="musicStyle" data-value="MOV">FILMZENE</button>
             <button class="setting-option-button" data-setting="musicStyle" data-value="XMAS">KARÁCSONYI</button>
             <button class="setting-option-button" data-setting="musicStyle" data-value="AMB">AMBIENT</button>
@@ -83,7 +85,7 @@
         <div class="logo">
             <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
         </div>
-        
+                 
         <h2 class="screen-title">Találd ki a dalt!</h2>
 
         <!-- Play/Pause gombok az SDK-val való vezérléshez -->
@@ -93,11 +95,11 @@
         <button class="game-control-button" id="pauseMusicGameBtn" disabled>
             <img src="./assets/pause_icon.png" alt="Pause Icon"> Zene szüneteltetése
         </button>
-        
+                 
         <!-- Ez a placeholder div a lejátszó "eszköz" statuszát mutatja -->
         <div id="playerDeviceStatus" class="player-device-status">Spotify lejátszó betöltése...</div>
         <p class="spotify-note" id="playbackStatusMessage">Kattintson a lejátszás gombra a zene indításához.</p>
-
+        
         <!-- Játék vezérlők -->
         <div class="game-controls">
             <label for="remainingTimeSlider" class="year-label">Hallgatási idő:</label>
@@ -129,7 +131,7 @@
             <button class="action-button" id="recordScoreAndNextBtn">Pontszám rögzítése és következő dal</button>
             <button class="back-to-main-menu-button" id="recordScoreAndFinishBtn">Pontszám rögzítése és Játék vége</button>
         </div>
-
+         
         <button class="back-to-main-menu-button" id="backToMainMenuFromGame">Visszatérés a Főmenübe</button>
     </div>
     <!-- END GAME SCREEN -->
@@ -169,7 +171,11 @@
     </div>
     <!-- END RESULTS SCREEN -->
 
+    <!-- ### JAVÍTÁS ITT: A helyes betöltési sorrend a mobil eszközök és a cache miatt kritikus ### -->
+    <!-- Először a mi szkriptünk jön, ami DEFINIÁLJA a 'window.onSpotifyWebPlaybackSDKReady' funkciót -->
+    <script src="script.js?v=1.7"></script> <!-- Verziószám megemelve a cache kiütéséhez -->
+    <!-- Utána jön a Spotify szkriptje, ami KERESI és MEGHÍVJA ezt a funkciót -->
     <script src="https://sdk.scdn.co/spotify-player.js"></script>
-    <script src="script.js?v=1.6"></script> <!-- Verziószám megemelve v1.6-ra a cache miatt -->
+
 </body>
 </html>
