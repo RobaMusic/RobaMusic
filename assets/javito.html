@@ -1,1 +1,100 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>JSON Javító és Egyszerűsítő</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f0f0; padding: 20px; }
+        h1, h3 { color: #333; }
+        textarea { width: 98%; margin-bottom: 10px; border: 1px solid #ccc; padding: 10px; font-family: monospace; }
+        button { background-color: #4CAF50; color: white; padding: 15px 20px; border: none; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #45a049; }
+        #status { font-weight: bold; }
+    </style>
+</head>
+<body>
 
+    <h1>JSON Javító és Egyszerűsítő Eszköz</h1>
+
+    <h3>1. Illeszd be a `songs.json` teljes tartalmát az alábbi mezőbe:</h3>
+    <textarea id="inputJson" rows="15" placeholder="Ide másold a teljes, hibás songs.json fájl tartalmát..."></textarea>
+
+    <button onclick="processJson()">Javítás és Egyszerűsítés</button>
+    <p id="status"></p>
+
+    <h3>2. A javított és egyszerűsített eredmény itt jelenik meg:</h3>
+    <textarea id="outputJson" rows="15" readonly placeholder="A javított kód itt fog megjelenni..."></textarea>
+
+    <script>
+        function processJson() {
+            const statusEl = document.getElementById('status');
+            const outputEl = document.getElementById('outputJson');
+            let rawData = document.getElementById('inputJson').value;
+
+            statusEl.textContent = "Feldolgozás...";
+            outputEl.value = "";
+
+            if (!rawData.trim()) {
+                statusEl.textContent = "Hiba: A bemeneti mező üres!";
+                statusEl.style.color = 'red';
+                return;
+            }
+
+            // --- A JAVÍTÓ ÉS EGYSZERŰSÍTŐ LOGIKA ---
+            const INT_HARD_ROCK_BANDS = new Set([
+                "Deep Purple", "Led Zeppelin", "AC/DC", "Guns N' Roses", "Scorpions",
+                "Bon Jovi", "Metallica", "Black Sabbath", "Van Halen", "Europe",
+                "Judas Priest", "Motörhead", "Manowar", "Pantera", "Iron Maiden",
+                "Ozzy Osbourne", "Dio", "Slayer", "Megadeth", "Anthrax"
+            ]);
+            
+            let songsData;
+            try {
+                // Heurisztikus javítás a gyakori vesszőhibákra
+                let correctedJsonString = rawData
+                    .replace(/}\s*,\s*\]/g, '}]') // Utolsó elem utáni vessző eltávolítása
+                    .replace(/}\s*{/g, '},{');     // Hiányzó vesszők pótlása az objektumok között
+
+                songsData = JSON.parse(correctedJsonString);
+            } catch (e) {
+                statusEl.textContent = `Végzetes szintaktikai hiba a JSON-ben: ${e.message}. Kérlek, ellenőrizd a fájlt manuálisan, vagy küldd el a tartalmát.`;
+                statusEl.style.color = 'red';
+                return;
+            }
+
+            const simplifiedSongs = [];
+            for (const song of songsData) {
+                const artist = song["Előadó"] || song["Elõadó"];
+                if (!artist || !song["URI"]) continue;
+
+                const original_category = song["Kategória"];
+                const year = song["Megjelenési év"];
+                let new_category = original_category;
+
+                if (["HU", "HURO1", "MR0"].includes(original_category)) {
+                    new_category = "HU_ROCK_PRE_2000";
+                } else if (["HURO2", "MR1"].includes(original_category)) {
+                    new_category = (year && parseInt(year, 10) <= 2000) ? "HU_ROCK_PRE_2000" : "HU_ROCK_POST_2000";
+                }
+
+                if (INT_HARD_ROCK_BANDS.has(artist) || ["IHR", "NM"].includes(original_category)) {
+                    new_category = "INT_HARD_ROCK";
+                }
+                
+                simplifiedSongs.push({
+                    "Előadó": artist,
+                    "Dal címe": song["Dal címe"],
+                    "Megjelenési év": year,
+                    "Kategória": new_category,
+                    "URI": song["URI"]
+                });
+            }
+
+            outputEl.value = JSON.stringify(simplifiedSongs, null, 2);
+            statusEl.textContent = `Sikeres javítás és egyszerűsítés! ${simplifiedSongs.length} dal feldolgozva. Most már kimásolhatod az eredményt.`;
+            statusEl.style.color = 'green';
+        }
+    </script>
+
+</body>
+</html>
