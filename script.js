@@ -3,7 +3,7 @@
 let accessToken = null, isSpotifySdkReady = false, isAudioUnlocked = false; 
 let player = null, deviceId = null, songsData = [], isSongsDataLoaded = false, isPlaying = false;
 let playbackInterval = null;
-const gameSettings = { listeningTime: '45', musicStyle: 'ALL', songCount: '50' };
+const gameSettings = { listeningTime: '45', musicStyle: 'ALL' }; // songCount tulajdonság eltávolítva
 const SPOTIFY_CLIENT_ID = '64b3bdc013e84162bf973ec883854bfa';
 const REDIRECT_URI = 'https://RobaMusic.github.io/RobaMusic/';
 
@@ -181,9 +181,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (e) { console.error("Lejátszási API hiba:", e); }
     }
          
+    // JAVÍTVA: A játékmenet mostantól automatikusan mindig pontosan 50 körös, 
+    // vagy ha a kategóriában kevesebb dal van, akkor a maximális elérhető darabszám.
     function prepareAndStartNewGame() {
         let songs = songsData.filter(s => s.Aktív === 'Igen' && (gameSettings.musicStyle === 'ALL' || s.Kategória === gameSettings.musicStyle));
-        totalRounds = gameSettings.songCount === 'all' ? songs.length : Math.min(parseInt(gameSettings.songCount), songs.length);
+        totalRounds = Math.min(50, songs.length); 
         if (totalRounds === 0) { alert('Nincs elérhető dal.'); return; }
         currentRound = 0; currentScore = 0; playedSongs = [];
         startNewRound(); showScreen('gameScreen');
@@ -214,14 +216,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const challenge = await generatePkceChallenge(verifier);
         localStorage.setItem('code_verifier', verifier);
         const scopes = 'user-read-playback-state user-modify-playback-state streaming user-read-email user-read-private';
-        // JAVÍTVA: Az encodeURIComponent() most már kódolja a szóközöket és a REDIRECT_URI-t is, így az összes jogosultság sikeresen átmegy!
         window.location.href = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${encodeURIComponent(scopes)}&code_challenge_method=S256&code_challenge=${challenge}&show_dialog=true`;
     });
 
     playMusicGameBtn.addEventListener('click', () => {
         // VÉGLEGES JAVÍTÁS MOBILRA: "Néma Hang" trükk a hang kontextus feloldásához
         if (!isAudioUnlocked) {
-            const silentAudio = new Audio("data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBvZiB0aGUgSmF2b1hMQURlBgAAAAAAA3Y0SmF2b1hMQURlAAAAAAAAAQUAAAAAAGM4AAAAAAAAAAE3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/8wYgQAYjQEAyv/37//5q3/44AAAAA//8wYhBABiNAQEK//3//+at/+OAAAAA//8wYhAABiNAQAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA");
+            const silentAudio = new Audio("data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbwvntABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBvZiB0aGUgSmF2b1hMQURlBgAAAAAAA3Y0SmF2b1hMQURlAAAAAAAAAQUAAAAAAGM4AAAAAAAAAAE3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/8wYgQAYjQEAyv/37//5q3/44AAAAA//8wYhBABiNAQEK//3//+at/+OAAAAA//8wYhAABiNAQAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA");
             silentAudio.play().catch(() => {});
             isAudioUnlocked = true;
             console.log('Mobile audio context UNLOCKED.');
