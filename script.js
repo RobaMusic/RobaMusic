@@ -1,11 +1,13 @@
-// SCRIPT.JS (VÉGLEGES, JAVÍTOTT)
-
-let accessToken = null, isSpotifySdkReady = false, isAudioUnlocked = false; 
+let accessToken = null, isSpotifySdkReady = false, isAudioUnlocked = false;
 let player = null, deviceId = null, songsData = [], isSongsDataLoaded = false, isPlaying = false;
 let playbackInterval = null;
 const gameSettings = { listeningTime: '45', musicStyle: 'ALL' }; // songCount tulajdonság eltávolítva
 const SPOTIFY_CLIENT_ID = '64b3bdc013e84162bf973ec883854bfa';
-const REDIRECT_URI = 'https://RobaMusic.github.io/RobaMusic/';
+
+// JAVÍTÁS: Dinamikus REDIRECT_URI beállítása (így működik localhoston és GitHub Pages-en is)
+const REDIRECT_URI = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? window.location.origin + window.location.pathname
+    : 'https://RobaMusic.github.io/RobaMusic/';
 
 // PKCE KÓDOK
 function dec2hex(dec) { return ('0' + dec.toString(16)).substr(-2); }
@@ -63,7 +65,7 @@ function stopPlaybackTimer() { clearInterval(playbackInterval); }
 function initializeSpotifyPlayer() {
     const appStatus = document.getElementById('appStatus');
     const startGameBtn = document.getElementById('startGameBtn');
-         
+              
     player = new window.Spotify.Player({ name: 'RobaMusic Game Player', getOAuthToken: cb => { cb(accessToken); }, volume: 0.5 });
     player.addListener('ready', ({ device_id }) => {
         deviceId = device_id;
@@ -120,7 +122,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             appStatus.textContent = 'Spotify nincs csatlakoztatva.';
         }
     }
-         
+              
     // Elemek
     const startGameBtn = document.getElementById('startGameBtn');
     const phoneGameBtn = document.getElementById('phoneGameBtn');
@@ -174,29 +176,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!deviceId) return;
         try {
             const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }, body: JSON.stringify({ uris: [uri] }), });
-            if (!response.ok) { 
-                const errorBody = await response.json(); 
-                alert(`Hiba a zene lejátszásakor: ${errorBody.error.message}`); 
-            }
+            if (!response.ok) {
+                 const errorBody = await response.json();
+                 alert(`Hiba a zene lejátszásakor: ${errorBody.error.message}`);
+             }
         } catch (e) { console.error("Lejátszási API hiba:", e); }
     }
-         
-    // JAVÍTVA: A játékmenet mostantól automatikusan mindig pontosan 50 körös, 
-    // vagy ha a kategóriában kevesebb dal van, akkor a maximális elérhető darabszám.
+              
+    // JAVÍTÁS: songs.json-ban nincs 'Aktív' tulajdonság, így alapértelmezetten mindegyik dal aktívnak számít, ha nincs kitöltve.
     function prepareAndStartNewGame() {
-        let songs = songsData.filter(s => s.Aktív === 'Igen' && (gameSettings.musicStyle === 'ALL' || s.Kategória === gameSettings.musicStyle));
-        totalRounds = Math.min(50, songs.length); 
+        let songs = songsData.filter(s => (!s.hasOwnProperty('Aktív') || s.Aktív === 'Igen') && (gameSettings.musicStyle === 'ALL' || s.Kategória === gameSettings.musicStyle));
+        totalRounds = Math.min(50, songs.length);
+
         if (totalRounds === 0) { alert('Nincs elérhető dal.'); return; }
         currentRound = 0; currentScore = 0; playedSongs = [];
         startNewRound(); showScreen('gameScreen');
     }
+
+    // JAVÍTÁS: ID helyett URI-t használunk az ismétlésgátlásra, mivel az ID nincs benne a songs.json-ban.
     function startNewRound() {
         currentRound++;
         if (currentRound > totalRounds) { endGame(); return; }
-        let available = songsData.filter(s => s.Aktív === 'Igen' && !playedSongs.includes(s.ID) && (gameSettings.musicStyle === 'ALL' || s.Kategória === gameSettings.musicStyle));
+        let available = songsData.filter(s => (!s.hasOwnProperty('Aktív') || s.Aktív === 'Igen') && !playedSongs.includes(s.URI) && (gameSettings.musicStyle === 'ALL' || s.Kategória === gameSettings.musicStyle));
         if (available.length === 0) { endGame(); return; }
         currentSong = available[Math.floor(Math.random() * available.length)];
-        playedSongs.push(currentSong.ID);
+        playedSongs.push(currentSong.URI);
         playerDeviceStatus.textContent = `Kör: ${currentRound} / ${totalRounds}`;
         answerRevealPanel.classList.add('hidden');
         [hitTitleCheckbox, hitArtistCheckbox, hitYearCheckbox].forEach(cb => cb.checked = false);
