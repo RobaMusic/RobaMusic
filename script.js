@@ -171,15 +171,35 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Segédfüggvények
     function showScreen(id) { document.querySelectorAll('.game-container').forEach(s => s.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+    
+    // JAVÍTÁS: Okos hibakezelő a korlátozott (Explicit, Geoblocked, 403-as) dalok automatikus átugrására
     async function playSpotifyTrack(uri) {
         if (!uri || typeof uri !== 'string' || !uri.startsWith('spotify:track:')) { alert("Hiba: A kiválasztott dalhoz nem tartozik érvényes Spotify link."); return; }
         if (!deviceId) return;
         try {
-            const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }, body: JSON.stringify({ uris: [uri] }), });
+            const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, { 
+                method: 'PUT', 
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }, 
+                body: JSON.stringify({ uris: [uri] }), 
+            });
             if (!response.ok) {
-                 const errorBody = await response.json();
-                 alert(`Hiba a zene lejátszásakor: ${errorBody.error.message}`);
-             }
+                const errorBody = await response.json();
+                
+                // Ha korlátozásba ütközünk (Restriction violated vagy 403-as API tiltás)
+                if (errorBody.error && (errorBody.error.message.includes("Restriction violated") || errorBody.error.status === 403 || errorBody.error.status === 404)) {
+                    console.warn(`A(z) ${uri} dal korlátozás miatt nem játszható le. Automatikus ugrás a következőre...`);
+                    
+                    currentRound--; // Visszaállítjuk a kört
+                    playedSongs.pop(); // Kivesszük a lejátszhatatlant
+                    startNewRound(); // Sorsolunk egy újat
+                    
+                    if (currentSong) {
+                        playSpotifyTrack(currentSong.URI); // Elindítjuk az új dalt
+                    }
+                } else {
+                    alert(`Hiba a zene lejátszásakor: ${errorBody.error.message}`);
+                }
+            }
         } catch (e) { console.error("Lejátszási API hiba:", e); }
     }
               
