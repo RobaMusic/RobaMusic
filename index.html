@@ -9,7 +9,7 @@
 </head>
 <body>
 
-    <div class="game-container" id="splashScreen">
+     <div class="game-container" id="splashScreen">
         <div class="logo">
             <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
         </div>
@@ -20,72 +20,76 @@
         <button class="start-game-button" id="startGameBtn" disabled>
             <img src="./assets/play_icon.png" alt="Play Icon"> JÁTÉK INDÍTÁSA
         </button>
-    </div>
+     </div>
 
-    <!-- MAIN MENU SCREEN -->
-    <div class="game-container hidden" id="mainMenuScreen">
+     <!-- MAIN MENU SCREEN -->
+     <div class="game-container hidden" id="mainMenuScreen">
         <div class="logo">
             <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
         </div>
         <h2 class="screen-title">Játéktípus kiválasztása</h2>
 
-        <button class="menu-button" id="qrScanBtn">
+         <button class="menu-button" id="qrScanBtn">
             QR-kód olvasás <br> <span class="subtitle">(Van saját kódcsomagod)</span>
-        </button>
-        <button class="menu-button" id="phoneGameBtn">
+         </button>
+         <button class="menu-button" id="phoneGameBtn">
             Telefonos játék <br> <span class="subtitle">(QR-kód olvasás nélkül)</span>
-        </button>
-        <button class="menu-button" id="resultsBtn">
+         </button>
+         <button class="menu-button" id="resultsBtn">
             Eredmények
-        </button>
-    </div>
-    <!-- END MAIN MENU SCREEN -->
+         </button>
+     </div>
+     <!-- END MAIN MENU SCREEN -->
 
-    <!-- SETTINGS SCREEN -->
-    <div class="game-container hidden" id="settingsScreen">
+     <!-- SETTINGS SCREEN -->
+     <div class="game-container hidden" id="settingsScreen">
         <div class="logo">
             <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
         </div>
         <h2 class="screen-title">Beállítások</h2>
 
-        <div class="scrollable-content">
-            <!-- Zenehallgatás időtartama -->
-            <h3 class="setting-category">Zenehallgatás időtartama</h3>
-            <button class="setting-option-button selected" data-setting="listeningTime" data-value="45">45 mp</button>
-            <button class="setting-option-button" data-setting="listeningTime" data-value="90">90 mp</button>
-            <button class="setting-option-button" data-setting="listeningTime" data-value="full">Teljes dal</button>
+         <div class="scrollable-content">
+             <!-- Zenehallgatás időtartama -->
+             <h3 class="setting-category">Zenehallgatás időtartama</h3>
+             <button class="setting-option-button selected" data-setting="listeningTime" data-value="45">45 mp</button>
+             <button class="setting-option-button" data-setting="listeningTime" data-value="90">90 mp</button>
+             <button class="setting-option-button" data-setting="listeningTime" data-value="full">Teljes dal</button>
 
-            <!-- Zenestílus kiválasztása -->
-            <h3 class="setting-category">Zenestílus kiválasztása</h3>
-            <button class="setting-option-button selected" data-setting="musicStyle" data-value="ALL">ÖSSZES KATEGÓRIA</button>
-            <button class="setting-option-button" data-setting="musicStyle" data-value="POP">POP</button>
-            <button class="setting-option-button" data-setting="musicStyle" data-value="NEW">BILLBOARD</button>
-            <button class="setting-option-button" data-setting="musicStyle" data-value="ROCK">ROCK</button>
-            
-            <!-- ### JAVÍTÁS ITT: A data-value értékek összhangba hozva a songs.json-nal ### -->
-            <button class="setting-option-button" data-setting="musicStyle" data-value="HU_ROCK_PRE_2000">MAGYAR ROCK (2000-IG)</button>
-            <button class="setting-option-button" data-setting="musicStyle" data-value="HU_ROCK_POST_2000">MAGYAR ROCK (2001-TŐL)</button>
-            <button class="setting-option-button" data-setting="musicStyle" data-value="INT_HARD_ROCK">NEMZETKÖZI HARD ROCK</button>
-            
-            <button class="setting-option-button" data-setting="musicStyle" data-value="MOV">FILMZENE</button>
-            <button class="setting-option-button" data-setting="musicStyle" data-value="XMAS">KARÁCSONYI</button>
-            <button class="setting-option-button" data-setting="musicStyle" data-value="AMB">AMBIENT</button>
-            <button class="setting-option-button" data-setting="musicStyle" data-value="INS">INSTRUMENTÁLIS</button>
-            <button class="setting-option-button" data-setting="musicStyle" data-value="KID">GYEREKDALOK</button>
-            <button class="setting-option-button" data-setting="musicStyle" data-value="DANCE">DANCE</button>
-        </div>
+             <!-- Zenestílus kiválasztása -->
+             <h3 class="setting-category">Zenestílus kiválasztása</h3>
+             <button class="setting-option-button selected" data-setting="musicStyle" data-value="ALL">ÖSSZES KATEGÓRIA</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="POP">POP</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="NEW">BILLBOARD</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="ROCK">ROCK</button>
+             
+             <!-- Magyar Rock Kategóriák -->
+             <button class="setting-option-button" data-setting="musicStyle" data-value="HU_ROCK_PRE_2000">MAGYAR ROCK (2000-IG)</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="HU_ROCK_POST_2000">MAGYAR ROCK (2001-TŐL)</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="INT_HARD_ROCK">NEMZETKÖZI HARD ROCK</button>
+             
+             <!-- ÚJ SOUNDTRACK ÉS EGYÉB KATEGÓRIÁK -->
+             <button class="setting-option-button" data-setting="musicStyle" data-value="SOUNDTRACK_PRE_2000">SOUNDTRACK (2000-IG)</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="SOUNDTRACK_POST_2000">SOUNDTRACK (2000-TŐL)</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="LILI_LUCA_LENA">LILI-LUCA-LÉNA (2015-TŐL)</button>
+             
+             <button class="setting-option-button" data-setting="musicStyle" data-value="XMAS">KARÁCSONYI</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="AMB">AMBIENT</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="INS">INSTRUMENTÁLIS</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="KID">GYEREKDALOK</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="DANCE">DANCE</button>
+         </div>
 
-        <button class="start-game-button" id="startPhoneGameBtn">Játék kezdése</button>
-        <button class="back-to-main-menu-button" id="backToMainMenuFromSettings">Vissza a Főmenübe</button>
-    </div>
-    <!-- END SETTINGS SCREEN -->
+         <button class="start-game-button" id="startPhoneGameBtn">Játék kezdése</button>
+         <button class="back-to-main-menu-button" id="backToMainMenuFromSettings">Vissza a Főmenübe</button>
+     </div>
+     <!-- END SETTINGS SCREEN -->
 
-    <!-- GAME SCREEN -->
-    <div class="game-container hidden" id="gameScreen">
+     <!-- GAME SCREEN -->
+     <div class="game-container hidden" id="gameScreen">
         <div class="logo">
             <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
         </div>
-                 
+                          
         <h2 class="screen-title">Találd ki a dalt!</h2>
 
         <!-- Play/Pause gombok az SDK-val való vezérléshez -->
@@ -95,18 +99,18 @@
         <button class="game-control-button" id="pauseMusicGameBtn" disabled>
             <img src="./assets/pause_icon.png" alt="Pause Icon"> Zene szüneteltetése
         </button>
-                 
+                          
         <!-- Ez a placeholder div a lejátszó "eszköz" statuszát mutatja -->
         <div id="playerDeviceStatus" class="player-device-status">Spotify lejátszó betöltése...</div>
         <p class="spotify-note" id="playbackStatusMessage">Kattintson a lejátszás gombra a zene indításához.</p>
-        
+         
         <!-- Játék vezérlők -->
         <div class="game-controls">
             <label for="remainingTimeSlider" class="year-label">Hallgatási idő:</label>
             <input type="range" id="remainingTimeSlider" min="0" max="100" value="100" disabled>
             <p id="timeRemainingText">00:45</p>
 
-            <button class="action-button" id="stopMusicBtn">Zene leállítása és válasz</button>
+             <button class="action-button" id="stopMusicBtn">Zene leállítása és válasz</button>
         </div>
 
         <!-- Helyes válasz és önbevallás panel (kezdetben rejtett) -->
@@ -116,7 +120,7 @@
             <p>Dal címe: <span class="revealed-value" id="revealedTitleText"></span></p>
             <p>Megjelenési év: <span class="revealed-value" id="revealedYearText"></span></p>
 
-            <h3>Kérjük, értékeld a tipped!</h3>
+             <h3>Kérjük, értékeld a tipped!</h3>
             <div class="self-assessment-group">
                 <label>
                     <input type="checkbox" id="hitTitle"> Eltaláltam a dal címét (1 pont)
@@ -131,51 +135,50 @@
             <button class="action-button" id="recordScoreAndNextBtn">Pontszám rögzítése és következő dal</button>
             <button class="back-to-main-menu-button" id="recordScoreAndFinishBtn">Pontszám rögzítése és Játék vége</button>
         </div>
-         
+                  
         <button class="back-to-main-menu-button" id="backToMainMenuFromGame">Visszatérés a Főmenübe</button>
-    </div>
-    <!-- END GAME SCREEN -->
+     </div>
+     <!-- END GAME SCREEN -->
 
-    <!-- QR SCAN SCREEN -->
-    <div class="game-container hidden" id="qrScanScreen">
+     <!-- QR SCAN SCREEN -->
+     <div class="game-container hidden" id="qrScanScreen">
         <div class="logo">
             <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
         </div>
         <h2 class="screen-title">QR-kód olvasás</h2>
 
-        <div class="qr-code-display">
+         <div class="qr-code-display">
             <img src="./assets/mock_qr_code.png" alt="Mock QR Code" id="mockQrCodeImg">
             <p class="qr-code-instruction">A játékos beolvassa a QR-kódot, szól a zene.</p>
-        </div>
+         </div>
 
-        <button class="action-button" id="replayQrMusicBtn">Újrajátszás</button>
+         <button class="action-button" id="replayQrMusicBtn">Újrajátszás</button>
         <button class="back-to-main-menu-button" id="backToMainMenuFromQr">Visszalépés a Főmenübe</button>
-    </div>
-    <!-- END QR SCAN SCREEN -->
+     </div>
+     <!-- END QR SCAN SCREEN -->
 
-    <!-- RESULTS SCREEN -->
-    <div class="game-container hidden" id="resultsScreen">
+     <!-- RESULTS SCREEN -->
+     <div class="game-container hidden" id="resultsScreen">
         <div class="logo">
             <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
         </div>
         <h2 class="screen-title results-congrats">Gratulálunk!!!</h2>
 
-        <div class="results-display">
+         <div class="results-display">
             <h3 class="results-label">Eredmények</h3>
             <p class="current-score" id="currentScore">0</p>
             <p class="best-score-label">Legjobb eredmény</p>
             <p class="best-score" id="bestScore">0</p>
-        </div>
+         </div>
 
-        <button class="back-to-main-menu-button" id="backToMainMenuFromResults">Visszatérés a Főmenübe</button>
-    </div>
-    <!-- END RESULTS SCREEN -->
+         <button class="back-to-main-menu-button" id="backToMainMenuFromResults">Visszatérés a Főmenübe</button>
+     </div>
+     <!-- END RESULTS SCREEN -->
 
-    <!-- ### JAVÍTÁS ITT: A helyes betöltési sorrend a mobil eszközök és a cache miatt kritikus ### -->
-    <!-- Először a mi szkriptünk jön, ami DEFINIÁLJA a 'window.onSpotifyWebPlaybackSDKReady' funkciót -->
-    <script src="script.js?v=1.7"></script> <!-- Verziószám megemelve a cache kiütéséhez -->
-    <!-- Utána jön a Spotify szkriptje, ami KERESI és MEGHÍVJA ezt a funkciót -->
-    <script src="https://sdk.scdn.co/spotify-player.js"></script>
+     <!-- Először a mi szkriptünk jön, ami DEFINIÁLJA a 'window.onSpotifyWebPlaybackSDKReady' funkciót -->
+     <script src="script.js?v=1.7"></script> <!-- Verziószám megemelve a cache kiütéséhez -->
+     <!-- Utána jön a Spotify szkriptje, ami KERESI és MEGHÍVJA ezt a funkciót -->
+     <script src="https://sdk.scdn.co/spotify-player.js"></script>
 
 </body>
 </html>
