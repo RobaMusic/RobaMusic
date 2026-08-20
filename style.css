@@ -1,5 +1,5 @@
 /* ========================================== */
-/* ROBAMUSIC - ÚJ, NEON-STÍLUSÚ STYLING       */
+/* ROBAMUSIC - VÉGLEGES, JAVÍTOTT NEON STYLE  */
 /* ========================================== */
 
 /* Általános stílusok */
@@ -40,25 +40,21 @@ body::before {
 /* Játék konténer (A központi neon kártya) */
 .game-container {
     width: 90%;
-    max-width: 400px; /* Telefonos méret */
+    max-width: 420px; /* Telefonos szélesség PC-n is megtartva a szép elrendezésért */
+    height: 90vh;
+    min-height: 620px; /* Megakadályozza az összenyomódást */
+    max-height: 820px; /* Korlátozza a méretet óriás monitorokon */
     padding: 25px;
-    background-color: rgba(15, 15, 29, 0.9); /* Áttetsző sötét háttér */
-    border-radius: 15px;
+    background-color: rgba(15, 15, 29, 0.95); /* Áttetsző sötét háttér */
+    border-radius: 20px;
     box-shadow: 0 0 30px rgba(0, 255, 255, 0.25), /* Kékesszürke neon izzás */
                 0 0 60px rgba(255, 0, 255, 0.15); /* Lilás neon izzás */
     border: 1px solid rgba(0, 255, 255, 0.3); /* Halvány neon keret */
     text-align: center;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: space-between; /* Fejléc fentre, gombok lentre, tartalom középre */
     align-items: center;
-    gap: 15px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    max-height: 95vh;
-    overflow-y: auto;
     box-sizing: border-box;
 }
 
@@ -68,11 +64,12 @@ body::before {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+    flex-shrink: 0; /* Tilos összenyomni a logót! */
 }
 
 .logo img {
-    width: 180px !important;
+    width: 160px !important;
     max-width: 75% !important;
     height: auto !important;
     filter: drop-shadow(0 0 8px rgba(0, 255, 255, 0.5));
@@ -80,31 +77,34 @@ body::before {
 
 /* Címek és Szövegek */
 .screen-title {
-    font-size: 1.4em;
+    font-size: 1.3em;
     color: #00ffff; /* Neon kék */
     text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+    margin-top: 0;
     margin-bottom: 10px;
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 1px;
+    flex-shrink: 0;
 }
 
 h3.setting-category {
-    font-size: 1.1em;
+    font-size: 1.05em;
     color: #ff00ff; /* Neon lila */
     text-shadow: 0 0 6px rgba(255, 0, 255, 0.5);
-    margin-top: 20px;
-    margin-bottom: 10px;
+    margin-top: 15px;
+    margin-bottom: 8px;
     text-align: center;
     width: 90%;
 }
 
-/* Görgethető tartalom a Beállítások képernyőn */
+/* JAVÍTÁS: Rugalmas középső tartalom, ami kitölti a gombok és fejléc közti teret */
 .scrollable-content {
-    max-height: calc(95vh - 280px);
-    overflow-y: auto;
+    flex-grow: 1; /* Elfoglalja az összes szabad helyet */
     width: 100%;
-    padding: 10px 0;
+    overflow-y: auto; /* Ha sok a kategória, itt szépen görgethető */
+    margin: 10px 0;
+    padding: 5px 0;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -126,10 +126,10 @@ h3.setting-category {
 /* Gombok alap neon stílusa */
 button {
     width: 90%;
-    padding: 14px 20px;
+    padding: 13px 20px;
     border: 1px solid rgba(0, 255, 255, 0.4);
     border-radius: 30px;
-    font-size: 1em;
+    font-size: 0.95em;
     font-weight: bold;
     cursor: pointer;
     background: rgba(0, 0, 0, 0.6);
@@ -139,13 +139,14 @@ button {
     justify-content: center;
     gap: 10px;
     transition: all 0.3s ease;
-    box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
-    margin-bottom: 5px;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+    margin-bottom: 6px;
+    flex-shrink: 0; /* Tilos összenyomni a gombokat! */
 }
 
 button img {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
 }
 
 button:not(:disabled):hover {
@@ -193,12 +194,12 @@ button:disabled {
 .back-to-main-menu-button {
     background-color: rgba(255, 255, 255, 0.05);
     border-color: rgba(255, 255, 255, 0.2);
-    margin-top: 10px;
+    margin-top: 5px;
 }
 
 /* App státusz és üzenetek */
 #appStatus, #playbackStatusMessage {
-    font-size: 0.9em;
+    font-size: 0.85em;
     color: #888;
 }
 
@@ -209,7 +210,7 @@ button:disabled {
     flex-direction: column;
     gap: 10px;
     align-items: center;
-    margin-top: 15px;
+    margin-top: 10px;
 }
 
 #remainingTimeSlider {
@@ -226,7 +227,7 @@ button:disabled {
     border: 1px solid rgba(0, 255, 255, 0.2);
     padding: 15px;
     border-radius: 8px;
-    margin-top: 15px;
+    margin-top: 10px;
     width: 90%;
     text-align: left;
     box-sizing: border-box;
