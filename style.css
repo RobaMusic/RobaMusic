@@ -1,454 +1,179 @@
-/* Általános stílusok */
+/* Általános beállítások */
 body {
-    font-family: 'Arial', sans-serif;
     margin: 0;
-    padding: 0;
-    background-color: #1a1a2e;
-    color: #e0e0e0;
+    font-family: 'Arial', sans-serif; /* Egy alap betűtípus, de keress majd valami menőbbet! */
+    background-color: #1a1a2e; /* Nagyon sötét, majdnem fekete, de van benne egy kis kékes árnyalat */
+    color: #e0e0e0; /* Világos szürke alap szövegszín */
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    box-sizing: border-box;
-    overflow: hidden;
+    min-height: 100vh; /* Teljes képernyő magasság */
+    overflow: hidden; /* Ne legyen görgetősáv, ha nem szükséges */
+    position: relative; /* Pozícionáláshoz */
 }
 
-/* Képernyő elrejtése */
-.hidden {
-    display: none !important;
-}
-
-.game-container {
-    width: 100%;
-    max-width: 400px; /* Egy tipikus telefon képernyő szélessége */
-    padding: 20px;
-    background-color: #0f0f1d; /* Kicsit sötétebb, mint a háttér */
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 15px;
+/* Kék-lila háttér gradiens effekt a sötét háttéren */
+body::before {
+    content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    max-height: 95vh;
-    overflow-y: auto; /* A game-container maga görgetődjön, ha a tartalom túl nagy */
-}
-
-/* Logó és címek */
-.logo {
-    margin-bottom: 20px;
-}
-
-.logo img {
-    width: 250px;
-    max-width: 80%;
-    height: auto;
-}
-
-.screen-title {
-    font-size: 1.4em;
-    color: #e0e0e0;
-    margin-bottom: 20px;
-    font-weight: bold;
-}
-
-/* Gombok alap stílusa */
-button {
-    width: 90%;
-    padding: 15px 20px;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1em;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-button img {
-    width: 24px;
-    height: 24px;
-}
-
-/* Spotify csatlakozás gomb (most már PKCE flow-val) */
-.spotify-connect-button {
-    background-color: #1DB954; /* Spotify zöld */
-    color: white;
-}
-
-.spotify-connect-button:not(:disabled):hover {
-    background-color: #1ed760;
-    transform: translateY(-2px);
-}
-
-/* Játék indítása gomb */
-.start-game-button {
-    background-color: #007bff;
-    color: white;
-}
-
-.start-game-button:not(:disabled):hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
-}
-
-/* Menü gombok */
-.menu-button {
-    background-color: #2196f3;
-    color: white;
-    line-height: 1.3;
-}
-
-.menu-button:hover {
-    background-color: #1976d2;
-    transform: translateY(-2px);
-}
-
-.menu-button .subtitle {
-    font-size: 0.8em;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top left, rgba(63, 81, 181, 0.2), transparent 50%),
+                radial-gradient(circle at bottom right, rgba(103, 58, 183, 0.2), transparent 50%);
     opacity: 0.8;
-    font-weight: normal;
+    z-index: -1; /* Hogy a tartalom fölötte legyen */
 }
 
-/* Gombok inaktív állapota */
-button:disabled {
-    background-color: #555;
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-/* App státusz szöveg */
-#appStatus {
-    font-size: 0.9em;
-    color: #888;
-    margin-top: -10px;
-}
-
-/* Beállítások képernyő */
-.setting-category {
-    font-size: 1.1em;
-    color: #a0a0a0;
-    margin-top: 20px;
-    margin-bottom: 10px;
-    text-align: left;
-    width: 90%;
-}
-
-.setting-option-button {
-    background-color: #3f51b5;
-    color: white;
-    width: 90%;
-    margin-bottom: 8px;
-    padding: 12px 20px;
-}
-
-.setting-option-button:hover {
-    background-color: #303f9f;
-    transform: translateY(-2px);
-}
-
-.setting-option-button.selected {
-    background-color: #4CAF50;
-    border: 2px solid #66bb6a;
-}
-
-.setting-option-button.selected:hover {
-    background-color: #43a047;
-}
-
-/* Vissza gomb */
-.back-to-main-menu-button {
-    background-color: #616161;
-    color: white;
-    margin-top: 15px;
-}
-
-.back-to-main-menu-button:hover {
-    background-color: #424242;
-    transform: translateY(-2px);
-}
-
-/* Görgethető tartalom a Beállítások képernyőn */
-.scrollable-content {
-    max-height: calc(95vh - 250px);
-    overflow-y: auto;
-    width: 100%;
-    padding: 10px 0;
-    box-sizing: border-box;
-    -webkit-overflow-scrolling: touch;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* Játék képernyő stílusok */
-/* Lejátszó eszköz statusz div */
-.player-device-status {
-    font-size: 0.9em;
-    color: #b3b3b3;
-    margin-top: -10px;
-    margin-bottom: 10px;
-}
-
-/* Spotify lejátszó "eltakarása" az SDK használatával */
-/* Ezt a placeholder div-et most az SDK használja, nem az iframe */
-#spotifyPlayerPlaceholder {
-    width: 1px; /* Nagyon kicsi méret */
-    height: 1px;
-    overflow: hidden;
-    position: absolute;
-    top: -9999px; /* Eltolva a látható területről */
-    left: -9999px;
-    visibility: hidden;
-    opacity: 0;
-    z-index: -1;
-    pointer-events: none;
-    /* Háttérszín, hogy ha mégis látszódna valahol, ne legyen zavaró */
-    background-color: #0f0f1d; 
-}
-
-
-#playbackStatusMessage {
-    font-size: 0.8em;
-    color: #888;
-    margin-top: 0px;
-    margin-bottom: 20px;
-}
-
-.game-controls {
-    width: 90%;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-#remainingTimeSlider {
-    width: 90%;
-    margin: 10px 0;
-    -webkit-appearance: none;
-    appearance: none;
-    height: 8px;
-    background: #d3d3d3;
-    outline: none;
-    opacity: 0.7;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
-    border-radius: 5px;
-}
-
-#remainingTimeSlider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #4CAF50;
-    cursor: pointer;
-}
-
-#remainingTimeSlider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #4CAF50;
-    cursor: pointer;
-}
-
-#timeRemainingText {
-    font-size: 0.9em;
-    color: #b3b3b3;
-    margin-top: -5px;
-    margin-bottom: 10px;
-}
-
-.action-button {
-    background-color: #4CAF50;
-    color: white;
-    width: 90%;
-}
-
-.action-button:not(:disabled):hover {
-    background-color: #43a047;
-    transform: translateY(-2px);
-}
-
-/* QR Scan Screen stílusok */
-.qr-code-display {
-    width: 90%;
-    margin-bottom: 20px;
-    background-color: #282828;
-    padding: 20px;
-    border-radius: 8px;
+#app-container {
+    background-color: rgba(0, 0, 0, 0.6); /* Enyhén áttetsző fekete háttér a tartalomnak */
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.3), /* Kékesszürke neon árnyék */
+                0 0 60px rgba(255, 0, 255, 0.2); /* Lilás neon árnyék */
     text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    max-width: 500px;
+    width: 90%;
+    border: 1px solid rgba(0, 255, 255, 0.5); /* Vékony kékesszürke keret */
 }
 
-.qr-code-display img {
-    width: 180px;
-    height: 180px;
-    background-color: white;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 15px;
+/* Képernyők kezelése */
+.screen {
+    display: none; /* Alapból elrejtjük őket */
 }
 
-.qr-code-instruction {
-    font-size: 0.9em;
-    color: #b3b3b3;
+.screen.active {
+    display: block; /* Az aktív képernyőt mutatjuk */
 }
 
-/* Results Screen stílusok */
-.screen-title.results-congrats {
-    font-size: 1.8em;
-    color: #4CAF50;
+/* Címsorok */
+h1, h2 {
+    color: #00ffff; /* Neonzöld-kék */
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.6), 0 0 15px rgba(0, 255, 255, 0.4);
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin-top: 30px;
+    color: #ff00ff; /* Neonlila */
+    text-shadow: 0 0 6px rgba(255, 0, 255, 0.5), 0 0 12px rgba(255, 0, 255, 0.3);
+}
+
+/* Beállítások csoport */
+.settings-group {
     margin-bottom: 30px;
+    padding: 15px;
+    border: 1px solid rgba(255, 0, 255, 0.4); /* Vékony lilás keret */
+    border-radius: 10px;
+    background-color: rgba(255, 0, 255, 0.05); /* Nagyon enyhe lilás háttér */
 }
 
-.results-display {
-    width: 90%;
-    margin-bottom: 20px;
-    background-color: #1a1a2e;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.results-label {
-    font-size: 1.2em;
-    color: #e0e0e0;
+/* Label és input elemek */
+label {
+    display: block;
     margin-bottom: 10px;
+    font-size: 1.1em;
+    color: #00ff99; /* Neon zöldes-kék */
+    text-shadow: 0 0 5px rgba(0, 255, 153, 0.5);
 }
 
-.current-score, .best-score {
-    font-size: 2.5em;
-    font-weight: bold;
-    color: #2196f3;
+select, input[type="checkbox"] {
     margin-bottom: 15px;
-}
-
-.best-score-label {
-    font-size: 0.9em;
-    color: #888;
-    margin-bottom: 5px;
-}
-
-/* Helyes válasz és önbevallás panel stílusok */
-.answer-reveal-panel {
-    background-color: #1a1a2e;
-    padding: 20px;
-    border-radius: 8px;
-    margin-top: 20px;
-    width: 90%;
-    text-align: left;
-}
-
-.answer-reveal-panel h3 {
-    font-size: 1.2em;
-    color: #e0e0e0;
-    margin-bottom: 15px;
-    text-align: center;
-}
-
-.answer-reveal-panel p {
-    margin: 8px 0;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #00ffff;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
     font-size: 1em;
-    color: #b3b3b3;
+    width: calc(100% - 20px); /* Kisebb szélesség a padding miatt */
+    box-sizing: border-box; /* A padding beleszámít a szélességbe */
 }
 
-.answer-reveal-panel .revealed-value {
-    font-weight: bold;
-    color: #4CAF50; /* A helyes válasz zöld színben */
+select {
+    appearance: none; /* Kikapcsolja a böngésző alapértelmezett nyílát */
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%2300FFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 30px; /* Hely a nyílnak */
 }
 
-.self-assessment-group {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+input[type="checkbox"] {
+    width: auto; /* A checkbox legyen normál méretű */
+    margin-right: 10px;
+    vertical-align: middle;
+    transform: scale(1.3); /* Nagyobb checkbox */
+    accent-color: #00ffff; /* A pipa színe */
+}
+
+/* Gombok */
+button {
+    background: linear-gradient(45deg, #00ffff, #ff00ff); /* Kék-lila átmenet */
+    color: #fff;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    border-radius: 30px;
+    cursor: pointer;
     margin-top: 20px;
-    margin-bottom: 20px;
-    border-top: 1px solid #333;
-    padding-top: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); /* Kék árnyék */
 }
 
-.self-assessment-group label {
-    font-size: 0.95em;
+button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.8), 0 0 30px rgba(255, 0, 255, 0.6); /* Kiemeltebb árnyék */
+    background: linear-gradient(45deg, #ff00ff, #00ffff); /* Fordított átmenet */
+}
+
+/* Eredmények megjelenítése */
+#last-game-results {
+    margin-top: 30px;
+    padding: 20px;
+    border: 1px solid rgba(0, 255, 153, 0.5);
+    border-radius: 10px;
+    background-color: rgba(0, 255, 153, 0.05); /* Nagyon enyhe zöldes háttér */
+}
+
+#last-game-results h2 {
+    color: #00ff99; /* Zöldes neon */
+    text-shadow: 0 0 6px rgba(0, 255, 153, 0.5);
+}
+
+#last-game-results p {
+    font-size: 1.1em;
     color: #e0e0e0;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
 }
 
-.self-assessment-group input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: #1DB954;
-    cursor: pointer;
+#last-game-results span {
+    font-weight: bold;
+    color: #00ffff;
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
 }
 
-#recordScoreAndNextBtn, #recordScoreAndFinishBtn {
-    width: 100%;
-    margin-top: 10px;
+/* Játék képernyő specifikus stílusok */
+#game-screen {
+    padding: 20px;
 }
 
-/* Reszponzív design */
-@media (max-width: 600px) {
-    .game-container {
-        width: 95%;
-        padding: 15px;
-        max-height: 98vh;
-    }
-    .logo img {
-        width: 200px;
-    }
-    .screen-title {
-        font-size: 1.2em;
-    }
-    button {
-        padding: 12px 15px;
-        font-size: 1em;
-    }
-    .menu-button .subtitle {
-        font-size: 0.7em;
-    }
-    /* A Spotify player-container stílusai */
-    #spotifyPlayerPlaceholder { /* Most már ez rejti el az SDK playert */
-        width: 1px;
-        height: 1px;
-        top: -9999px;
-        left: -9999px;
-    }
-    .scrollable-content {
-        max-height: calc(98vh - 220px);
-        padding: 5px 0;
-    }
-    .screen-title.results-congrats {
-        font-size: 1.5em;
-    }
-    .current-score, .best-score {
-        font-size: 2em;
-    }
-    .answer-reveal-panel h3 {
-        font-size: 1.1em;
-    }
-    .answer-reveal-panel p {
-        font-size: 0.9em;
-    }
-    .self-assessment-group label {
-        font-size: 0.85em;
-    }
+#game-screen h1 {
+    color: #ffff00; /* Sárgás neon */
+    text-shadow: 0 0 8px rgba(255, 255, 0, 0.6), 0 0 15px rgba(255, 255, 0, 0.4);
+}
+
+#game-info {
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: #00ff99;
+    text-shadow: 0 0 5px rgba(0, 255, 153, 0.5);
+}
+
+#game-content {
+    min-height: 200px; /* Hogy legyen hely a játék elemeinek */
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    color: #ccc;
 }
