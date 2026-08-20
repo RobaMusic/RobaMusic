@@ -1,10 +1,10 @@
 let accessToken = null, isSpotifySdkReady = false, isAudioUnlocked = false;
 let player = null, deviceId = null, songsData = [], isSongsDataLoaded = false, isPlaying = false;
 let playbackInterval = null;
-const gameSettings = { listeningTime: '45', musicStyle: 'ALL' }; // songCount tulajdonság eltávolítva
+const gameSettings = { listeningTime: '45', musicStyle: 'ALL' };
 const SPOTIFY_CLIENT_ID = '64b3bdc013e84162bf973ec883854bfa';
 
-// JAVÍTÁS: Dinamikus REDIRECT_URI beállítása (így működik localhoston és GitHub Pages-en is)
+// Dinamikus REDIRECT_URI beállítása
 const REDIRECT_URI = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? window.location.origin + window.location.pathname
     : 'https://RobaMusic.github.io/RobaMusic/';
@@ -125,7 +125,6 @@ document.addEventListener('DOMContentLoaded', async () => {
               
     // Elemek
     const startGameBtn = document.getElementById('startGameBtn');
-    const phoneGameBtn = document.getElementById('phoneGameBtn');
     const settingsScreen = document.getElementById('settingsScreen');
     const startPhoneGameBtn = document.getElementById('startPhoneGameBtn');
     const settingOptionButtons = document.querySelectorAll('.setting-option-button');
@@ -147,11 +146,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const currentScoreDisplay = document.getElementById('currentScore');
     const bestScoreDisplay = document.getElementById('bestScore');
     const resultsBtn = document.getElementById('resultsBtn');
-    const backToMainMenuFromSettingsBtn = document.getElementById('backToMainMenuFromSettings');
     const backToMainMenuFromGameBtn = document.getElementById('backToMainMenuFromGame');
-    const backToMainMenuFromQrBtn = document.getElementById('backToMainMenuFromQr');
     const backToMainMenuFromResultsBtn = document.getElementById('backToMainMenuFromResults');
-    const qrScanBtn = document.getElementById('qrScanBtn');
     const spotifyConnectBtn = document.getElementById('spotifyConnectBtn');
 
     // Játék állapot
@@ -172,7 +168,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Segédfüggvények
     function showScreen(id) { document.querySelectorAll('.game-container').forEach(s => s.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
     
-    // JAVÍTÁS: Okos hibakezelő a korlátozott (Explicit, Geoblocked, 403-as) dalok automatikus átugrására
+    // Okos hibakezelő a korlátozott dalok automatikus átugrására
     async function playSpotifyTrack(uri) {
         if (!uri || typeof uri !== 'string' || !uri.startsWith('spotify:track:')) { alert("Hiba: A kiválasztott dalhoz nem tartozik érvényes Spotify link."); return; }
         if (!deviceId) return;
@@ -185,16 +181,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!response.ok) {
                 const errorBody = await response.json();
                 
-                // Ha korlátozásba ütközünk (Restriction violated vagy 403-as API tiltás)
                 if (errorBody.error && (errorBody.error.message.includes("Restriction violated") || errorBody.error.status === 403 || errorBody.error.status === 404)) {
                     console.warn(`A(z) ${uri} dal korlátozás miatt nem játszható le. Automatikus ugrás a következőre...`);
                     
-                    currentRound--; // Visszaállítjuk a kört
-                    playedSongs.pop(); // Kivesszük a lejátszhatatlant
-                    startNewRound(); // Sorsolunk egy újat
+                    currentRound--;
+                    playedSongs.pop();
+                    startNewRound();
                     
                     if (currentSong) {
-                        playSpotifyTrack(currentSong.URI); // Elindítjuk az új dalt
+                        playSpotifyTrack(currentSong.URI);
                     }
                 } else {
                     alert(`Hiba a zene lejátszásakor: ${errorBody.error.message}`);
@@ -203,7 +198,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (e) { console.error("Lejátszási API hiba:", e); }
     }
               
-    // JAVÍTÁS: songs.json-ban nincs 'Aktív' tulajdonság, így alapértelmezetten mindegyik dal aktívnak számít, ha nincs kitöltve.
     function prepareAndStartNewGame() {
         let songs = songsData.filter(s => (!s.hasOwnProperty('Aktív') || s.Aktív === 'Igen') && (gameSettings.musicStyle === 'ALL' || s.Kategória === gameSettings.musicStyle));
         totalRounds = Math.min(50, songs.length);
@@ -213,7 +207,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         startNewRound(); showScreen('gameScreen');
     }
 
-    // JAVÍTÁS: ID helyett URI-t használunk az ismétlésgátlásra, mivel az ID nincs benne a songs.json-ban.
     function startNewRound() {
         currentRound++;
         if (currentRound > totalRounds) { endGame(); return; }
@@ -244,7 +237,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     playMusicGameBtn.addEventListener('click', () => {
-        // VÉGLEGES JAVÍTÁS MOBILRA: "Néma Hang" trükk a hang kontextus feloldásához
         if (!isAudioUnlocked) {
             const silentAudio = new Audio("data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbwvntABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBvZiB0aGUgSmF2b1hMQURlBgAAAAAAA3Y0SmF2b1hMQURlAAAAAAAAAQUAAAAAAGM4AAAAAAAAAAE3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/8wYgQAYjQEAyv/37//5q3/44AAAAA//8wYhBABiNAQEK//3//+at/+OAAAAA//8wYhAABiNAQAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA");
             silentAudio.play().catch(() => {});
@@ -276,8 +268,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     recordScoreAndNextBtn.addEventListener('click', () => recordScore(false));
     recordScoreAndFinishBtn.addEventListener('click', () => recordScore(true));
-    startGameBtn.addEventListener('click', () => showScreen('mainMenuScreen'));
-    phoneGameBtn.addEventListener('click', () => showScreen('settingsScreen'));
+    startGameBtn.addEventListener('click', () => showScreen('settingsScreen')); // JAVÍTÁS: Egyből a beállításokra megy
     startPhoneGameBtn.addEventListener('click', prepareAndStartNewGame);
     settingOptionButtons.forEach(b => b.addEventListener('click', () => {
         const { setting, value } = b.dataset;
@@ -285,9 +276,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         b.classList.add('selected'); gameSettings[setting] = value;
     }));
     resultsBtn.addEventListener('click', () => { showScreen('resultsScreen'); });
-    backToMainMenuFromSettingsBtn.addEventListener('click', () => showScreen('mainMenuScreen'));
     backToMainMenuFromGameBtn.addEventListener('click', () => { if (confirm("Biztosan befejezed a játékot?")) endGame(); });
-    backToMainMenuFromQrBtn.addEventListener('click', () => showScreen('mainMenuScreen'));
-    backToMainMenuFromResultsBtn.addEventListener('click', () => showScreen('mainMenuScreen'));
-    qrScanBtn.addEventListener('click', () => alert('Ez a funkció fejlesztés alatt áll.'));
+    backToMainMenuFromResultsBtn.addEventListener('click', () => showScreen('settingsScreen')); // JAVÍTÁS: ide hoz vissza
 });
