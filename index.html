@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RobaMusic</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- v=2.0 kényszeríti a stíluslap teljes frissítését a cache-ből -->
+    <link rel="stylesheet" href="style.css?v=2.0">
     <link rel="icon" type="image/png" href="./assets/favicon.png">
 </head>
 <body>
 
      <div class="game-container" id="splashScreen">
         <div class="logo">
-            <!-- ?v=2.0 kényszeríti a böngészőt az új, színes logó betöltésére -->
-            <img src="./assets/roba_music_logo.png?v=2.0" alt="RobaMusic Logo">
+            <!-- Az inline style garantálja, hogy a kép soha nem nőhet 250px fölé -->
+            <img src="./assets/roba_music_logo.png?v=2.0" alt="RobaMusic Logo" style="width: 250px; max-width: 80%; height: auto;">
         </div>
         <button class="spotify-connect-button" id="spotifyConnectBtn">
             <img src="./assets/spotify_icon.png" alt="Spotify Icon"> SPOTIFY CSATLAKOZTATÁSA
@@ -26,7 +27,7 @@
      <!-- SETTINGS SCREEN (NOW ACTS AS MAIN MENU) -->
      <div class="game-container hidden" id="settingsScreen">
         <div class="logo">
-            <img src="./assets/roba_music_logo.png?v=2.0" alt="RobaMusic Logo">
+            <img src="./assets/roba_music_logo.png?v=2.0" alt="RobaMusic Logo" style="width: 250px; max-width: 80%; height: auto;">
         </div>
         <h2 class="screen-title">Főmenü & Beállítások</h2>
 
@@ -73,7 +74,7 @@
      <!-- GAME SCREEN -->
      <div class="game-container hidden" id="gameScreen">
         <div class="logo">
-            <img src="./assets/roba_music_logo.png?v=2.0" alt="RobaMusic Logo">
+            <img src="./assets/roba_music_logo.png?v=2.0" alt="RobaMusic Logo" style="width: 250px; max-width: 80%; height: auto;">
         </div>
                           
         <h2 class="screen-title">Találd ki a dalt!</h2>
@@ -129,7 +130,7 @@
      <!-- RESULTS SCREEN -->
      <div class="game-container hidden" id="resultsScreen">
         <div class="logo">
-            <img src="./assets/roba_music_logo.png?v=2.0" alt="RobaMusic Logo">
+            <img src="./assets/roba_music_logo.png?v=2.0" alt="RobaMusic Logo" style="width: 250px; max-width: 80%; height: auto;">
         </div>
         <h2 class="screen-title results-congrats">Gratulálunk!!!</h2>
 
