@@ -3,63 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Játék - Beállítások és Indítás</title>
-    <!-- Ide jön majd a CSS fájl(ok) linkje -->
+    <title>RobaMusic</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="./assets/favicon.png">
 </head>
 <body>
 
-    <div id="app-container">
-        <!-- Kezdőlap / Beállítások / Eredmények oldal -->
-        <section id="home-settings-screen" class="screen active">
-            <h1>Játék Indítása és Beállítások</h1>
+     <div class="game-container" id="splashScreen">
+        <div class="logo">
+            <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
+        </div>
+        <button class="spotify-connect-button" id="spotifyConnectBtn">
+            <img src="./assets/spotify_icon.png" alt="Spotify Icon"> SPOTIFY CSATLAKOZTATÁSA
+        </button>
+        <p class="spotify-status" id="appStatus">Spotify nincs csatlakoztatva.</p>
+        <button class="start-game-button" id="startGameBtn" disabled>
+            <img src="./assets/play_icon.png" alt="Play Icon"> JÁTÉK INDÍTÁSA
+        </button>
+     </div>
 
-            <div class="settings-group">
-                <h2>Játék beállítások</h2>
-                <label for="difficulty-select">Nehézség:</label>
-                <select id="difficulty-select">
-                    <option value="easy">Könnyű</option>
-                    <option value="medium">Közepes</option>
-                    <option value="hard">Nehéz</option>
-                </select>
-                
-                <label for="timer-checkbox">Időkorlát:</label>
-                <input type="checkbox" id="timer-checkbox">
-                
-                <label for="sound-checkbox">Hanghatások:</label>
-                <input type="checkbox" id="sound-checkbox" checked>
+     <!-- SETTINGS SCREEN (NOW ACTS AS MAIN MENU) -->
+     <div class="game-container hidden" id="settingsScreen">
+        <div class="logo">
+            <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
+        </div>
+        <h2 class="screen-title">Főmenü & Beállítások</h2>
+
+         <div class="scrollable-content">
+             <!-- Zenehallgatás időtartama -->
+             <h3 class="setting-category">Zenehallgatás időtartama</h3>
+             <button class="setting-option-button selected" data-setting="listeningTime" data-value="45">45 mp</button>
+             <button class="setting-option-button" data-setting="listeningTime" data-value="90">90 mp</button>
+             <button class="setting-option-button" data-setting="listeningTime" data-value="full">Teljes dal</button>
+
+             <!-- Zenestílus kiválasztása -->
+             <h3 class="setting-category">Zenestílus kiválasztása</h3>
+             <button class="setting-option-button selected" data-setting="musicStyle" data-value="ALL">ÖSSZES KATEGÓRIA</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="POP">POP</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="NEW">BILLBOARD</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="ROCK">ROCK</button>
+             
+             <!-- Magyar Rock Kategóriák -->
+             <button class="setting-option-button" data-setting="musicStyle" data-value="HU_ROCK_PRE_2000">MAGYAR ROCK (2000-IG)</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="HU_ROCK_POST_2000">MAGYAR ROCK (2001-TŐL)</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="INT_HARD_ROCK">NEMZETKÖZI HARD ROCK</button>
+             
+             <!-- Soundtrack és Musical kategóriák -->
+             <button class="setting-option-button" data-setting="musicStyle" data-value="SOUNDTRACK_PRE_2000">SOUNDTRACK (2000-IG)</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="SOUNDTRACK_POST_2000">SOUNDTRACK (2000-TŐL)</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="LILI_LUCA_LENA">LILI-LUCA-LÉNA (2015-TŐL)</button>
+             
+             <button class="setting-option-button" data-setting="musicStyle" data-value="INT_POP_DISCO">NEMZETKÖZI POP-DISCO</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="HU_POP_DISCO_PRE_1990">MAGYAR POP-DISCO (1990-IG)</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="HU_MUSICAL">MAGYAR MUSICAL</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="INT_MUSICAL">NEMZETKÖZI MUSICAL</button>
+             
+             <button class="setting-option-button" data-setting="musicStyle" data-value="XMAS">KARÁCSONYI</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="AMB">AMBIENT</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="INS">INSTRUMENTÁLIS</button>
+             <button class="setting-option-button" data-setting="musicStyle" data-value="KID">GYEREKDALOK</button>
+         </div>
+
+         <button class="start-game-button" id="startPhoneGameBtn">Játék kezdése</button>
+         <button class="menu-button" id="resultsBtn" style="margin-top: 5px; width: 90%;">Eredmények megtekintése</button>
+     </div>
+     <!-- END SETTINGS SCREEN -->
+
+     <!-- GAME SCREEN -->
+     <div class="game-container hidden" id="gameScreen">
+        <div class="logo">
+            <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
+        </div>
+                          
+        <h2 class="screen-title">Találd ki a dalt!</h2>
+
+        <!-- Play/Pause gombok az SDK-val való vezérléshez -->
+        <button class="game-control-button" id="playMusicGameBtn">
+            <img src="./assets/play_icon.png" alt="Play Icon"> Zene lejátszása
+        </button>
+        <button class="game-control-button" id="pauseMusicGameBtn" disabled>
+            <img src="./assets/pause_icon.png" alt="Pause Icon"> Zene szüneteltetése
+        </button>
+                          
+        <!-- Ez a placeholder div a lejátszó "eszköz" statuszát mutatja -->
+        <div id="playerDeviceStatus" class="player-device-status">Spotify lejátszó betöltése...</div>
+        <p class="spotify-note" id="playbackStatusMessage">Kattintson a lejátszás gombra a zene indításához.</p>
+         
+        <!-- Játék vezérlők -->
+        <div class="game-controls">
+            <label for="remainingTimeSlider" class="year-label">Hallgatási idő:</label>
+            <input type="range" id="remainingTimeSlider" min="0" max="100" value="100" disabled>
+            <p id="timeRemainingText">00:45</p>
+
+             <button class="action-button" id="stopMusicBtn">Zene leállítása és válasz</button>
+        </div>
+
+        <!-- Helyes válasz és önbevallás panel (kezdetben rejtett) -->
+        <div class="answer-reveal-panel hidden" id="answerRevealPanel">
+            <h3>Helyes megfejtés:</h3>
+            <p>Előadó: <span class="revealed-value" id="revealedArtistText"></span></p>
+            <p>Dal címe: <span class="revealed-value" id="revealedTitleText"></span></p>
+            <p>Megjelenési év: <span class="revealed-value" id="revealedYearText"></span></p>
+
+             <h3>Kérjük, értékeld a tipped!</h3>
+            <div class="self-assessment-group">
+                <label>
+                    <input type="checkbox" id="hitTitle"> Eltaláltam a dal címét (1 pont)
+                </label>
+                <label>
+                    <input type="checkbox" id="hitArtist"> Eltaláltam az előadót (1 pont)
+                </label>
+                <label>
+                    <input type="checkbox" id="hitYear"> Eltaláltam a megjelenési évet (1 pont)
+                </label>
             </div>
+            <button class="action-button" id="recordScoreAndNextBtn">Pontszám rögzítése és következő dal</button>
+            <button class="back-to-main-menu-button" id="recordScoreAndFinishBtn">Pontszám rögzítése és Játék vége</button>
+        </div>
+                  
+        <button class="back-to-main-menu-button" id="backToMainMenuFromGame">Vissza a Beállításokhoz</button>
+     </div>
+     <!-- END GAME SCREEN -->
 
-            <button id="start-game-button">Játék indítása</button>
+     <!-- RESULTS SCREEN -->
+     <div class="game-container hidden" id="resultsScreen">
+        <div class="logo">
+            <img src="./assets/roba_music_logo.png" alt="RobaMusic Logo">
+        </div>
+        <h2 class="screen-title results-congrats">Gratulálunk!!!</h2>
 
-            <div id="last-game-results" style="display: none;">
-                <h2>Utolsó játék eredménye:</h2>
-                <p>Pontszám: <span id="result-score">0</span></p>
-                <p>Idő: <span id="result-time">0s</span></p>
-                <p>Megjegyzés: <span id="result-message"></span></p>
-            </div>
-        </section>
+         <div class="results-display">
+            <h3 class="results-label">Eredmények</h3>
+            <p class="current-score" id="currentScore">0</p>
+            <p class="best-score-label">Legjobb eredmény</p>
+            <p class="best-score" id="bestScore">0</p>
+         </div>
 
-        <!-- Játék képernyő -->
-        <section id="game-screen" class="screen">
-            <h1>A Játék Folyamatban...</h1>
-            <div id="game-area">
-                <!-- Ide kerül majd a memóriajáték vagy quiz elemei -->
-                <p>Készülj fel, hamarosan indul a játék!</p>
-                <div id="game-info">
-                    <span id="current-score">Pont: 0</span> | 
-                    <span id="current-timer">Idő: --:--</span>
-                </div>
-                <div id="game-content">
-                    <!-- Itt lesznek a kártyák, kérdések stb. -->
-                </div>
-            </div>
-            <button id="end-game-button" style="display: none;">Játék befejezése</button>
-        </section>
+         <button class="back-to-main-menu-button" id="backToMainMenuFromResults">Vissza a Beállításokhoz</button>
+     </div>
+     <!-- END RESULTS SCREEN -->
 
-    </div>
+     <script src="script.js?v=1.8"></script>
+     <script src="https://sdk.scdn.co/spotify-player.js"></script>
 
-    <!-- Ide jön majd a JavaScript fájl(ok) linkje -->
-    <script src="script.js"></script>
 </body>
 </html>
