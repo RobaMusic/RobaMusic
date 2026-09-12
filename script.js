@@ -1,10 +1,10 @@
-let accessToken = null, isSpotifySdkReady = false, isAudioUnlocked = false;
-let player = null, deviceId = null, songsData = [], isSongsDataLoaded = false, isPlaying = false;
+let accessToken = null, isAudioUnlocked = false;
+let activeDeviceId = null, songsData = [], isSongsDataLoaded = false, isPlaying = false;
 let playbackInterval = null;
 const gameSettings = { listeningTime: '45', musicStyle: 'ALL' };
 const SPOTIFY_CLIENT_ID = '64b3bdc013e84162bf973ec883854bfa';
 
-// Dinamikus REDIRECT_URI beállítása iOS Safari kompatibilitással
+// Dinamikus REDIRECT_URI beállítása
 const REDIRECT_URI = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? window.location.origin + window.location.pathname
     : 'https://robamusic.github.io/RobaMusic/';
@@ -29,17 +29,28 @@ async function generatePkceChallenge(v) {
     return base64urlencode(hashed);
 }
 
-window.onSpotifyWebPlaybackSDKReady = () => {
-    console.log("Spotify SDK betöltődött és készen áll.");
-    isSpotifySdkReady = true;
-    tryToInitializePlayer();
-};
-
-function tryToInitializePlayer() {
-    if (accessToken && isSpotifySdkReady) {
-        console.log("Minden készen áll, a lejátszó inicializálása indul...");
-        initializeSpotifyPlayer();
+// Aktív Spotify eszköz megkeresése (pl. a telefon háttérben futó Spotify appja)
+async function fetchActiveDevice() {
+    if (!accessToken) return null;
+    try {
+        const response = await fetch('https://api.spotify.com/v1/me/player/devices', {
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+        if (!response.ok) return null;
+        const data = await response.json();
+        const devices = data.devices || [];
+        
+        // Elsődlegesen az aktív vagy mobil eszközt keresük
+        const active = devices.find(d => d.is_active) || devices[0];
+        if (active) {
+            activeDeviceId = active.id;
+            console.log("Megtalált Spotify eszköz:", active.name, activeDeviceId);
+            return activeDeviceId;
+        }
+    } catch (e) {
+        console.error("Eszközök lekérdezése hiba:", e);
     }
+    return null;
 }
 
 function startPlaybackTimer() {
@@ -62,60 +73,11 @@ function startPlaybackTimer() {
 }
 function stopPlaybackTimer() { clearInterval(playbackInterval); }
 
-function initializeSpotifyPlayer() {
-    const appStatus = document.getElementById('appStatus');
-    const startGameBtn = document.getElementById('startGameBtn');
-              
-    player = new window.Spotify.Player({ name: 'RobaMusic Game Player', getOAuthToken: cb => { cb(accessToken); }, volume: 0.8 });
-    
-    player.addListener('ready', async ({ device_id }) => {
-        deviceId = device_id;
-        console.log('Lejátszó sikeresen csatlakozott. Device ID:', deviceId);
-        
-        // Kényszerítjük a Spotify-t,hogy az iPhone böngészőjét állítsa be aktív lejátszóként
-        try {
-            await fetch('https://api.spotify.com/v1/me/player', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                },
-                body: JSON.stringify({ device_ids: [deviceId], play: false })
-            });
-            console.log('Munkamenet sikeresen átirányítva a mobil böngészőre.');
-        } catch (err) {
-            console.warn('Eszköz átirányítási hiba:', err);
-        }
-
-        appStatus.textContent = 'Spotify csatlakoztatva! Készen áll a játékra.';
-        if (isSongsDataLoaded) startGameBtn.disabled = false;
-    });
-
-    player.addListener('player_state_changed', state => {
-        if (!state) { isPlaying = false; return; }
-        const wasPlaying = isPlaying;
-        isPlaying = !state.paused;
-        document.getElementById('playMusicGameBtn').disabled = isPlaying;
-        document.getElementById('pauseMusicGameBtn').disabled = !isPlaying;
-        if(isPlaying) document.getElementById('stopMusicBtn').disabled = false;
-        document.getElementById('playbackStatusMessage').textContent = isPlaying ? "Zene szól..." : "Zene szüneteltetve.";
-        if (isPlaying && !wasPlaying) startPlaybackTimer();
-        if (!isPlaying && wasPlaying) stopPlaybackTimer();
-    });
-
-    player.addListener('authentication_error', ({ message }) => { console.error('Auth Error:', message); localStorage.removeItem('spotify_access_token'); alert("Spotify authentikációs hiba! Újratöltés..."); window.location.reload(); });
-    player.addListener('initialization_error', ({ message }) => console.error('Init Error:', message));
-    player.addListener('account_error', ({ message }) => console.error('Account Error:', message));
-    player.addListener('playback_error', ({ message }) => console.error('Playback Error:', message));
-    player.addListener('not_ready', () => { console.log('Device offline'); startGameBtn.disabled = true; });
-    
-    player.connect();
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
     const appStatus = document.getElementById('appStatus');
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
+    
     async function exchangeCodeForToken(code, verifier) {
         const params = new URLSearchParams({ client_id: SPOTIFY_CLIENT_ID, grant_type: 'authorization_code', code, redirect_uri: REDIRECT_URI, code_verifier: verifier });
         try {
@@ -125,10 +87,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (data.access_token) {
                 accessToken = data.access_token;
                 localStorage.setItem('spotify_access_token', accessToken);
-                tryToInitializePlayer();
+                onTokenReady();
             }
         } catch (e) { console.error("Token csere hiba:", e); }
     }
+
+    async function onTokenReady() {
+        appStatus.textContent = 'Spotify csatlakoztatva! Keresem a lejátszó eszközt...';
+        const devId = await fetchActiveDevice();
+        if (devId) {
+            appStatus.textContent = 'Spotify készen áll a lejátszásra!';
+        } else {
+            appStatus.textContent = 'Indítsd el a Spotify appot a telefonodon, majd frissíts!';
+        }
+        if (isSongsDataLoaded) startGameBtn.disabled = false;
+    }
+
     if (code) {
         const verifier = localStorage.getItem('code_verifier');
         if (verifier) await exchangeCodeForToken(code, verifier);
@@ -136,8 +110,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
         accessToken = localStorage.getItem('spotify_access_token');
         if (accessToken) {
-            appStatus.textContent = 'Spotify token betöltve. Várakozás...';
-            tryToInitializePlayer();
+            onTokenReady();
         } else {
             appStatus.textContent = 'Spotify nincs csatlakoztatva.';
         }
@@ -181,41 +154,71 @@ document.addEventListener('DOMContentLoaded', async () => {
             songsData = await r.json();
             isSongsDataLoaded = true;
             console.log("Dal adatok sikeresen betöltve.");
-            if (deviceId) startGameBtn.disabled = false;
+            if (accessToken) startGameBtn.disabled = false;
         } catch (e) { console.error("Hiba a dalok betöltésekor:", e); }
     })();
 
     // Segédfüggvények
     function showScreen(id) { document.querySelectorAll('.game-container').forEach(s => s.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
     
-    // Okos hibakezelő a korlátozott dalok automatikus átugrására
+    // Háttérben történő lejátszás vezérlése REST API-val
     async function playSpotifyTrack(uri) {
-        if (!uri || typeof uri !== 'string' || !uri.startsWith('spotify:track:')) { alert("Hiba: A kiválasztott dalhoz nem tartozik érvényes Spotify link."); return; }
-        if (!deviceId) return;
+        if (!uri || !uri.startsWith('spotify:track:')) { alert("Hiba: Érvénytelen Spotify link."); return; }
+        
+        // Ellenőrizzük az aktív eszközt
+        if (!activeDeviceId) {
+            await fetchActiveDevice();
+        }
+
+        const url = activeDeviceId 
+            ? `https://api.spotify.com/v1/me/player/play?device_id=${activeDeviceId}`
+            : `https://api.spotify.com/v1/me/player/play`;
+
         try {
-            const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, { 
+            const response = await fetch(url, { 
                 method: 'PUT', 
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }, 
                 body: JSON.stringify({ uris: [uri] }), 
             });
+
+            if (response.status === 404) {
+                alert("Nem található aktív Spotify alkalmazás! Nyisd meg a Spotify appot a telefonodon, indíts el egy dalt, majd próbáld újra.");
+                return;
+            }
+
             if (!response.ok) {
                 const errorBody = await response.json();
-                
-                if (errorBody.error && (errorBody.error.message.includes("Restriction violated") || errorBody.error.status === 403 || errorBody.error.status === 404)) {
-                    console.warn(`A(z) ${uri} dal korlátozás miatt nem játszható le. Automatikus ugrás a következőre...`);
-                    
+                console.warn("Lejátszási hiba:", errorBody);
+                if (errorBody.error && (errorBody.error.status === 403 || errorBody.error.message.includes("Restriction"))) {
+                    // Korlátozott dal átugrása
                     currentRound--;
                     playedSongs.pop();
                     startNewRound();
-                    
-                    if (currentSong) {
-                        playSpotifyTrack(currentSong.URI);
-                    }
-                } else {
-                    alert(`Hiba a zene lejátszásakor: ${errorBody.error.message}`);
+                    if (currentSong) playSpotifyTrack(currentSong.URI);
                 }
+            } else {
+                isPlaying = true;
+                playMusicGameBtn.disabled = true;
+                pauseMusicGameBtn.disabled = false;
+                stopMusicBtn.disabled = false;
+                document.getElementById('playbackStatusMessage').textContent = "Zene szól...";
+                startPlaybackTimer();
             }
-        } catch (e) { console.error("Lejátszási API hiba:", e); }
+        } catch (e) { console.error("API hiba:", e); }
+    }
+
+    async function pauseSpotifyTrack() {
+        try {
+            await fetch('https://api.spotify.com/v1/me/player/pause', {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+            isPlaying = false;
+            playMusicGameBtn.disabled = false;
+            pauseMusicGameBtn.disabled = true;
+            document.getElementById('playbackStatusMessage').textContent = "Zene szüneteltetve.";
+            stopPlaybackTimer();
+        } catch (e) { console.error("Pause hiba:", e); }
     }
               
     function prepareAndStartNewGame() {
@@ -241,8 +244,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         pauseMusicGameBtn.disabled = true;
         stopMusicBtn.disabled = true;
     }
+
     async function endGame() {
-        if (player && isPlaying) await player.pause();
+        if (isPlaying) await pauseSpotifyTrack();
         currentScoreDisplay.textContent = currentScore;
         bestScoreDisplay.textContent = bestScore;
         showScreen('resultsScreen');
@@ -252,33 +256,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         const verifier = generatePkceVerifier(128);
         const challenge = await generatePkceChallenge(verifier);
         localStorage.setItem('code_verifier', verifier);
-        const scopes = 'user-read-playback-state user-modify-playback-state streaming user-read-email user-read-private';
+        const scopes = 'user-read-playback-state user-modify-playback-state user-read-email user-read-private';
         window.location.href = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${encodeURIComponent(scopes)}&code_challenge_method=S256&code_challenge=${challenge}&show_dialog=true`;
     });
 
     playMusicGameBtn.addEventListener('click', () => {
-        // A gombnyomás szinkron pillanatában aktiváljuk a Spotify lejátszót
-        if (player && typeof player.activateElement === 'function') {
-            player.activateElement();
-        }
-
-        // Audio szál feloldása iOS alatt
-        if (!isAudioUnlocked) {
-            const silentAudio = new Audio("data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbwvntABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBvZiB0aGUgSmF2b1hMQURlBgAAAAAAA3Y0SmF2b1hMQURlAAAAAAAAAQUAAAAAAGM4AAAAAAAAAAE3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/8wYgQAYjQEAyv/37//5q3/44AAAAA//8wYhBABiNAQEK//3//+at/+OAAAAA//8wYhAABiNAQAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA");
-            silentAudio.play().then(() => {
-                isAudioUnlocked = true;
-            }).catch(e => console.warn('Silent audio failed:', e));
-        }
-
-        // A lejátszás indítása
         if (currentSong) {
             playSpotifyTrack(currentSong.URI);
         }
     });
 
-    pauseMusicGameBtn.addEventListener('click', async () => { if (player) await player.pause(); });
+    pauseMusicGameBtn.addEventListener('click', () => pauseSpotifyTrack());
+
     stopMusicBtn.addEventListener('click', async () => {
-        if (player) await player.pause();
+        await pauseSpotifyTrack();
         revealedTitleText.textContent = currentSong['Dal címe'];
         revealedArtistText.textContent = currentSong.Elõadó || currentSong.Előadó; 
         revealedYearText.textContent = currentSong['Megjelenési év'];
