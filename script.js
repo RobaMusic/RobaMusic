@@ -66,13 +66,31 @@ function initializeSpotifyPlayer() {
     const appStatus = document.getElementById('appStatus');
     const startGameBtn = document.getElementById('startGameBtn');
               
-    player = new window.Spotify.Player({ name: 'RobaMusic Game Player', getOAuthToken: cb => { cb(accessToken); }, volume: 0.5 });
-    player.addListener('ready', ({ device_id }) => {
+    player = new window.Spotify.Player({ name: 'RobaMusic Game Player', getOAuthToken: cb => { cb(accessToken); }, volume: 0.8 });
+    
+    player.addListener('ready', async ({ device_id }) => {
         deviceId = device_id;
         console.log('Lejátszó sikeresen csatlakozott. Device ID:', deviceId);
+        
+        // Kényszerítjük a Spotify-t,hogy az iPhone böngészőjét állítsa be aktív lejátszóként
+        try {
+            await fetch('https://api.spotify.com/v1/me/player', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({ device_ids: [deviceId], play: false })
+            });
+            console.log('Munkamenet sikeresen átirányítva a mobil böngészőre.');
+        } catch (err) {
+            console.warn('Eszköz átirányítási hiba:', err);
+        }
+
         appStatus.textContent = 'Spotify csatlakoztatva! Készen áll a játékra.';
         if (isSongsDataLoaded) startGameBtn.disabled = false;
     });
+
     player.addListener('player_state_changed', state => {
         if (!state) { isPlaying = false; return; }
         const wasPlaying = isPlaying;
@@ -84,11 +102,13 @@ function initializeSpotifyPlayer() {
         if (isPlaying && !wasPlaying) startPlaybackTimer();
         if (!isPlaying && wasPlaying) stopPlaybackTimer();
     });
-    player.addListener('authentication_error', ({ message }) => { console.error('Auth Error:', message); localStorage.removeItem('spotify_access_token'); alert("Spotify authentikációs hiba! Az oldal újratöltődik a bejelentkezéshez."); window.location.reload(); });
+
+    player.addListener('authentication_error', ({ message }) => { console.error('Auth Error:', message); localStorage.removeItem('spotify_access_token'); alert("Spotify authentikációs hiba! Újratöltés..."); window.location.reload(); });
     player.addListener('initialization_error', ({ message }) => console.error('Init Error:', message));
     player.addListener('account_error', ({ message }) => console.error('Account Error:', message));
     player.addListener('playback_error', ({ message }) => console.error('Playback Error:', message));
     player.addListener('not_ready', () => { console.log('Device offline'); startGameBtn.disabled = true; });
+    
     player.connect();
 }
 
@@ -236,34 +256,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${encodeURIComponent(scopes)}&code_challenge_method=S256&code_challenge=${challenge}&show_dialog=true`;
     });
 
-    playMusicGameBtn.addEventListener('click', async () => {
-        // 1. Az iOS Web Playback SDK szinkron felébresztése
+    playMusicGameBtn.addEventListener('click', () => {
+        // A gombnyomás szinkron pillanatában aktiváljuk a Spotify lejátszót
         if (player && typeof player.activateElement === 'function') {
-            try {
-                await player.activateElement();
-                console.log('Spotify player.activateElement() sikeres.');
-            } catch (err) {
-                console.warn('player.activateElement hiba:', err);
-            }
+            player.activateElement();
         }
 
-        // 2. Néma hang lejátszása az iOS audió környezet feloldásához
+        // Audio szál feloldása iOS alatt
         if (!isAudioUnlocked) {
-            try {
-                const silentAudio = new Audio("data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbwvntABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBvZiB0aGUgSmF2b1hMQURlBgAAAAAAA3Y0SmF2b1hMQURlAAAAAAAAAQUAAAAAAGM4AAAAAAAAAAE3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/8wYgQAYjQEAyv/37//5q3/44AAAAA//8wYhBABiNAQEK//3//+at/+OAAAAA//8wYhAABiNAQAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA");
-                await silentAudio.play();
+            const silentAudio = new Audio("data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbwvntABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBvZiB0aGUgSmF2b1hMQURlBgAAAAAAA3Y0SmF2b1hMQURlAAAAAAAAAQUAAAAAAGM4AAAAAAAAAAE3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/8wYgQAYjQEAyv/37//5q3/44AAAAA//8wYhBABiNAQEK//3//+at/+OAAAAA//8wYhAABiNAQAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA");
+            silentAudio.play().then(() => {
                 isAudioUnlocked = true;
-                console.log('Audio unlocked iOS alatt.');
-            } catch (e) {
-                console.warn('Audio unlock hiba:', e);
-            }
+            }).catch(e => console.warn('Silent audio failed:', e));
         }
 
-        // 3. Kis késleltetéssel indítjuk a Spotify számot, hogy az iOS átadja a hangcsatornát
+        // A lejátszás indítása
         if (currentSong) {
-            setTimeout(() => {
-                playSpotifyTrack(currentSong.URI);
-            }, 200);
+            playSpotifyTrack(currentSong.URI);
         }
     });
 
