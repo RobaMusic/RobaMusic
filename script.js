@@ -4,10 +4,10 @@ let playbackInterval = null;
 const gameSettings = { listeningTime: '45', musicStyle: 'ALL' };
 const SPOTIFY_CLIENT_ID = '64b3bdc013e84162bf973ec883854bfa';
 
-// Dinamikus REDIRECT_URI beállítása
-const REDIRECT_URI = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+// Dinamikus REDIRECT_URI beállítása iOS Safari kompatibilitással
+const REDIRECT_URI = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? window.location.origin + window.location.pathname
-    : 'https://RobaMusic.github.io/RobaMusic/';
+    : 'https://robamusic.github.io/RobaMusic/';
 
 // PKCE KÓDOK
 function dec2hex(dec) { return ('0' + dec.toString(16)).substr(-2); }
@@ -237,29 +237,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     playMusicGameBtn.addEventListener('click', async () => {
-        // Spotify SDK felébresztése iOS-en
+        // 1. Az iOS Web Playback SDK szinkron felébresztése
         if (player && typeof player.activateElement === 'function') {
             try {
                 await player.activateElement();
+                console.log('Spotify player.activateElement() sikeres.');
             } catch (err) {
-                console.warn('player.activateElement() hiba:', err);
+                console.warn('player.activateElement hiba:', err);
             }
         }
 
-        // Audio unlock támogatás iOS Safari alatt
+        // 2. Néma hang lejátszása az iOS audió környezet feloldásához
         if (!isAudioUnlocked) {
             try {
                 const silentAudio = new Audio("data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbwvntABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBvZiB0aGUgSmF2b1hMQURlBgAAAAAAA3Y0SmF2b1hMQURlAAAAAAAAAQUAAAAAAGM4AAAAAAAAAAE3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/8wYgQAYjQEAyv/37//5q3/44AAAAA//8wYhBABiNAQEK//3//+at/+OAAAAA//8wYhAABiNAQAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA");
                 await silentAudio.play();
                 isAudioUnlocked = true;
-                console.log('Mobile audio context UNLOCKED (iOS kompatibilis).');
+                console.log('Audio unlocked iOS alatt.');
             } catch (e) {
-                console.warn('Audio unlock sikertelen:', e);
+                console.warn('Audio unlock hiba:', e);
             }
         }
 
+        // 3. Kis késleltetéssel indítjuk a Spotify számot, hogy az iOS átadja a hangcsatornát
         if (currentSong) {
-            playSpotifyTrack(currentSong.URI);
+            setTimeout(() => {
+                playSpotifyTrack(currentSong.URI);
+            }, 200);
         }
     });
 
