@@ -236,12 +236,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${encodeURIComponent(scopes)}&code_challenge_method=S256&code_challenge=${challenge}&show_dialog=true`;
     });
 
-    playMusicGameBtn.addEventListener('click', () => {
+    playMusicGameBtn.addEventListener('click', async () => {
+        // Spotify SDK felébresztése iOS-en
+        if (player && typeof player.activateElement === 'function') {
+            try {
+                await player.activateElement();
+            } catch (err) {
+                console.warn('player.activateElement() hiba:', err);
+            }
+        }
+
+        // Audio unlock támogatás iOS Safari alatt
         if (!isAudioUnlocked) {
-            const silentAudio = new Audio("data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbwvntABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBvZiB0aGUgSmF2b1hMQURlBgAAAAAAA3Y0SmF2b1hMQURlAAAAAAAAAQUAAAAAAGM4AAAAAAAAAAE3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/8wYgQAYjQEAyv/37//5q3/44AAAAA//8wYhBABiNAQEK//3//+at/+OAAAAA//8wYhAABiNAQAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA");
-            silentAudio.play().catch(() => {});
-            isAudioUnlocked = true;
-            console.log('Mobile audio context UNLOCKED.');
+            try {
+                const silentAudio = new Audio("data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbwvntABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBvZiB0aGUgSmF2b1hMQURlBgAAAAAAA3Y0SmF2b1hMQURlAAAAAAAAAQUAAAAAAGM4AAAAAAAAAAE3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/8wYgQAYjQEAyv/37//5q3/44AAAAA//8wYhBABiNAQEK//3//+at/+OAAAAA//8wYhAABiNAQAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYhoAAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA//8wYh4AAGI0BAAK//f//5q3/44AAAAA");
+                await silentAudio.play();
+                isAudioUnlocked = true;
+                console.log('Mobile audio context UNLOCKED (iOS kompatibilis).');
+            } catch (e) {
+                console.warn('Audio unlock sikertelen:', e);
+            }
         }
 
         if (currentSong) {
@@ -268,7 +282,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     recordScoreAndNextBtn.addEventListener('click', () => recordScore(false));
     recordScoreAndFinishBtn.addEventListener('click', () => recordScore(true));
-    startGameBtn.addEventListener('click', () => showScreen('settingsScreen')); // JAVÍTÁS: Egyből a beállításokra megy
+    startGameBtn.addEventListener('click', () => showScreen('settingsScreen'));
     startPhoneGameBtn.addEventListener('click', prepareAndStartNewGame);
     settingOptionButtons.forEach(b => b.addEventListener('click', () => {
         const { setting, value } = b.dataset;
@@ -277,5 +291,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     }));
     resultsBtn.addEventListener('click', () => { showScreen('resultsScreen'); });
     backToMainMenuFromGameBtn.addEventListener('click', () => { if (confirm("Biztosan befejezed a játékot?")) endGame(); });
-    backToMainMenuFromResultsBtn.addEventListener('click', () => showScreen('settingsScreen')); // JAVÍTÁS: ide hoz vissza
+    backToMainMenuFromResultsBtn.addEventListener('click', () => showScreen('settingsScreen'));
 });
